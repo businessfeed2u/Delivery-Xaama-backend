@@ -26,13 +26,3 @@ const userSchema = Schema({
 
 //	Creating collection Usuarios on database
 mongoose.model("Usuarios", userSchema);
-
-<<<<<<< HEAD
-// Merge1
-// Merge2
-// Merge3
-=======
-//saasg
-//sagag
-//fsagas
->>>>>>> 64d7e47f93a0196458aeefc7c5bff14e4dbfa3b6
