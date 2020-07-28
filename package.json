@@ -24,6 +24,5 @@
     "mongoose": "^5.9.9",
     "dotenv": "^8.2.0"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }

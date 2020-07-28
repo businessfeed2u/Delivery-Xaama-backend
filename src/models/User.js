@@ -26,3 +26,5 @@ const userSchema = Schema({
 
 //	Creating collection Usuarios on database
 mongoose.model("Usuarios", userSchema);
+
+const test = 'github';
