@@ -2,7 +2,6 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose
-//	Testando
 const Schema = mongoose.Schema;
 
 //	Defining User schema
