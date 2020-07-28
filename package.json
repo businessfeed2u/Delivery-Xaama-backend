@@ -1,0 +1,29 @@
+{
+  "name": "easycontacts-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThiagoPereiraUFV/EasyContacts-backend.git"
+  },
+  "author": "Thiago Marinho Pereira",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ThiagoPereiraUFV/EasyContacts-backend/issues"
+  },
+  "homepage": "https://github.com/ThiagoPereiraUFV/EasyContacts-backend#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.9",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {
+  }
+}
