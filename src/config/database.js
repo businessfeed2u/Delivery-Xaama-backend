@@ -7,7 +7,7 @@ mongoose.Promise = global.Promise;
 mongoose.set('useFindAndModify', false);
 
 //	Defining database server
-const uri = "mongodb+srv://easycontactsadmin:" + process.env.DBPASSWORD + "@easycontacts-yvbgh.mongodb.net/test?retryWrites=true&w=majority";
+const uri = "mongodb+srv://admin:" + process.env.DBPASSWORD + "@deliveryxaama.wrom8.mongodb.net/deliveryxaama?retryWrites=true&w=majority";
 
 //	Connecting to database
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
