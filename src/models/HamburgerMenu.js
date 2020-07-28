@@ -21,6 +21,11 @@ const hamburgerMenuSchema = Schema({
     type: Number,
     require: true,
   },
+
+  spare: {
+    type: Boolean,
+    require: true,
+  },
   
 	creationDate: {
 		type: Date,

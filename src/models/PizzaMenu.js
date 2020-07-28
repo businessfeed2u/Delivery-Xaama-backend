@@ -4,16 +4,21 @@ const mongoose = require("mongoose");
 //	Using schema feature from mongoose
 const Schema = mongoose.Schema;
 
-//	Defining hamburgerAdditions schema
-const hamburgerAdditionsSchema = Schema({
+//	Defining pizzaMenu schema
+const pizzaMenu = Schema({
   
   name: {
     type: String,
     require: true,
   },
 
+  ingredients: {
+    type: String,
+    required: true,
+  },
+
   price: {
-    type: Number,
+    type: [Number],
     require: true,
   },
 
@@ -21,12 +26,12 @@ const hamburgerAdditionsSchema = Schema({
     type: Boolean,
     require: true,
   },
-  
+
 	creationDate: {
 		type: Date,
 		default: Date.now()
 	}
 });
 
-//	Creating collection HamburgerAdditions on database
-mongoose.model("HamburgerAdditions", hamburgerAdditionsSchema);
+//	Creating collection PizzaMenu on database
+mongoose.model("PizzaMenu", pizzaMenu);
