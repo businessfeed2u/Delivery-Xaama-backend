@@ -27,6 +27,16 @@ const pizzaMenu = Schema({
     require: true,
   },
 
+  thumbnail: {
+    type: String,
+    require: true,
+  },
+
+  additions: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'PizzaAdditions',
+  },
+
 	creationDate: {
 		type: Date,
 		default: Date.now()
@@ -34,4 +44,4 @@ const pizzaMenu = Schema({
 });
 
 //	Creating collection PizzaMenu on database
-mongoose.model("PizzaMenu", pizzaMenu);
+mongoose.model("PizzasMenu", pizzaMenu);

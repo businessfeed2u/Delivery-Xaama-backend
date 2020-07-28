@@ -21,6 +21,11 @@ const hamburgerAdditionsSchema = Schema({
     type: Boolean,
     require: true,
   },
+
+  thumbnail: {
+    type: String,
+    require: true,
+  },
   
 	creationDate: {
 		type: Date,

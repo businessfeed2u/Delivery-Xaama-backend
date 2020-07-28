@@ -26,6 +26,16 @@ const hamburgerMenuSchema = Schema({
     type: Boolean,
     require: true,
   },
+
+  thumbnail: {
+    type: String,
+    require: true,
+  },
+
+  additions: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'HamburgerAdditions',
+  },
   
 	creationDate: {
 		type: Date,
@@ -34,4 +44,4 @@ const hamburgerMenuSchema = Schema({
 });
 
 //	Creating collection HamburgerMenu on database
-mongoose.model("HamburgerMenu", hamburgerMenuSchema);
+mongoose.model("HamburgersMenu", hamburgerMenuSchema);
