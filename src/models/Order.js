@@ -6,13 +6,18 @@ const Schema = mongoose.Schema;
 
 //	Defining Order schema
 const orderSchema = Schema({
+
+  user: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: 'Users',
+  },
   
-  hamburger: {
+  hamburgers: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'HamburgersMenu',
   },
 
-  pizza: {
+  pizzas: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'PizzasMenu',
   },
