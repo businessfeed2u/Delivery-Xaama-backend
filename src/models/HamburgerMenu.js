@@ -4,8 +4,8 @@ const mongoose = require("mongoose");
 //	Using schema feature from mongoose
 const Schema = mongoose.Schema;
 
-//	Defining Menu schema
-const menuSchema = Schema({
+//	Defining hamburgerMenu schema
+const hamburgerMenuSchema = Schema({
   
   name: {
     type: String,
@@ -28,5 +28,5 @@ const menuSchema = Schema({
 	}
 });
 
-//	Creating collection Menu on database
-mongoose.model("Menu", orderSchema);
+//	Creating collection HamburgerMenu on database
+mongoose.model("HamburgerMenu", hamburgerMenuSchema);
