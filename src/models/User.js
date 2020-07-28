@@ -27,6 +27,6 @@ const userSchema = Schema({
 //	Creating collection Usuarios on database
 mongoose.model("Usuarios", userSchema);
 
-//sdf
-///sdfsd
-//sfsdfsdf
+// Merge1
+// Merge2
+// Merge3
