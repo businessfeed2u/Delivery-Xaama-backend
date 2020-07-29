@@ -1,11 +1,11 @@
-//  Requiring database and dotenv
+//  Requiring database
 const mongoose = require("mongoose");
 
 //	Loading Users collection from database
 require("../models/User");
 const users = mongoose.model("Users");
 
-//	Exporting Session features
+//	Exporting Development features
 module.exports = {
 	//	Return all users on database
 	async allUsers(req, res) {
