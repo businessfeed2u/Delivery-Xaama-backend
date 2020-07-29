@@ -3,7 +3,7 @@ const express = require("express");
 
 //  Requiring route controllers
 const SessionController = require("./controllers/SessionController");
-//const UserController = require("./controllers/UserController");
+const UserController = require("./controllers/UserController");
 //const ContactsController = require("./controllers/ContactsController");
 //const SystemController = require("./controllers/SystemController");
 
@@ -21,10 +21,10 @@ routes.get("/session", SessionController.index);
 routes.post("/session", SessionController.create);
 
 //  User
-//routes.get("/user", UserController.index);
-//routes.post("/user", UserController.create);
-//routes.put("/user", UserController.update);
-//routes.delete("/user", UserController.delete);
+routes.get("/user", UserController.index);
+routes.post("/user", UserController.create);
+routes.put("/user", UserController.update);
+routes.delete("/user", UserController.delete);
 
 //  Contacts
 //routes.get("/contacts/:id", ContactsController.index);

@@ -50,7 +50,7 @@ module.exports = {
 				return res.status(500).send(error);
 			});
 		} else {
-			return res.status(400).send("Email or password empty!");
+			return res.status(400).send("Email or password are empty!");
 		}
 	}
 };

@@ -15,8 +15,7 @@ const userSchema = Schema({
 		require: true
 	},
 	phone: {
-		type: String,
-		require: true
+		type: String
 	},
 	address: {
 		type: String
