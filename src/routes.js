@@ -5,7 +5,7 @@ const express = require("express");
 const SessionController = require("./controllers/SessionController");
 const UserController = require("./controllers/UserController");
 //const ContactsController = require("./controllers/ContactsController");
-//const SystemController = require("./controllers/SystemController");
+const SystemController = require("./controllers/SystemController");
 
 //  Setting up routes
 const routes = express.Router();
@@ -35,9 +35,7 @@ routes.delete("/user", UserController.delete);
 //routes.get("/contactsSearch", ContactsController.search);
 
 //  Development routes - caution
-//routes.get("/allUsers", SystemController.allUsers);
-//routes.get("/allContacts", SystemController.allContacts);
-//routes.get("/deleteAllUsers", SystemController.deleteAllUsers);
-//routes.get("/deleteAllContacts", SystemController.deleteAllContacts);
+routes.get("/allUsers", SystemController.allUsers);
+routes.get("/deleteAllUsers", SystemController.deleteAllUsers);
 
 module.exports = routes;

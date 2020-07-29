@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-//	Loading Users and Contacts collections from database
+//	Loading Users collection from database
 require("../models/User");
 const users = mongoose.model("Users");
 
