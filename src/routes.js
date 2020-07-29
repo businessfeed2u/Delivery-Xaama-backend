@@ -2,7 +2,7 @@
 const express = require("express");
 
 //  Requiring route controllers
-//const SessionController = require("./controllers/SessionController");
+const SessionController = require("./controllers/SessionController");
 //const UserController = require("./controllers/UserController");
 //const ContactsController = require("./controllers/ContactsController");
 //const SystemController = require("./controllers/SystemController");
@@ -17,8 +17,8 @@ routes.get("/", (req, res) => {
 });
 
 //	Session
-//routes.get("/session", SessionController.index);
-//routes.post("/session", SessionController.create);
+routes.get("/session", SessionController.index);
+routes.post("/session", SessionController.create);
 
 //  User
 //routes.get("/user", UserController.index);
