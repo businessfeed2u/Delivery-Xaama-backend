@@ -8,8 +8,9 @@ const Schema = mongoose.Schema;
 const orderSchema = Schema({
 
   user: {
-    type: [mongoose.Schema.Types.ObjectId],
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Users',
+    required: true,
   },
   
   hamburgers: {
