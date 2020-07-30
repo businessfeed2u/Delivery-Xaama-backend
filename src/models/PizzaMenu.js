@@ -17,7 +17,7 @@ const pizzaMenu = Schema({
     required: true,
   },
 
-  price: {
+  prices: {
     type: [Number],
     require: true,
   },

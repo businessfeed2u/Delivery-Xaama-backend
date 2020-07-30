@@ -1,22 +1,22 @@
 //  Requiring database
 const mongoose = require("mongoose");
 
-//	Loading Users collection from database
-require("../models/HamburgerMenu");
-const hamburgers = mongoose.model("HamburgersMenu");
+//	Loading Pizzas Menu collection from database
+require("../models/PizzaMenu");
+const pizzas = mongoose.model("PizzasMenu");
 
 //	Exporting User features
 module.exports = {
 	//	Return an hamburger on database given id
 	async index(req, res) {
-    const hamburgerId = req.params.id;
+    const pizzaId = req.params.id;
 		
-		await hamburgers.findOne({ _id: hamburgerId }).then((hamburger) => {
-			if(hamburger) {
-        console.log(hamburger);
-				return res.status(200).json(hamburger);
+		await pizzas.findOne({ _id: pizzaId }).then((pizza) => {
+			if(pizza) {
+        console.log(pizza);
+				return res.status(200).json(pizza);
 			} else {
-				return res.status(400).send("hamburger not found!");
+				return res.status(400).send("Pizza not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -26,20 +26,20 @@ module.exports = {
   //	Create a new hamburger for the menu
 	async create(req, res) {
 
-    const { name, ingredients, price } = req.body;
+    const { name, ingredients, prices } = req.body;
     const { filename } = req.file;
 
-    if(name && name.length && ingredients && ingredients.length && price){
-      await hamburgers.create({
+    if(name && name.length && ingredients && ingredients.length && prices){
+      await pizzas.create({
         name,
         ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
-        price,
+        prices: prices.split(',').map(price => parseFloat(price.trim())),
         thumbnail: filename
       }).then((response) => {
         if(response) {
-          return res.status(201).send("hamburger created successfully!");
+          return res.status(201).send("Pizza created successfully!");
         } else {
-          return res.status(400).send("We couldn't create a new hamburger, try again later!");
+          return res.status(400).send("We couldn't create a new pizza, try again later!");
         }
       }).catch((error) => {
         return res.status(500).send(error);

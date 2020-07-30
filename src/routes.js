@@ -12,6 +12,7 @@ const UserController = require("./controllers/UserController");
 //const ContactsController = require("./controllers/ContactsController");
 const SystemController = require("./controllers/DevelopmentController");
 const HamburgerController = require("./controllers/HamburgerController");
+const PizzaController = require("./controllers/PizzaController");
 
 //  Setting up routes
 const routes = express.Router();
@@ -36,6 +37,13 @@ routes.delete("/user", UserController.delete);
 routes.get("/hamburger/:id", HamburgerController.index);
 routes.post("/hamburger", upload.single('thumbnail'), HamburgerController.create);
 routes.put("/hamburger/:id", upload.single('thumbnail'), HamburgerController.update);
+//routes.delete("/hamburger/:id", HamburgerController.delete);
+//routes.get("/hamburger", HamburgerController.hamburger);
+
+// Pizza
+routes.get("/pizza/:id", PizzaController.index);
+routes.post("/pizza", upload.single('thumbnail'), PizzaController.create);
+//routes.put("/hamburger/:id", HamburgerController.update);
 //routes.delete("/hamburger/:id", HamburgerController.delete);
 //routes.get("/hamburger", HamburgerController.hamburger);
 
