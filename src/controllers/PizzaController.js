@@ -47,5 +47,31 @@ module.exports = {
     }
 	},
   
+  async update(req, res) {
+    const pizzaId = req.params.id;
+    
+    const { name, ingredients, prices } = req.body;
+    const { filename } = req.file;
+
+    if(name && name.length && ingredients && ingredients.length && prices){
+      await pizzas.findOneAndUpdate({ _id: pizzaId }, {
+        name,
+        ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
+        prices: prices.split(',').map(price => parseFloat(price.trim())),
+        thumbnail: filename
+      }).then((response) => {
+        if(response) {
+          console.log(response);
+          return res.status(200).send("The pizza have been updated!");
+        } else {
+          return res.status(400).send("Pizza not found!");
+        }
+      }).catch((error) => {
+        return res.status(500).send(error);
+      });
+    } else {
+      return res.status(400).send("Name, ingredients or price are empty!");
+    }
+	}
 
 }

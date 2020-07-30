@@ -44,7 +44,7 @@ routes.put("/hamburger/:id", upload.single('thumbnail'), HamburgerController.upd
 // Pizza
 routes.get("/pizza/:id", PizzaController.index);
 routes.post("/pizza", upload.single('thumbnail'), PizzaController.create);
-//routes.put("/hamburger/:id", HamburgerController.update);
+routes.put("/pizza/:id", upload.single('thumbnail'), PizzaController.update);
 //routes.delete("/hamburger/:id", HamburgerController.delete);
 //routes.get("/hamburger", HamburgerController.hamburger);
 
