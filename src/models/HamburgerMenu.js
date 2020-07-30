@@ -22,9 +22,9 @@ const hamburgerMenuSchema = Schema({
     require: true,
   },
 
-  spare: {
+  available: {
     type: Boolean,
-    defualt: true,
+    default: true,
   },
 
   thumbnail: {

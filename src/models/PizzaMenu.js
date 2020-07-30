@@ -13,7 +13,7 @@ const pizzaMenu = Schema({
   },
 
   ingredients: {
-    type: String,
+    type: [String],
     required: true,
   },
 
@@ -22,9 +22,9 @@ const pizzaMenu = Schema({
     require: true,
   },
 
-  spare: {
+  available: {
     type: Boolean,
-    require: true,
+    default: true,
   },
 
   thumbnail: {
