@@ -1,5 +1,8 @@
 //  Requiring database
 const mongoose = require("mongoose");
+const userSchema = require("./User");
+const pizzaSchema = require("./Pizza");
+const hamburgerSchema = require("./Hamburger");
 
 //	Using schema feature from mongoose
 const Schema = mongoose.Schema;
@@ -8,19 +11,22 @@ const Schema = mongoose.Schema;
 const orderSchema = Schema({
 
   user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Users',
+    type: userSchema,
     required: true,
   },
   
   hamburgers: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'HamburgersMenu',
+    type: [hamburgerSchema]
   },
 
   pizzas: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'PizzasMenu',
+    type: [pizzaSchema]
+  },
+
+  total: {
+    type: Number,
+    default: 0,
+    required: true
   },
 
 	creationDate: {
