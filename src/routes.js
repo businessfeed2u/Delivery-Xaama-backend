@@ -38,7 +38,7 @@ routes.get("/hamburger/:id", HamburgerController.index);
 routes.post("/hamburger", upload.single('thumbnail'), HamburgerController.create);
 routes.put("/hamburger/:id", upload.single('thumbnail'), HamburgerController.update);
 routes.delete("/hamburger/:id", HamburgerController.delete);
-//routes.get("/hamburger", HamburgerController.hamburger);
+routes.get("/hamburger", HamburgerController.allHamburgers);
 
 // Pizza
 routes.get("/pizza/:id", PizzaController.index);

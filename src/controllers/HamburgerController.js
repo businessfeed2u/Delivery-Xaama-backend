@@ -1,11 +1,11 @@
 //  Requiring database
 const mongoose = require("mongoose");
 
-//	Loading Users collection from database
+//	Loading hamburgers collection from database
 require("../models/HamburgerMenu");
 const hamburgers = mongoose.model("HamburgersMenu");
 
-//	Exporting User features
+//	Exporting hamburgers features
 module.exports = {
 	//	Return an hamburger on database given id
 	async index(req, res) {
@@ -91,7 +91,19 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-	},
+  },
   
+  //	Return all hamburgers
+	async allHamburgers(req, res) {
 
+		await hamburgers.find().sort({ name: "asc", price: "asc", creationDate: "asc" }).then((response) => {
+			if(response && response.length ) {
+        return res.status(200).json(response);
+			} else {
+				return res.status(400).send("Hamburgers not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
+	},
 }
