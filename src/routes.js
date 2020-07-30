@@ -62,13 +62,6 @@ routes.put("/pizzaAddition/:id", upload.single('thumbnail'), PizzaAdditionContro
 routes.delete("/pizzaAddition/:id", PizzaAdditionController.delete);
 routes.get("/pizzaAddition", PizzaAdditionController.allPizzaAdditions);
 
-//  Contacts
-//routes.get("/contacts/:id", ContactsController.index);
-//routes.post("/contacts", ContactsController.create);
-//routes.put("/contacts/:id", ContactsController.update);
-//routes.delete("/contacts/:id", ContactsController.delete);
-//routes.get("/contacts", ContactsController.user);
-//routes.get("/contactsSearch", ContactsController.search);
 
 //  Development routes - caution
 routes.get("/allUsers", SystemController.allUsers);
