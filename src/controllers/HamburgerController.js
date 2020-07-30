@@ -29,7 +29,7 @@ module.exports = {
     const { name, ingredients, price } = req.body;
     const { filename } = req.file;
 
-    if(name && name.length && ingredients && ingredients.length && price && price.length){
+    if(name && name.length && ingredients && ingredients.length && price){
       await hamburgers.create({
         name,
         ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
@@ -37,7 +37,6 @@ module.exports = {
         thumbnail: filename
       }).then((response) => {
         if(response) {
-          console.log(name,ingredients, price, thumbnail);
           return res.status(201).send("hamburger created successfully!");
         } else {
           return res.status(400).send("We couldn't create a new hamburger, try again later!");
@@ -46,10 +45,8 @@ module.exports = {
         return res.status(500).send(error);
       });
     } else {
-      return res.status(400).send("Name, email or price are empty!");
+      return res.status(400).send("Name, ingredients or price are empty!");
     }
-
-		
 	},
   
 

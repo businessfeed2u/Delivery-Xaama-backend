@@ -35,7 +35,7 @@ routes.delete("/user", UserController.delete);
 // Hamburger
 routes.get("/hamburger/:id", HamburgerController.index);
 routes.post("/hamburger", upload.single('thumbnail'), HamburgerController.create);
-//routes.put("/hamburgr/:id", HamburgerController.update);
+//routes.put("/hamburger/:id", HamburgerController.update);
 //routes.delete("/hamburger/:id", HamburgerController.delete);
 //routes.get("/hamburger", HamburgerController.hamburger);
 
