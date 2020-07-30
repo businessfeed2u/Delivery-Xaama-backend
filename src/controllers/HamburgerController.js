@@ -13,10 +13,9 @@ module.exports = {
 		
 		await hamburgers.findOne({ _id: hamburgerId }).then((hamburger) => {
 			if(hamburger) {
-        console.log(hamburger);
 				return res.status(200).json(hamburger);
 			} else {
-				return res.status(400).send("hamburger not found!");
+				return res.status(400).send("Hamburger not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -37,7 +36,7 @@ module.exports = {
         thumbnail: filename
       }).then((response) => {
         if(response) {
-          return res.status(201).send("hamburger created successfully!");
+          return res.status(201).send("Hamburger created successfully!");
         } else {
           return res.status(400).send("We couldn't create a new hamburger, try again later!");
         }
@@ -45,6 +44,34 @@ module.exports = {
         return res.status(500).send(error);
       });
     } else {
+      return res.status(400).send("Name, ingredients or price are empty!");
+    }
+  },
+  
+  async update(req, res) {
+
+    const hamburgerId = req.params.id;
+    
+    const { name, ingredients, price } = req.body;
+    const { filename } = req.file;
+
+    if(name && name.length && ingredients && ingredients.length && price){
+      await hamburgers.findOneAndUpdate({ _id: hamburgerId }, {
+        name,
+        ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
+        price,
+        thumbnail: filename
+      }).then((response) => {
+        if(response) {
+          console.log(response);
+          return res.status(200).send("The hamburger have been updated!");
+        } else {
+          return res.status(400).send("Hamburger not found!");
+        }
+      }).catch((error) => {
+        return res.status(500).send(error);
+      });
+    }else {
       return res.status(400).send("Name, ingredients or price are empty!");
     }
 	},
