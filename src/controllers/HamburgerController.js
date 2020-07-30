@@ -48,6 +48,7 @@ module.exports = {
     }
   },
   
+  //	Update a specific hamburger
   async update(req, res) {
 
     const hamburgerId = req.params.id;
@@ -74,6 +75,22 @@ module.exports = {
     }else {
       return res.status(400).send("Name, ingredients or price are empty!");
     }
+  },
+  
+  //	Delete a specific hamburger
+	async delete(req, res) {
+		
+		const hamburgerId = req.params.id;
+
+		await hamburgers.findOneAndDelete({ _id: hamburgerId }).then((response) => {
+			if(response) {
+				return res.status(200).send("The hamburger have been deleted!");
+			} else {
+				return res.status(400).send("Hamburger not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
 	},
   
 
