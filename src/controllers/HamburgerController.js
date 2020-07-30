@@ -95,7 +95,6 @@ module.exports = {
   
   //	Return all hamburgers
 	async allHamburgers(req, res) {
-
 		await hamburgers.find().sort({ name: "asc", price: "asc", creationDate: "asc" }).then((response) => {
 			if(response && response.length ) {
         return res.status(200).json(response);
@@ -105,5 +104,5 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-	},
+	}
 }

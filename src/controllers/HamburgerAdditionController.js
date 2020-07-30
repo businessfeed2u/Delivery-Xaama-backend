@@ -85,6 +85,18 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
+	},
+  
+  //	Return all hamburgers
+	async allHamburgerAdditions(req, res) {
+		await hamburgersAd.find().sort({ name: "asc", price: "asc", creationDate: "asc" }).then((response) => {
+			if(response && response.length ) {
+        return res.status(200).json(response);
+			} else {
+				return res.status(400).send("Hamburger additions not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
 	}
-
 }

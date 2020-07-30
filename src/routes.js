@@ -46,21 +46,21 @@ routes.get("/hamburgerAddition/:id", HamburgerAdditionController.index);
 routes.post("/hamburgerAddition", upload.single('thumbnail'), HamburgerAdditionController.create);
 routes.put("/hamburgerAddition/:id", upload.single('thumbnail'), HamburgerAdditionController.update);
 routes.delete("/hamburgerAddition/:id", HamburgerAdditionController.delete);
-//routes.get("/hamburger", HamburgerController.hamburger);
+routes.get("/hamburgerAddition", HamburgerAdditionController.allHamburgerAdditions);
 
 // Pizza
 routes.get("/pizza/:id", PizzaController.index);
 routes.post("/pizza", upload.single('thumbnail'), PizzaController.create);
 routes.put("/pizza/:id", upload.single('thumbnail'), PizzaController.update);
 routes.delete("/pizza/:id", PizzaController.delete);
-//routes.get("/hamburger", HamburgerController.hamburger);
+routes.get("/pizza", PizzaController.allPizzas);
 
 // Pizza addition
 routes.get("/pizzaAddition/:id", PizzaAdditionController.index);
 routes.post("/pizzaAddition", upload.single('thumbnail'), PizzaAdditionController.create);
 routes.put("/pizzaAddition/:id", upload.single('thumbnail'), PizzaAdditionController.update);
 routes.delete("/pizzaAddition/:id", PizzaAdditionController.delete);
-//routes.get("/hamburger", HamburgerController.hamburger);
+routes.get("/pizzaAddition", PizzaAdditionController.allPizzaAdditions);
 
 //  Contacts
 //routes.get("/contacts/:id", ContactsController.index);

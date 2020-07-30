@@ -85,7 +85,18 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
+	},
+  
+  //	Return all hamburgers
+	async allPizzaAdditions(req, res) {
+		await pizzasAd.find().sort({ name: "asc", price: "asc", creationDate: "asc" }).then((response) => {
+			if(response && response.length ) {
+        return res.status(200).json(response);
+			} else {
+				return res.status(400).send("Pizza additions not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
 	}
-
-
 }
