@@ -5,15 +5,14 @@ const mongoose = require("mongoose");
 require("../models/PizzaMenu");
 const pizzas = mongoose.model("PizzasMenu");
 
-//	Exporting User features
+//	Exporting Pizzas Menu features
 module.exports = {
-	//	Return an hamburger on database given id
+	//	Return a pizza on database given id
 	async index(req, res) {
     const pizzaId = req.params.id;
 		
 		await pizzas.findOne({ _id: pizzaId }).then((pizza) => {
 			if(pizza) {
-        console.log(pizza);
 				return res.status(200).json(pizza);
 			} else {
 				return res.status(400).send("Pizza not found!");
@@ -23,9 +22,8 @@ module.exports = {
 		});
   },
 
-  //	Create a new hamburger for the menu
+  //	Create a new pizza for the menu
 	async create(req, res) {
-
     const { name, ingredients, prices } = req.body;
     const { filename } = req.file;
 

@@ -13,6 +13,7 @@ const UserController = require("./controllers/UserController");
 const SystemController = require("./controllers/DevelopmentController");
 const HamburgerController = require("./controllers/HamburgerController");
 const PizzaController = require("./controllers/PizzaController");
+const PizzaAdditionController = require("./controllers/PizzaAdditionController");
 
 //  Setting up routes
 const routes = express.Router();
@@ -43,6 +44,13 @@ routes.post("/hamburger", upload.single('thumbnail'), HamburgerController.create
 // Pizza
 routes.get("/pizza/:id", PizzaController.index);
 routes.post("/pizza", upload.single('thumbnail'), PizzaController.create);
+//routes.put("/hamburger/:id", HamburgerController.update);
+//routes.delete("/hamburger/:id", HamburgerController.delete);
+//routes.get("/hamburger", HamburgerController.hamburger);
+
+// Pizza addition
+routes.get("/pizzaAddition/:id", PizzaAdditionController.index);
+routes.post("/pizzaAddition", upload.single('thumbnail'), PizzaAdditionController.create);
 //routes.put("/hamburger/:id", HamburgerController.update);
 //routes.delete("/hamburger/:id", HamburgerController.delete);
 //routes.get("/hamburger", HamburgerController.hamburger);

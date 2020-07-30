@@ -4,8 +4,8 @@ const mongoose = require("mongoose");
 //	Using schema feature from mongoose
 const Schema = mongoose.Schema;
 
-//	Defining pizzaAdditions schema
-const pizzaAdditionsSchema = Schema({
+//	Defining Pizza Additions schema
+const pizzaAdditionSchema = Schema({
   
   name: {
     type: String,
@@ -34,4 +34,4 @@ const pizzaAdditionsSchema = Schema({
 });
 
 //	Creating collection PizzaAdditions on database
-mongoose.model("PizzaAdditions", pizzaAdditionsSchema);
+mongoose.model("PizzaAdditions", pizzaAdditionSchema);
