@@ -5,15 +5,14 @@ const mongoose = require("mongoose");
 require("../models/PizzaMenu");
 const pizzas = mongoose.model("PizzasMenu");
 
-//	Exporting User features
+//	Exporting Pizzas Menu features
 module.exports = {
-	//	Return an hamburger on database given id
+	//	Return a pizza on database given id
 	async index(req, res) {
     const pizzaId = req.params.id;
 		
 		await pizzas.findOne({ _id: pizzaId }).then((pizza) => {
 			if(pizza) {
-        console.log(pizza);
 				return res.status(200).json(pizza);
 			} else {
 				return res.status(400).send("Pizza not found!");
@@ -23,9 +22,8 @@ module.exports = {
 		});
   },
 
-  //	Create a new hamburger for the menu
+  //	Create a new pizza for the menu
 	async create(req, res) {
-
     const { name, ingredients, prices } = req.body;
     const { filename } = req.file;
 
@@ -49,5 +47,46 @@ module.exports = {
     }
 	},
   
+  //	Update a specific pizza
+  async update(req, res) {
+    const pizzaId = req.params.id;
+    
+    const { name, ingredients, prices } = req.body;
+    const { filename } = req.file;
+
+    if(name && name.length && ingredients && ingredients.length && prices){
+      await pizzas.findOneAndUpdate({ _id: pizzaId }, {
+        name,
+        ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
+        prices: prices.split(',').map(price => parseFloat(price.trim())),
+        thumbnail: filename
+      }).then((response) => {
+        if(response) {
+          return res.status(200).send("The pizza has been updated!");
+        } else {
+          return res.status(400).send("Pizza not found!");
+        }
+      }).catch((error) => {
+        return res.status(500).send(error);
+      });
+    } else {
+      return res.status(400).send("Name, ingredients or price are empty!");
+    }
+	},
+  
+  //	Delete a specific pizza
+	async delete(req, res) {
+		const pizzaId = req.params.id;
+
+		await pizzas.findOneAndDelete({ _id: pizzaId }).then((response) => {
+			if(response) {
+				return res.status(200).send("The pizza has been deleted!");
+			} else {
+				return res.status(400).send("Pizza not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
+	}
 
 }
