@@ -84,7 +84,7 @@ module.exports = {
 
 		await hamburgers.findOneAndDelete({ _id: hamburgerId }).then((response) => {
 			if(response) {
-				return res.status(200).send("The hamburger have been deleted!");
+				return res.status(200).send("The hamburger has been deleted!");
 			} else {
 				return res.status(400).send("Hamburger not found!");
 			}

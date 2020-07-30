@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 //	Loading Pizza Additions collection from database
 require("../models/PizzaAddition");
-const pizzas = mongoose.model("PizzaAdditions");
+const pizzasAd = mongoose.model("PizzaAdditions");
 
 //	Exporting Pizza Addition features
 module.exports = {
@@ -11,7 +11,7 @@ module.exports = {
 	async index(req, res) {
     const pizzaAdId = req.params.id;
 		
-		await pizzas.findOne({ _id: pizzaAdId }).then((pizzaAd) => {
+		await pizzasAd.findOne({ _id: pizzaAdId }).then((pizzaAd) => {
 			if(pizzaAd) {
 				return res.status(200).json(pizzaAd);
 			} else {
@@ -28,7 +28,7 @@ module.exports = {
     const { filename } = req.file;
 
     if(name && name.length && price){
-      await pizzas.create({
+      await pizzasAd.create({
         name,
         price,
         thumbnail: filename
@@ -46,5 +46,46 @@ module.exports = {
     }
 	},
   
+  //	Update a specific pizza addition
+  async update(req, res) {
+    const pizzaAdId = req.params.id;
+    
+    const { name, price } = req.body;
+    const { filename } = req.file;
+
+    if(name && name.length && price){
+      await pizzasAd.findOneAndUpdate({ _id: pizzaAdId }, {
+        name,
+        price,
+        thumbnail: filename
+      }).then((response) => {
+        if(response) {
+          return res.status(200).send("The pizza addition has been updated!");
+        } else {
+          return res.status(400).send("Pizza addition not found!");
+        }
+      }).catch((error) => {
+        return res.status(500).send(error);
+      });
+    } else {
+      return res.status(400).send("Name or price are empty!");
+    }
+	},
+  
+  //	Delete a specific pizza addition
+	async delete(req, res) {
+		const pizzaAdId = req.params.id;
+
+		await pizzasAd.findOneAndDelete({ _id: pizzaAdId }).then((response) => {
+			if(response) {
+				return res.status(200).send("The pizza addition has been deleted!");
+			} else {
+				return res.status(400).send("Pizza addition not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
+	}
+
 
 }

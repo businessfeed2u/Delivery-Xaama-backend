@@ -47,6 +47,7 @@ module.exports = {
     }
 	},
   
+  //	Update a specific pizza
   async update(req, res) {
     const pizzaId = req.params.id;
     
@@ -61,8 +62,7 @@ module.exports = {
         thumbnail: filename
       }).then((response) => {
         if(response) {
-          console.log(response);
-          return res.status(200).send("The pizza have been updated!");
+          return res.status(200).send("The pizza has been updated!");
         } else {
           return res.status(400).send("Pizza not found!");
         }
@@ -72,6 +72,21 @@ module.exports = {
     } else {
       return res.status(400).send("Name, ingredients or price are empty!");
     }
+	},
+  
+  //	Delete a specific pizza
+	async delete(req, res) {
+		const pizzaId = req.params.id;
+
+		await pizzas.findOneAndDelete({ _id: pizzaId }).then((response) => {
+			if(response) {
+				return res.status(200).send("The pizza has been deleted!");
+			} else {
+				return res.status(400).send("Pizza not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
 	}
 
 }

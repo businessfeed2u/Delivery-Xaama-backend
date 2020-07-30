@@ -45,14 +45,14 @@ routes.delete("/hamburger/:id", HamburgerController.delete);
 routes.get("/pizza/:id", PizzaController.index);
 routes.post("/pizza", upload.single('thumbnail'), PizzaController.create);
 routes.put("/pizza/:id", upload.single('thumbnail'), PizzaController.update);
-//routes.delete("/hamburger/:id", HamburgerController.delete);
+routes.delete("/pizza/:id", PizzaController.delete);
 //routes.get("/hamburger", HamburgerController.hamburger);
 
 // Pizza addition
 routes.get("/pizzaAddition/:id", PizzaAdditionController.index);
 routes.post("/pizzaAddition", upload.single('thumbnail'), PizzaAdditionController.create);
-//routes.put("/hamburger/:id", HamburgerController.update);
-//routes.delete("/hamburger/:id", HamburgerController.delete);
+routes.put("/pizzaAddition/:id", upload.single('thumbnail'), PizzaAdditionController.update);
+routes.delete("/pizzaAddition/:id", PizzaAdditionController.delete);
 //routes.get("/hamburger", HamburgerController.hamburger);
 
 //  Contacts
