@@ -9,7 +9,7 @@ const users = mongoose.model("Users");
 //	Exporting Session features
 module.exports = {
 	//	Return user info from current session
-   	async index(req, res) {
+  async index(req, res) {
 		const userId = req.headers.authorization;
 
 		if(userId && userId.length) {

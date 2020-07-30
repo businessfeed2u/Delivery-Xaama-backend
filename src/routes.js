@@ -1,11 +1,17 @@
 //  Requiring express-js
 const express = require("express");
 
+// Requiring upload controller
+const multer = require('multer');
+const uploadConfig = require('./config/upload');
+const upload = multer(uploadConfig);
+
 //  Requiring route controllers
 const SessionController = require("./controllers/SessionController");
 const UserController = require("./controllers/UserController");
 //const ContactsController = require("./controllers/ContactsController");
 const SystemController = require("./controllers/DevelopmentController");
+const HamburgerController = require("./controllers/HamburgerController");
 
 //  Setting up routes
 const routes = express.Router();
@@ -25,6 +31,13 @@ routes.get("/user", UserController.index);
 routes.post("/user", UserController.create);
 routes.put("/user", UserController.update);
 routes.delete("/user", UserController.delete);
+
+// Hamburger
+routes.get("/hamburger/:id", HamburgerController.index);
+routes.post("/hamburger", upload.single('thumbnail'), HamburgerController.create);
+//routes.put("/hamburgr/:id", HamburgerController.update);
+//routes.delete("/hamburger/:id", HamburgerController.delete);
+//routes.get("/hamburger", HamburgerController.hamburger);
 
 //  Contacts
 //routes.get("/contacts/:id", ContactsController.index);

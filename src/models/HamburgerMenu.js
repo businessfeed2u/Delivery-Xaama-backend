@@ -13,7 +13,7 @@ const hamburgerMenuSchema = Schema({
   },
 
   ingredients: {
-    type: String,
+    type: [String],
     required: true,
   },
 
@@ -24,7 +24,7 @@ const hamburgerMenuSchema = Schema({
 
   spare: {
     type: Boolean,
-    require: true,
+    defualt: true,
   },
 
   thumbnail: {
@@ -32,11 +32,6 @@ const hamburgerMenuSchema = Schema({
     require: true,
   },
 
-  additions: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'HamburgerAdditions',
-  },
-  
 	creationDate: {
 		type: Date,
 		default: Date.now()

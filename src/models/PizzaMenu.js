@@ -32,11 +32,6 @@ const pizzaMenu = Schema({
     require: true,
   },
 
-  additions: {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'PizzaAdditions',
-  },
-
 	creationDate: {
 		type: Date,
 		default: Date.now()
