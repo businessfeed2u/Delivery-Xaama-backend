@@ -1,11 +1,11 @@
 //  Requiring database
 const mongoose = require("mongoose");
 
-//	Loading Users collection from database
+//	Loading Hamburgers Menu collection from database
 require("../models/HamburgerMenu");
 const hamburgers = mongoose.model("HamburgersMenu");
 
-//	Exporting User features
+//	Exporting Hamburgers Menu features
 module.exports = {
 	//	Return an hamburger on database given id
 	async index(req, res) {
@@ -72,7 +72,7 @@ module.exports = {
       }).catch((error) => {
         return res.status(500).send(error);
       });
-    }else {
+    } else {
       return res.status(400).send("Name, ingredients or price are empty!");
     }
   },

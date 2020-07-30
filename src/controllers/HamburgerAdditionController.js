@@ -5,9 +5,9 @@ const mongoose = require("mongoose");
 require("../models/HamburgerAddition");
 const hamburgersAd = mongoose.model("HamburgerAdditions");
 
-//	Exporting Pizza Addition features
+//	Exporting Hamburger Addition features
 module.exports = {
-	//	Return a pizza addition on database given id
+	//	Return a hamburger addition on database given id
 	async index(req, res) {
     const hamburgerAdId = req.params.id;
 		
@@ -22,7 +22,7 @@ module.exports = {
 		});
   },
 
-  //	Create a new pizza addition
+  //	Create a new hamburger addition
 	async create(req, res) {
     const { name, price } = req.body;
     const { filename } = req.file;
@@ -46,7 +46,7 @@ module.exports = {
     }
 	},
   
-  //	Update a specific pizza addition
+  //	Update a specific hamburger addition
   async update(req, res) {
     const hamburgerAdId = req.params.id;
     
@@ -72,7 +72,7 @@ module.exports = {
     }
 	},
   
-  //	Delete a specific pizza addition
+  //	Delete a specific hamburger addition
 	async delete(req, res) {
 		const hamburgerAdId = req.params.id;
 
@@ -86,6 +86,5 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	}
-
 
 }
