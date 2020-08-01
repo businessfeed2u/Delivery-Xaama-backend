@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 require("../models/PizzaMenu");
 const pizzas = mongoose.model("PizzasMenu");
 
-//	Exporting Pizzas Menu features
+//	Exporting Pizza Menu features
 module.exports = {
 	//	Return a pizza on database given id
 	async index(req, res) {

@@ -14,13 +14,13 @@ const HamburgerController = require("./controllers/HamburgerController");
 const PizzaController = require("./controllers/PizzaController");
 const PizzaAdditionController = require("./controllers/PizzaAdditionController");
 const HamburgerAdditionController = require("./controllers/HamburgerAdditionController");
+const OrderController = require("./controllers/OrderController");
 
 //  Setting up routes
 const routes = express.Router();
 
 //  Home
 routes.get("/", (req, res) => {
-    console.log(req.body);
     return res.status(200).send("Backend is running");
 });
 
@@ -62,6 +62,11 @@ routes.put("/pizzaAddition/:id", upload.single("thumbnail"), PizzaAdditionContro
 routes.delete("/pizzaAddition/:id", PizzaAdditionController.delete);
 routes.get("/pizzaAddition", PizzaAdditionController.allPizzaAdditions);
 
+// Order
+routes.get("/order/:id", OrderController.index);
+routes.post("/order", OrderController.create);
+routes.delete("/order/:id", OrderController.delete);
+routes.get("/order", OrderController.allOrders);
 
 //  Development routes - caution
 routes.get("/allUsers", SystemController.allUsers);

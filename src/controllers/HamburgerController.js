@@ -1,14 +1,14 @@
 //  Requiring database
 const mongoose = require("mongoose");
 
-//	Loading hamburgers collection from database
+//	Loading Hamburgers collection from database
 require("../models/HamburgerMenu");
 const hamburgers = mongoose.model("HamburgersMenu");
 
 // Loading module to delete uploads 
 const fs = require("fs");
 
-//	Exporting hamburgers features
+//	Exporting Hamburger Menu features
 module.exports = {
 	//	Return a hamburger on database given id
 	async index(req, res) {

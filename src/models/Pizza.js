@@ -14,6 +14,11 @@ const pizzaSchema = Schema({
         required: true
     },
 
+    size: {
+        type: Number,
+        required: true
+    },
+
     additions: {
         type: [pizzaAdditionSchema]
     },
