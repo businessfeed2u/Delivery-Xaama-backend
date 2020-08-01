@@ -1,7 +1,7 @@
 //  Requiring express-js, CORS, database and routes modules
 const express = require("express");
-const cors =  require("cors");
-const routes =  require("./routes");
+const cors = require("cors");
+const routes = require("./routes");
 const database = require("./config/database");
 
 //  Setting up express and port number

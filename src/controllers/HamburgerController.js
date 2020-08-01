@@ -6,7 +6,7 @@ require("../models/HamburgerMenu");
 const hamburgers = mongoose.model("HamburgersMenu");
 
 // Loading module to delete uploads 
-const fs = require('fs');
+const fs = require("fs");
 
 //	Exporting hamburgers features
 module.exports = {
@@ -36,7 +36,7 @@ module.exports = {
 
     await hamburgers.create({
       name,
-      ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
+      ingredients: ingredients.split(",").map(ingredient => ingredient.trim()),
       price,
       thumbnail: filename
     }).then((response) => {
@@ -63,7 +63,7 @@ module.exports = {
 
     await hamburgers.findOneAndUpdate({ _id: hamburgerId }, {
       name,
-      ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
+      ingredients: ingredients.split(",").map(ingredient => ingredient.trim()),
       price,
       thumbnail: filename
     }).then((response) => {
@@ -83,12 +83,12 @@ module.exports = {
 
 		await hamburgers.findOneAndDelete({ _id: hamburgerId }).then((response) => {
 			if(response) {
-        fs.stat(`${__dirname}/../../uploads/${response.thumbnail}`, function (error, stats) {
+        fs.stat(`${__dirname}/../../uploads/${response.thumbnail}`, function (error) {
           if (error) {
             return res.status(500).send(error);
           }
        
-          fs.unlink(`${__dirname}/../../uploads/${response.thumbnail}`,function(err){
+          fs.unlink(`${__dirname}/../../uploads/${response.thumbnail}`,function(error){
               if(error) {
                 return res.status(500).send(error);
               }
@@ -121,4 +121,4 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	}
-}
+};

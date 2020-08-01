@@ -33,8 +33,8 @@ module.exports = {
 
     await pizzas.create({
       name,
-      ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
-      prices: prices.split(',').map(price => parseFloat(price.trim())),
+      ingredients: ingredients.split(",").map(ingredient => ingredient.trim()),
+      prices: prices.split(",").map(price => parseFloat(price.trim())),
       thumbnail: filename
     }).then((response) => {
       if(response) {
@@ -60,8 +60,8 @@ module.exports = {
 
     await pizzas.findOneAndUpdate({ _id: pizzaId }, {
       name,
-      ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
-      prices: prices.split(',').map(price => parseFloat(price.trim())),
+      ingredients: ingredients.split(",").map(ingredient => ingredient.trim()),
+      prices: prices.split(",").map(price => parseFloat(price.trim())),
       thumbnail: filename
     }).then((response) => {
       if(response) {
@@ -104,4 +104,4 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	}
-}
+};
