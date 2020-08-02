@@ -14,6 +14,6 @@ app.use(cors());
 app.use(routes);
 
 //  Listening requests on the given port
-app.listen(process.env.PORT || port, () => {
+app.listen(port, () => {
 	console.log("Server running on port " + port);
 });

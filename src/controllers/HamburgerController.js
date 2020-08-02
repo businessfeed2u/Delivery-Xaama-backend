@@ -5,8 +5,10 @@ const mongoose = require("mongoose");
 require("../models/HamburgerMenu");
 const hamburgers = mongoose.model("HamburgersMenu");
 
-// Loading function to delete uploads
-const deleteUpload = require('../utils/deleteUploads');
+// Loading module for to delete uploads
+const fs = require('fs');
+const { promisify } = require('util');
+const asyncUnlink = promisify(fs.unlink);
 
 //	Exporting Hamburger Menu features
 module.exports = {
@@ -54,6 +56,23 @@ module.exports = {
   async update(req, res) {
     const hamburgerId = req.params.id;
     
+    await hamburgers.findOne({ _id: hamburgerId }).then((hamburger) => {
+			if(hamburger) {
+        (async () => {
+          try {
+            await asyncUnlink(`${__dirname}/../../uploads/${hamburger.thumbnail}`);
+            console.log('The Hamburger and thumbnail has been deleted!');
+          } catch(e){
+            console.log('The hamburger was update, but the thumbnail old was not found');
+          }
+        })();
+			} else {
+				return res.status(400).send("Hamburger not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
+    
     const { name, ingredients, price } = req.body;
     const filename = (req.file) ? req.file.filename : null;
 
@@ -83,16 +102,14 @@ module.exports = {
 
 		await hamburgers.findOneAndDelete({ _id: hamburgerId }).then((response) => {
 			if(response) {
-        const resp = deleteUpload(response.thumbnail);
-        console.log(resp);
-        
-        if(resp == "Deleted") {
-          return res.status(200).send('The Hamburger and thumbnail has been deleted!');
-          
-        } else {
-          return res.status(500).send('The hamburger was deleted, but the thumbnail was not found');
-        }
-      
+        (async () => {
+          try {
+            await asyncUnlink(`${__dirname}/../../uploads/${response.thumbnail}`);
+            return res.status(200).send('The Hamburger and thumbnail has been deleted!');
+          } catch(e){
+            return res.status(500).send('The hamburger was deleted, but the thumbnail was not found');
+          }
+        })();
 			} else {
 				return res.status(400).send("Hamburger not found!");
 			}
