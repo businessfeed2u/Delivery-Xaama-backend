@@ -34,6 +34,15 @@ module.exports = {
     const filename = (req.file) ? req.file.filename : null;
 
     if(!name || !name.length || !ingredients || !ingredients.length || !price) {
+      (async () => {
+        try {
+          await asyncUnlink(`${__dirname}/../../uploads/${filename}`);
+          console.log("New thumbnail has been deleted!");
+        } catch(e){
+          console.log("New thumbnail was not found");
+        }
+      })();
+
       return res.status(400).send("Name, ingredients or price are empty!");
     }
 
@@ -46,10 +55,25 @@ module.exports = {
       if(response) {
         return res.status(201).send("Hamburger created successfully!");
       } else {
-        
+        (async () => {
+          try {
+            await asyncUnlink(`${__dirname}/../../uploads/${filename}`);
+            console.log("New thumbnail has been deleted!");
+          } catch(e){
+            console.log("New thumbnail was not found");
+          }
+        })();
         return res.status(400).send("We couldn't create a new hamburger, try again later!");
       }
     }).catch((error) => {
+      (async () => {
+        try {
+          await asyncUnlink(`${__dirname}/../../uploads/${filename}`);
+          console.log("New thumbnail has been deleted!");
+        } catch(e){
+          console.log("New thumbnail was not found");
+        }
+      })();
       return res.status(500).send(error);
     });
   },
