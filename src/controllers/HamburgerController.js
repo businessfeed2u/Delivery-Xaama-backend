@@ -5,8 +5,8 @@ const mongoose = require("mongoose");
 require("../models/HamburgerMenu");
 const hamburgers = mongoose.model("HamburgersMenu");
 
-// Loading module to delete uploads 
-const fs = require('fs');
+// Loading function to delete uploads
+const deleteUpload = require('../utils/deleteUploads');
 
 //	Exporting hamburgers features
 module.exports = {
@@ -87,20 +87,16 @@ module.exports = {
 
 		await hamburgers.findOneAndDelete({ _id: hamburgerId }).then((response) => {
 			if(response) {
-        fs.stat(`${__dirname}/../../uploads/${response.thumbnail}`, function (error, stats) {
-          if (error) {
-            return res.status(500).send(error);
-          }
-       
-          fs.unlink(`${__dirname}/../../uploads/${response.thumbnail}`,function(err){
-              if(error) {
-                return res.status(500).send(error);
-              }
-
-              return res.status(200).send("The hamburger and thumbnail has been deleted!");
-          });  
-        });
-				
+        const resp = deleteUpload(response.thumbnail);
+        console.log(resp);
+        
+        if(resp == "Deleted") {
+          return res.status(200).send('The Hamburger and thumbnail has been deleted!');
+          
+        } else {
+          return res.status(500).send('The hamburger was deleted, but the thumbnail was not found');
+        }
+      
 			} else {
 				return res.status(400).send("Hamburger not found!");
 			}
