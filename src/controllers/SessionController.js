@@ -28,7 +28,7 @@ module.exports = {
 
 	},
 	//	Create a new session from user info
-   	async create(req, res) {
+	async create(req, res) {
 		const { email, password } = req.body;
 
 		if(email && email.length && password && password.length) {

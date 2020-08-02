@@ -4,7 +4,7 @@ const dotenv = require("dotenv").config();
 
 //	Setting up mongoose
 mongoose.Promise = global.Promise;
-mongoose.set('useFindAndModify', false);
+mongoose.set("useFindAndModify", false);
 
 //	Defining database server
 const uri = "mongodb+srv://admin:" + process.env.DBPASSWORD + "@deliveryxaama.wrom8.mongodb.net/deliveryxaama?retryWrites=true&w=majority";

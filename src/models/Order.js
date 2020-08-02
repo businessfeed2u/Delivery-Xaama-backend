@@ -25,8 +25,7 @@ const orderSchema = Schema({
 
   total: {
     type: Number,
-    default: 0,
-    required: true
+    default: 0.0
   },
 
 	creationDate: {

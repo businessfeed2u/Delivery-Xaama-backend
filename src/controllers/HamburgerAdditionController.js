@@ -25,25 +25,25 @@ module.exports = {
   //	Create a new hamburger addition
 	async create(req, res) {
     const { name, price } = req.body;
-    const { filename } = req.file;
+    const filename = (req.file) ? req.file.filename : null;
 
-    if(name && name.length && price){
-      await hamburgersAd.create({
-        name,
-        price,
-        thumbnail: filename
-      }).then((response) => {
-        if(response) {
-          return res.status(201).send("Hamburger addition created successfully!");
-        } else {
-          return res.status(400).send("We couldn't create a new hamburger addition, try again later!");
-        }
-      }).catch((error) => {
-        return res.status(500).send(error);
-      });
-    } else {
+    if(!name || !name.length || !price) {
       return res.status(400).send("Name or price are empty!");
     }
+
+    await hamburgersAd.create({
+      name,
+      price,
+      thumbnail: filename
+    }).then((response) => {
+      if(response) {
+        return res.status(201).send("Hamburger addition created successfully!");
+      } else {
+        return res.status(400).send("We couldn't create a new hamburger addition, try again later!");
+      }
+    }).catch((error) => {
+      return res.status(500).send(error);
+    });
 	},
   
   //	Update a specific hamburger addition
@@ -51,25 +51,25 @@ module.exports = {
     const hamburgerAdId = req.params.id;
     
     const { name, price } = req.body;
-    const { filename } = req.file;
+    const filename = (req.file) ? req.file.filename : null;
 
-    if(name && name.length && price){
-      await hamburgersAd.findOneAndUpdate({ _id: hamburgerAdId }, {
-        name,
-        price,
-        thumbnail: filename
-      }).then((response) => {
-        if(response) {
-          return res.status(200).send("The hamburger addition has been updated!");
-        } else {
-          return res.status(400).send("Hamburger addition not found!");
-        }
-      }).catch((error) => {
-        return res.status(500).send(error);
-      });
-    } else {
+    if(!name || !name.length || !price) {
       return res.status(400).send("Name or price are empty!");
     }
+
+    await hamburgersAd.findOneAndUpdate({ _id: hamburgerAdId }, {
+      name,
+      price,
+      thumbnail: filename
+    }).then((response) => {
+      if(response) {
+        return res.status(200).send("The hamburger addition has been updated!");
+      } else {
+        return res.status(400).send("Hamburger addition not found!");
+      }
+    }).catch((error) => {
+      return res.status(500).send(error);
+    });
 	},
   
   //	Delete a specific hamburger addition
@@ -89,8 +89,12 @@ module.exports = {
   
   //	Return all hamburgers
 	async allHamburgerAdditions(req, res) {
-		await hamburgersAd.find().sort({ name: "asc", price: "asc", creationDate: "asc" }).then((response) => {
-			if(response && response.length ) {
+		await hamburgersAd.find().sort({ 
+      name: "asc", 
+      price: "asc", 
+      creationDate: "asc" 
+    }).then((response) => {
+			if(response && response.length) {
         return res.status(200).json(response);
 			} else {
 				return res.status(400).send("Hamburger additions not found!");
@@ -99,4 +103,4 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	}
-}
+};

@@ -1,16 +1,16 @@
 //  Requiring database
 const mongoose = require("mongoose");
 
-//	Loading hamburgers collection from database
+//	Loading Hamburgers collection from database
 require("../models/HamburgerMenu");
 const hamburgers = mongoose.model("HamburgersMenu");
 
 // Loading function to delete uploads
 const deleteUpload = require('../utils/deleteUploads');
 
-//	Exporting hamburgers features
+//	Exporting Hamburger Menu features
 module.exports = {
-	//	Return an hamburger on database given id
+	//	Return a hamburger on database given id
 	async index(req, res) {
     const hamburgerId = req.params.id;
 		
@@ -27,62 +27,58 @@ module.exports = {
 
   //	Create a new hamburger for the menu
 	async create(req, res) {
-
     const { name, ingredients, price } = req.body;
-    const { filename } = req.file;
+    const filename = (req.file) ? req.file.filename : null;
 
-    if(name && name.length && ingredients && ingredients.length && price){
-      await hamburgers.create({
-        name,
-        ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
-        price,
-        thumbnail: filename
-      }).then((response) => {
-        if(response) {
-          return res.status(201).send("Hamburger created successfully!");
-        } else {
-          return res.status(400).send("We couldn't create a new hamburger, try again later!");
-        }
-      }).catch((error) => {
-        return res.status(500).send(error);
-      });
-    } else {
+    if(!name || !name.length || !ingredients || !ingredients.length || !price) {
       return res.status(400).send("Name, ingredients or price are empty!");
     }
+
+    await hamburgers.create({
+      name,
+      ingredients: ingredients.split(",").map(ingredient => ingredient.trim()),
+      price,
+      thumbnail: filename
+    }).then((response) => {
+      if(response) {
+        return res.status(201).send("Hamburger created successfully!");
+      } else {
+        return res.status(400).send("We couldn't create a new hamburger, try again later!");
+      }
+    }).catch((error) => {
+      return res.status(500).send(error);
+    });
   },
   
   //	Update a specific hamburger
   async update(req, res) {
-
     const hamburgerId = req.params.id;
     
     const { name, ingredients, price } = req.body;
-    const { filename } = req.file;
+    const filename = (req.file) ? req.file.filename : null;
 
-    if(name && name.length && ingredients && ingredients.length && price){
-      await hamburgers.findOneAndUpdate({ _id: hamburgerId }, {
-        name,
-        ingredients: ingredients.split(',').map(ingredient => ingredient.trim()),
-        price,
-        thumbnail: filename
-      }).then((response) => {
-        if(response) {
-          console.log(response);
-          return res.status(200).send("The hamburger have been updated!");
-        } else {
-          return res.status(400).send("Hamburger not found!");
-        }
-      }).catch((error) => {
-        return res.status(500).send(error);
-      });
-    } else {
+    if(!name || !name.length || !ingredients || !ingredients.length || !price) {
       return res.status(400).send("Name, ingredients or price are empty!");
     }
+
+    await hamburgers.findOneAndUpdate({ _id: hamburgerId }, {
+      name,
+      ingredients: ingredients.split(",").map(ingredient => ingredient.trim()),
+      price,
+      thumbnail: filename
+    }).then((response) => {
+      if(response) {
+        return res.status(200).send("The hamburger have been updated!");
+      } else {
+        return res.status(400).send("Hamburger not found!");
+      }
+    }).catch((error) => {
+      return res.status(500).send(error);
+    });
   },
   
   //	Delete a specific hamburger
 	async delete(req, res) {
-
     const hamburgerId = req.params.id;
 
 		await hamburgers.findOneAndDelete({ _id: hamburgerId }).then((response) => {
@@ -107,7 +103,11 @@ module.exports = {
   
   //	Return all hamburgers
 	async allHamburgers(req, res) {
-		await hamburgers.find().sort({ name: "asc", price: "asc", creationDate: "asc" }).then((response) => {
+		await hamburgers.find().sort({ 
+      name: "asc", 
+      price: "asc", 
+      creationDate: "asc" 
+    }).then((response) => {
 			if(response && response.length ) {
         return res.status(200).json(response);
 			} else {
@@ -117,4 +117,4 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	}
-}
+};
