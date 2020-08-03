@@ -10,10 +10,6 @@ const fs = require("fs");
 const { promisify } = require("util");
 const asyncUnlink = promisify(fs.unlink);
 
-// Requiring dirname
-var path = require("path");
-var __dirname = path.resolve();
-
 //	Exporting Hamburger Menu features
 module.exports = {
 	//	Return a hamburger on database given id

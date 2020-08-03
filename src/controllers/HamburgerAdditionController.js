@@ -10,10 +10,6 @@ const fs = require("fs");
 const { promisify } = require("util");
 const asyncUnlink = promisify(fs.unlink);
 
-// Requiring dirname
-var path = require("path");
-var __dirname = path.resolve();
-
 //	Exporting Hamburger Addition features
 module.exports = {
 	//	Return a hamburger addition on database given id
@@ -150,7 +146,6 @@ module.exports = {
             return res.status(500).send("The hamburger addtion was deleted, but the thumbnail was not found");
           }
         })();
-				return res.status(200).send("The hamburger addition has been deleted!");
 			} else {
 				return res.status(400).send("Hamburger addition not found!");
 			}
