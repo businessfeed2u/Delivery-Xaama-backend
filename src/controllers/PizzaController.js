@@ -5,6 +5,9 @@ const mongoose = require("mongoose");
 require("../models/PizzaMenu");
 const pizzas = mongoose.model("PizzasMenu");
 
+// Loading module for to delete uploads
+const fs = require("fs");
+
 //	Exporting Pizza Menu features
 module.exports = {
 	//	Return a pizza on database given id
@@ -28,6 +31,10 @@ module.exports = {
     const filename = (req.file) ? req.file.filename : null;
 
     if(!name || !name.length || !ingredients || !ingredients.length || !prices) {
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+      }
+
       return res.status(400).send("Name, ingredients or price are empty!");
     }
 
@@ -40,9 +47,17 @@ module.exports = {
       if(response) {
         return res.status(201).send("Pizza created successfully!");
       } else {
+        if(filename) {
+          fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+        }
+
         return res.status(400).send("We couldn't create a new pizza, try again later!");
       }
     }).catch((error) => {
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+      }
+
       return res.status(500).send(error);
     });
 	},
@@ -55,6 +70,10 @@ module.exports = {
     const filename = (req.file) ? req.file.filename : null;
 
     if(!name || !name.length || !ingredients || !ingredients.length || !prices) {
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+      }
+
       return res.status(400).send("Name, ingredients or price are empty!");
     }
 
@@ -65,6 +84,10 @@ module.exports = {
       thumbnail: filename
     }).then((response) => {
       if(response) {
+        if(response.thumbnail) {
+          fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+        }
+
         return res.status(200).send("The pizza has been updated!");
       } else {
         return res.status(400).send("Pizza not found!");
@@ -80,7 +103,13 @@ module.exports = {
 
 		await pizzas.findOneAndDelete({ _id: pizzaId }).then((response) => {
 			if(response) {
-				return res.status(200).send("The pizza has been deleted!");
+        try {
+          fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+
+          return res.status(200).send("The pizza and its thumbnail have been deleted!");
+        } catch(e){
+          return res.status(200).send("The pizza was deleted, but the thumbnail was not found");
+        }
 			} else {
 				return res.status(400).send("Pizza not found!");
 			}

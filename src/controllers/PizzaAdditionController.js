@@ -5,6 +5,9 @@ const mongoose = require("mongoose");
 require("../models/PizzaAddition");
 const pizzasAd = mongoose.model("PizzaAdditions");
 
+// Loading module for to delete uploads
+const fs = require("fs");
+
 //	Exporting Pizza Addition features
 module.exports = {
 	//	Return a pizza addition on database given id
@@ -28,6 +31,10 @@ module.exports = {
     const filename = (req.file) ? req.file.filename : null;
 
     if(!name || !name.length || !price) {
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+      }
+
       return res.status(400).send("Name or price are empty!");
     }
 
@@ -39,9 +46,17 @@ module.exports = {
       if(response) {
         return res.status(201).send("Pizza addition created successfully!");
       } else {
+        if(filename) {
+          fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+        }
+
         return res.status(400).send("We couldn't create a new pizza addition, try again later!");
       }
     }).catch((error) => {
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+      }
+
       return res.status(500).send(error);
     });
 	},
@@ -54,6 +69,10 @@ module.exports = {
     const filename = (req.file) ? req.file.filename : null;
 
     if(!name || !name.length || !price) {
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+      }
+
       return res.status(400).send("Name or price are empty!");
     }
 
@@ -63,6 +82,10 @@ module.exports = {
       thumbnail: filename
     }).then((response) => {
       if(response) {
+        if(response.thumbnail) {
+          fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+        }
+
         return res.status(200).send("The pizza addition has been updated!");
       } else {
         return res.status(400).send("Pizza addition not found!");
@@ -78,7 +101,13 @@ module.exports = {
 
 		await pizzasAd.findOneAndDelete({ _id: pizzaAdId }).then((response) => {
 			if(response) {
-				return res.status(200).send("The pizza addition has been deleted!");
+        try {
+          fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+
+          return res.status(200).send("The pizza addition and its thumbnail have been deleted!");
+        } catch(e){
+          return res.status(200).send("The pizza addition have been deleted, but the thumbnail was not found");
+        }
 			} else {
 				return res.status(400).send("Pizza addition not found!");
 			}

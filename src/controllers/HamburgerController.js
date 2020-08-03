@@ -10,10 +10,6 @@ const fs = require("fs");
 const { promisify } = require("util");
 const asyncUnlink = promisify(fs.unlink);
 
-// Requiring dirname
-var path = require("path");
-var __dirname = path.resolve();
-
 //	Exporting Hamburger Menu features
 module.exports = {
 	//	Return a hamburger on database given id
@@ -99,9 +95,9 @@ module.exports = {
           console.log("New thumbnail was not found");
         }
       })();
+      
       return res.status(400).send("Name, ingredients or price are empty!");
     } else {
-
       await hamburgers.findOne({ _id: hamburgerId }).then((hamburger) => {
         if(hamburger) {
           (async () => {
@@ -134,7 +130,6 @@ module.exports = {
     }).catch((error) => {
       return res.status(500).send(error);
     });
-  
   },
   
   //	Delete a specific hamburger
@@ -148,7 +143,7 @@ module.exports = {
             await asyncUnlink(`${__dirname}/../../uploads/${response.thumbnail}`);
             return res.status(200).send("The Hamburger and thumbnail has been deleted!");
           } catch(e){
-            return res.status(500).send("The hamburger was deleted, but the thumbnail was not found");
+            return res.status(200).send("The hamburger was deleted, but the thumbnail was not found");
           }
         })();
 			} else {
