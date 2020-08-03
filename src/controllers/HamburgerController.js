@@ -10,6 +10,9 @@ const fs = require("fs");
 const { promisify } = require("util");
 const asyncUnlink = promisify(fs.unlink);
 
+// Requiring dirname
+var path = require("path");
+var __dirname = path.resolve();
 
 //	Exporting Hamburger Menu features
 module.exports = {
@@ -63,6 +66,7 @@ module.exports = {
             console.log("New thumbnail was not found");
           }
         })();
+
         return res.status(400).send("We couldn't create a new hamburger, try again later!");
       }
     }).catch((error) => {
@@ -74,6 +78,7 @@ module.exports = {
           console.log("New thumbnail was not found");
         }
       })();
+
       return res.status(500).send(error);
     });
   },
