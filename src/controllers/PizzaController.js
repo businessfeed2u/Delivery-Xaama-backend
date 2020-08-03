@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 require("../models/PizzaMenu");
 const pizzas = mongoose.model("PizzasMenu");
 
-// Loading module for to delete uploads
+// Loading module to delete uploads
 const fs = require("fs");
 
 //	Exporting Pizza Menu features

@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 require("../models/PizzaAddition");
 const pizzasAd = mongoose.model("PizzaAdditions");
 
-// Loading module for to delete uploads
+// Loading module to delete uploads
 const fs = require("fs");
 
 //	Exporting Pizza Addition features
@@ -123,7 +123,7 @@ module.exports = {
       price: "asc", 
       creationDate: "asc" 
     }).then((response) => {
-			if(response && response.length ) {
+			if(response && response.length) {
         return res.status(200).json(response);
 			} else {
 				return res.status(400).send("Pizza additions not found!");

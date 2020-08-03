@@ -5,10 +5,8 @@ const mongoose = require("mongoose");
 require("../models/HamburgerMenu");
 const hamburgers = mongoose.model("HamburgersMenu");
 
-// Loading module for to delete uploads
+// Loading module to delete uploads
 const fs = require("fs");
-const { promisify } = require("util");
-const asyncUnlink = promisify(fs.unlink);
 
 //	Exporting Hamburger Menu features
 module.exports = {
@@ -33,14 +31,9 @@ module.exports = {
     const filename = (req.file) ? req.file.filename : null;
 
     if(!name || !name.length || !ingredients || !ingredients.length || !price) {
-      (async () => {
-        try {
-          await asyncUnlink(`${__dirname}/../../uploads/${filename}`);
-          console.log("New thumbnail has been deleted!");
-        } catch(e){
-          console.log("New thumbnail was not found");
-        }
-      })();
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+      }
 
       return res.status(400).send("Name, ingredients or price are empty!");
     }
@@ -54,26 +47,16 @@ module.exports = {
       if(response) {
         return res.status(201).send("Hamburger created successfully!");
       } else {
-        (async () => {
-          try {
-            await asyncUnlink(`${__dirname}/../../uploads/${filename}`);
-            console.log("New thumbnail has been deleted!");
-          } catch(e){
-            console.log("New thumbnail was not found");
-          }
-        })();
+        if(filename) {
+          fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+        }
 
         return res.status(400).send("We couldn't create a new hamburger, try again later!");
       }
     }).catch((error) => {
-      (async () => {
-        try {
-          await asyncUnlink(`${__dirname}/../../uploads/${filename}`);
-          console.log("New thumbnail has been deleted!");
-        } catch(e){
-          console.log("New thumbnail was not found");
+        if(filename) {
+          fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
         }
-      })();
 
       return res.status(500).send(error);
     });
@@ -87,33 +70,11 @@ module.exports = {
     const filename = (req.file) ? req.file.filename : null;
    
     if(!name || !name.length || !ingredients || !ingredients.length || !price) {
-      (async () => {
-        try {
-          await asyncUnlink(`${__dirname}/../../uploads/${filename}`);
-          console.log("New thumbnail has been deleted!");
-        } catch(e){
-          console.log("New thumbnail was not found");
-        }
-      })();
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+      }
       
       return res.status(400).send("Name, ingredients or price are empty!");
-    } else {
-      await hamburgers.findOne({ _id: hamburgerId }).then((hamburger) => {
-        if(hamburger) {
-          (async () => {
-            try {
-              await asyncUnlink(`${__dirname}/../../uploads/${hamburger.thumbnail}`);
-              console.log("Thumbnail old has been deleted!");
-            } catch(e){
-              console.log("Thumbnail old was not found");
-            }
-          })();
-        } else {
-          return res.status(400).send("Hamburger not found!");
-        }
-      }).catch((error) => {
-        return res.status(500).send(error);
-      });
     }
 
     await hamburgers.findOneAndUpdate({ _id: hamburgerId }, {
@@ -123,9 +84,13 @@ module.exports = {
       thumbnail: filename
     }).then((response) => {
       if(response) {
-        return res.status(200).send("The hamburger have been updated!");
+        if(response.thumbnail) {
+          fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+        }
+
+        return res.status(200).send("The hamburger has been updated!");
       } else {
-        return res.status(400).send("Hamburger not found!!!!");
+        return res.status(400).send("Hamburger not found!");
       }
     }).catch((error) => {
       return res.status(500).send(error);
@@ -138,14 +103,13 @@ module.exports = {
 
 		await hamburgers.findOneAndDelete({ _id: hamburgerId }).then((response) => {
 			if(response) {
-        (async () => {
-          try {
-            await asyncUnlink(`${__dirname}/../../uploads/${response.thumbnail}`);
-            return res.status(200).send("The Hamburger and thumbnail has been deleted!");
-          } catch(e){
-            return res.status(200).send("The hamburger was deleted, but the thumbnail was not found");
-          }
-        })();
+        try {
+          fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+
+          return res.status(200).send("The hamburger and its thumbnail have been deleted!");
+        } catch(e){
+          return res.status(200).send("The hamburger was deleted, but the thumbnail was not found");
+        }
 			} else {
 				return res.status(400).send("Hamburger not found!");
 			}
