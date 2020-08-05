@@ -27,7 +27,11 @@ const userSchema = Schema({
 	password: {
 		type: String,
 		require: true
-	},
+  },
+  thumbnail: {
+    type: String,
+    default: null
+  },
 	creationDate: {
 		type: Date,
 		default: Date.now()

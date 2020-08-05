@@ -30,8 +30,8 @@ routes.post("/session", SessionController.create);
 
 //  User
 routes.get("/user", UserController.index);
-routes.post("/user", UserController.create);
-routes.put("/user", UserController.update);
+routes.post("/user", upload.single("thumbnail"), UserController.create);
+routes.put("/user", upload.single("thumbnail"), UserController.update);
 routes.delete("/user", UserController.delete);
 
 // Hamburger

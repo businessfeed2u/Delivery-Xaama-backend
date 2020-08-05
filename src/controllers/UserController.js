@@ -6,6 +6,9 @@ const bcrypt = require("bcryptjs");
 require("../models/User");
 const users = mongoose.model("Users");
 
+// Loading module to delete uploads
+const fs = require("fs");
+
 //	Exporting User features
 module.exports = {
 	//	Return an user on database given email
@@ -28,7 +31,8 @@ module.exports = {
 	},
 	//	Create a new user
 	async create(req, res) {
-		const { name, email, password, passwordC } = req.body;
+    const { name, email, password, passwordC } = req.body;
+    const filename = (req.file) ? req.file.filename : null;
 
 		if(name && name.length && email && email.length && password && password.length && passwordC && passwordC.length) {
 			if(password !== passwordC) {
@@ -41,7 +45,7 @@ module.exports = {
 					else {
 						bcrypt.genSalt(10).then((salt) => {
 							bcrypt.hash(password, salt).then((hash) => {
-								users.create({ name, email, userType: 0, password: hash }).then((response) => {
+								users.create({ name, email, userType: 0, password: hash, thumbnail: filename }).then((response) => {
 									if(response) {
 										return res.status(201).json(response);
 									} else {
@@ -62,6 +66,9 @@ module.exports = {
 				});
 			}
 		} else {
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+      }
 			return res.status(400).send("Name, email, password or password confirmation are empty!");
 		}
 	},
