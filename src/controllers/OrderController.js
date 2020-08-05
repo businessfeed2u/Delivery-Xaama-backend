@@ -24,31 +24,22 @@ module.exports = {
 
 	//	Create a new order
 	async create(req, res) {
-		const { user, hamburgers, pizzas } = req.body;
+		const { user, products } = req.body;
 
-		if(!user) {
-			return res.status(400).send("User is empty!");
+		if(!user || !products) {
+			return res.status(400).send("User or products are empty!");
 		}
 
 		var total = 0.0;
 
-		//	Calculate hamburgers and additions total price if exists
-		if(hamburgers) {
-			for(var x of hamburgers) {
+		//	Calculate products and its additions total price if exists
+		if(products) {
+			for(var x of products) {
 				for(var y of x.additions) {
-					total += (x.hamburger.price + y.price);
-				}
-			}
-		}
-
-		//	Calculate pizzas and additions total price if exists
-		if(pizzas) {
-			for(x of pizzas) {
-				for(y of x.additions) {
-					if(x.size >= 0 && x.size < x.pizza.prices.length) {
-						total += (x.pizza.prices[x.size] + y.price);
+					if(x.size >= 0 && x.size < x.product.prices.length) {
+						total += (x.product.prices[x.size] + y.price);
 					} else {
-						return res.status(400).send("Pizza size chosen doesn't exist! Try again");
+						return res.status(400).send(`${x.product.name} size doesn't exist!`);
 					}
 				}
 			}
@@ -56,8 +47,7 @@ module.exports = {
 
 		await orders.create({
 			user,
-			hamburgers,
-			pizzas,
+			products,
 			total
 		}).then((response) => {
 			if(response) {

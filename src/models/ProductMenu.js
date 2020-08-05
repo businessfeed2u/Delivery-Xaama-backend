@@ -4,12 +4,11 @@ const mongoose = require("mongoose");
 //	Using schema feature from mongoose
 const Schema = mongoose.Schema;
 
-//	Defining pizzaMenu schema
-const pizzaMenu = Schema({
-  
+//	Defining ProductMenu schema
+const productMenuSchema = Schema({
   name: {
     type: String,
-    require: true,
+    required: true,
   },
 
   ingredients: {
@@ -17,9 +16,14 @@ const pizzaMenu = Schema({
     required: true,
   },
 
+  type: {
+    type: String,
+    required: true,
+  },
+
   prices: {
     type: [Number],
-    require: true,
+    required: true,
   },
 
   available: {
@@ -29,7 +33,7 @@ const pizzaMenu = Schema({
 
   thumbnail: {
     type: String,
-    require: true,
+    required: true,
   },
 
 	creationDate: {
@@ -38,5 +42,5 @@ const pizzaMenu = Schema({
 	}
 });
 
-//	Creating collection PizzaMenu on database
-mongoose.model("PizzasMenu", pizzaMenu);
+//	Creating collection ProductsMenu on database
+mongoose.model("ProductsMenu", productMenuSchema);
