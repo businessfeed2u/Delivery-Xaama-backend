@@ -31,26 +31,26 @@ module.exports = {
 	async create(req, res) {
 		const { email, password } = req.body;
 
-		if(email && email.length && password && password.length) {
-			await users.findOne({ email: email }).then((user) => {
-				if(user) {
-					bcrypt.compare(password, user.password).then((match) => {
-						if(match) {
-							return res.status(200).json(user);
-						} else {
-							return res.status(400).send("Wrong password!");
-						}
-					}).catch((error) => {
-						return res.status(500).send(error.message);
-					});
-				} else {
-					return res.status(400).send("No user found using this email!");
-				}
-			}).catch((error) => {
-				return res.status(500).send(error);
-			});
-		} else {
+		if(!email || !email.length || !password || !password.length) {
 			return res.status(400).send("Email or password are empty!");
 		}
+		
+		await users.findOne({ email: email.trim().toLowerCase() }).then((user) => {
+			if(user) {
+				bcrypt.compare(password, user.password).then((match) => {
+					if(match) {
+						return res.status(200).json(user);
+					} else {
+						return res.status(400).send("Wrong password!");
+					}
+				}).catch((error) => {
+					return res.status(500).send(error.message);
+				});
+			} else {
+				return res.status(400).send("No user found using this email!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
 	}
 };

@@ -8,17 +8,17 @@ const Schema = mongoose.Schema;
 const additionSchema = Schema({
   name: {
     type: String,
-    require: true,
+    required: true,
   },
 
   type: {
     type: [String],
-    require: true,
+    required: true,
   },
 
   price: {
     type: Number,
-    require: true,
+    required: true,
   },
 
   available: {
@@ -28,7 +28,7 @@ const additionSchema = Schema({
 
   thumbnail: {
     type: String,
-    require: true,
+    default: null,
   },
   
 	creationDate: {

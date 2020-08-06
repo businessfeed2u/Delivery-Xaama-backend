@@ -8,11 +8,11 @@ const Schema = mongoose.Schema;
 const userSchema = Schema({
 	name: {
 		type: String,
-		require: true
+		required: true
 	},
 	email: {
 		type: String,
-		require: true
+		required: true
 	},
 	phone: {
 		type: String
@@ -22,16 +22,16 @@ const userSchema = Schema({
 	},
 	userType: {
 		type: Number,
-		require: true
+		required: true
 	},
 	password: {
 		type: String,
-		require: true
-  },
-  thumbnail: {
-    type: String,
-    default: null
-  },
+		required: true
+	},
+	thumbnail: {
+		type: String,
+		default: null
+	},
 	creationDate: {
 		type: Date,
 		default: Date.now()

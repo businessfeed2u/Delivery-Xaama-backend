@@ -63,7 +63,7 @@ module.exports = {
 		});
 	},
   
-  //	Update a specific product
+	//	Update a specific product
 	async update(req, res) {
 		const productId = req.params.id;
 
@@ -86,8 +86,10 @@ module.exports = {
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-				if(response.thumbnail) {
+				try {
 					fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+				} catch(error) {
+					//
 				}
 
 				return res.status(200).send("The product has been updated!");

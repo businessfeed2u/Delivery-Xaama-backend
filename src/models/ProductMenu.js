@@ -33,7 +33,7 @@ const productMenuSchema = Schema({
 
   thumbnail: {
     type: String,
-    required: true,
+    default: null
   },
 
 	creationDate: {
