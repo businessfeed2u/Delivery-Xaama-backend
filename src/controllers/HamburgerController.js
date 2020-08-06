@@ -108,7 +108,7 @@ module.exports = {
 
           return res.status(200).send("The hamburger and its thumbnail have been deleted!");
         } catch(e){
-          return res.status(200).send("The hamburger was deleted, but the thumbnail was not found");
+          return res.status(200).send("The hamburger was deleted, but the thumbnail was not found!");
         }
 			} else {
 				return res.status(400).send("Hamburger not found!");
