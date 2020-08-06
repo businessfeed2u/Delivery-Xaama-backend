@@ -1,26 +1,21 @@
 //  Requiring database
 const mongoose = require("mongoose");
-const userSchema = require("./User");
-const pizzaSchema = require("./Pizza");
-const hamburgerSchema = require("./Hamburger");
 
-//	Using schema feature from mongoose
+//	Using schema feature from mongoose and calling schemas
 const Schema = mongoose.Schema;
+const userSchema = require("./User");
+const productSchema = require("./Product");
 
 //	Defining Order schema
 const orderSchema = Schema({
-
   user: {
     type: userSchema,
     required: true,
   },
   
-  hamburgers: {
-    type: [hamburgerSchema]
-  },
-
-  pizzas: {
-    type: [pizzaSchema]
+  products: {
+    type: [productSchema],
+    required: true
   },
 
   total: {
@@ -34,5 +29,5 @@ const orderSchema = Schema({
 	}
 });
 
-//	Creating collection Pedidos on database
+//	Creating collection Orders on database
 mongoose.model("Orders", orderSchema);

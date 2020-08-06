@@ -10,10 +10,8 @@ const upload = multer(uploadConfig);
 const SessionController = require("./controllers/SessionController");
 const UserController = require("./controllers/UserController");
 const SystemController = require("./controllers/DevelopmentController");
-const HamburgerController = require("./controllers/HamburgerController");
-const PizzaController = require("./controllers/PizzaController");
-const PizzaAdditionController = require("./controllers/PizzaAdditionController");
-const HamburgerAdditionController = require("./controllers/HamburgerAdditionController");
+const ProductController = require("./controllers/ProductController");
+const AdditionController = require("./controllers/AdditionController");
 const OrderController = require("./controllers/OrderController");
 
 //  Setting up routes
@@ -21,7 +19,7 @@ const routes = express.Router();
 
 //  Home
 routes.get("/", (req, res) => {
-    return res.status(200).send("Backend is running");
+	return res.status(200).send("Backend is running");
 });
 
 //	Session
@@ -34,33 +32,19 @@ routes.post("/user", upload.single("thumbnail"), UserController.create);
 routes.put("/user", upload.single("thumbnail"), UserController.update);
 routes.delete("/user", UserController.delete);
 
-// Hamburger
-routes.get("/hamburger/:id", HamburgerController.index);
-routes.post("/hamburger", upload.single("thumbnail"), HamburgerController.create);
-routes.put("/hamburger/:id", upload.single("thumbnail"), HamburgerController.update);
-routes.delete("/hamburger/:id", HamburgerController.delete);
-routes.get("/hamburger", HamburgerController.allHamburgers);
+// Product
+routes.get("/product/:id", ProductController.index);
+routes.post("/product", upload.single("thumbnail"), ProductController.create);
+routes.put("/product/:id", upload.single("thumbnail"), ProductController.update);
+routes.delete("/product/:id", ProductController.delete);
+routes.get("/product", ProductController.allProducts);
 
-// Hamburger addition
-routes.get("/hamburgerAddition/:id", HamburgerAdditionController.index);
-routes.post("/hamburgerAddition", upload.single("thumbnail"), HamburgerAdditionController.create);
-routes.put("/hamburgerAddition/:id", upload.single("thumbnail"), HamburgerAdditionController.update);
-routes.delete("/hamburgerAddition/:id", HamburgerAdditionController.delete);
-routes.get("/hamburgerAddition", HamburgerAdditionController.allHamburgerAdditions);
-
-// Pizza
-routes.get("/pizza/:id", PizzaController.index);
-routes.post("/pizza", upload.single("thumbnail"), PizzaController.create);
-routes.put("/pizza/:id", upload.single("thumbnail"), PizzaController.update);
-routes.delete("/pizza/:id", PizzaController.delete);
-routes.get("/pizza", PizzaController.allPizzas);
-
-// Pizza addition
-routes.get("/pizzaAddition/:id", PizzaAdditionController.index);
-routes.post("/pizzaAddition", upload.single("thumbnail"), PizzaAdditionController.create);
-routes.put("/pizzaAddition/:id", upload.single("thumbnail"), PizzaAdditionController.update);
-routes.delete("/pizzaAddition/:id", PizzaAdditionController.delete);
-routes.get("/pizzaAddition", PizzaAdditionController.allPizzaAdditions);
+// Product addition
+routes.get("/addition/:id", AdditionController.index);
+routes.post("/addition", upload.single("thumbnail"), AdditionController.create);
+routes.put("/addition/:id", upload.single("thumbnail"), AdditionController.update);
+routes.delete("/addition/:id", AdditionController.delete);
+routes.get("/addition", AdditionController.allAdditions);
 
 // Order
 routes.get("/order/:id", OrderController.index);
