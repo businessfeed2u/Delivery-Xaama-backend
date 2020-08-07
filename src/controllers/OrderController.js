@@ -1,28 +1,30 @@
 //  Requiring database
 const mongoose = require("mongoose");
 
-//	Loading Orders collection from database
+//	Loading Orders and COmpany collection from database
 require("../models/Order");
+require("../models/Company");
 const orders = mongoose.model("Orders");
+const companyData = mongoose.model("Company");
 
 //	Exporting Order features
 module.exports = {
 	//	Return an order on database given id
 	async index(req, res) {
-    const orderId = req.params.id;
-    const userId = req.headers.authorization;
+		const orderId = req.params.id;
+		const userId = req.headers.authorization;
 
-    if(!userId || !userId.length) {
+		if(!userId || !userId.length) {
 			return res.status(400).send("No user is logged in!");
 		}
 		
 		await orders.findById(orderId).then((order) => {
 			if(order) {
-        if(order.user._id == userId) {
-          return res.status(200).json(order);
-        } else {
-          return res.status(401).send("You don't have permission to access this order!");
-        }
+				if(order.user._id == userId) {
+					return res.status(200).json(order);
+				} else {
+					return res.status(401).send("You don't have permission to access this order!");
+				}
 			} else {
 				return res.status(400).send("Order not found!");
 			}
@@ -39,7 +41,9 @@ module.exports = {
 			return res.status(400).send("User or products are empty!");
 		}
 
-		var total = 0.0;
+		//	Get freight price
+		var total = await companyData.findOne({}).exec();
+		total = total.freight;
 
 		//	Calculate products and its additions total price if exists
 		if(products) {
