@@ -13,21 +13,21 @@ const fs = require("fs");
 module.exports = {
 	//	Return an user on database given email
 	async index(req, res) {
-		const { email } = req.body;
-		
-		if(email && email.length) {
-			await users.findOne({ email: email.trim().toLowerCase() }).then((user) => {
-				if(user) {
-					return res.status(200).json(user);
-				} else {
-					return res.status(400).send("No user found!");
-				}
-			}).catch((error) => {
-				return res.status(500).send(error);
-			});
-		} else {
-			return res.status(400).send("Email is empty!");
+		const userId = req.headers.authorization;
+
+		if(!userId || !userId.length) {
+			return res.status(400).send("No user is logged in!");
 		}
+		
+		await users.findById(userId).then((user) => {
+			if(user) {
+				return res.status(200).json(user);
+			} else {
+				return res.status(400).send("No user found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
 	},
 
 	//	Create a new user
@@ -267,6 +267,25 @@ module.exports = {
 				}
 			} else {
 				return res.status(400).send("User not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
+	},
+
+	//	Return all users on database
+	async allUsers(req, res) {
+		const userId = req.headers.authorization;
+
+		if(!userId || !userId.length) {
+			return res.status(400).send("No user is logged in!");
+		}
+		
+		await users.find().then((response) => {
+			if(response) {
+				return res.status(200).json(response);
+			} else {
+				return res.status(400).send("No user found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
