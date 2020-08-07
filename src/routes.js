@@ -30,10 +30,11 @@ routes.get("/session", SessionController.index);
 routes.post("/session", SessionController.create);
 
 //  User
-routes.get("/user", UserController.index);
+routes.get("/user/:id", UserController.index);
 routes.post("/user", upload.single("thumbnail"), UserController.create);
 routes.put("/user", upload.single("thumbnail"), UserController.update);
 routes.delete("/user", UserController.delete);
+routes.get("/user", authorized.eAdmin, UserController.allUsers);
 
 // Product
 routes.get("/product/:id", ProductController.index);
@@ -56,7 +57,6 @@ routes.delete("/order/:id", OrderController.delete);
 routes.get("/order", OrderController.allOrders);
 
 //  Development routes - caution
-routes.get("/allUsers", authorized.eAdmin, SystemController.allUsers);
 routes.get("/deleteAllUsers", SystemController.deleteAllUsers);
 
 module.exports = routes;

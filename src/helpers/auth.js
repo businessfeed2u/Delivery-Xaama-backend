@@ -36,7 +36,7 @@ module.exports = {
     
     users.findById(userId).then((response) => {
       if(response) {
-        if(response.userType != 1) {
+        if(response.userType != 1 && response.userType != 2) {
           return res.status(401).send("User not authorized!");
         }
         return next();
