@@ -4,8 +4,8 @@ const mongoose = require("mongoose");
 //	Using schema feature from mongoose
 const Schema = mongoose.Schema;
 
-//	Defining User schema
-const userSchema = Schema({
+//	Defining Company schema
+const companySchema = Schema({
 	name: {
 		type: String,
 		required: true
@@ -15,28 +15,22 @@ const userSchema = Schema({
 		required: true
 	},
 	phone: {
-		type: String
+        type: String,
+		required: true
 	},
 	address: {
-		type: String
-	},
-	userType: {
-		type: Number,
-		required: true
-	},
-	password: {
 		type: String,
 		required: true
 	},
-	thumbnail: {
+    freight: {
+        type: Number,
+        required: true
+    },
+	logo: {
 		type: String,
 		default: null
-	},
-	creationDate: {
-		type: Date,
-		default: Date.now()
-	}
+    }
 });
 
-//	Creating collection Users on database
-mongoose.model("Users", userSchema);
+//	Creating collection Company on database
+mongoose.model("Company", companySchema);
