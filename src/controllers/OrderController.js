@@ -35,7 +35,7 @@ module.exports = {
 
 	//	Create a new order
 	async create(req, res) {
-		const { user, products } = req.body;
+		const { user, products, deliver } = req.body;
 
 		if(!user || !products) {
 			return res.status(400).send("User or products are empty!");
@@ -43,7 +43,7 @@ module.exports = {
 
 		//	Get freight price
 		var total = await companyData.findOne({}).exec();
-		total = total.freight;
+		total = (deliver) ? total.freight : 0.0;
 
 		//	Calculate products and its additions total price if exists
 		if(products) {
