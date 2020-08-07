@@ -6,6 +6,9 @@ const multer = require("multer");
 const uploadConfig = require("./config/upload");
 const upload = multer(uploadConfig);
 
+// Requiring authorization function
+const authorized = require("./helpers/auth");
+
 //  Requiring route controllers
 const SessionController = require("./controllers/SessionController");
 const UserController = require("./controllers/UserController");
@@ -53,7 +56,7 @@ routes.delete("/order/:id", OrderController.delete);
 routes.get("/order", OrderController.allOrders);
 
 //  Development routes - caution
-routes.get("/allUsers", SystemController.allUsers);
+routes.get("/allUsers", authorized.eAdmin, SystemController.allUsers);
 routes.get("/deleteAllUsers", SystemController.deleteAllUsers);
 
 module.exports = routes;

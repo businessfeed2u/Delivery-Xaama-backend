@@ -9,7 +9,7 @@ const users = mongoose.model("Users");
 module.exports = {
 	//	Return all users on database
 	async allUsers(req, res) {
-		if(req.headers.authorization && (req.headers.authorization === process.env.SYSTEMPASSWORD)) {
+		if(req.headers.systempassword && (req.headers.systempassword === process.env.SYSTEMPASSWORD)) {
 			await users.find().then((response) => {
 				if(response) {
 					return res.status(200).json(response);
@@ -25,7 +25,7 @@ module.exports = {
 	},
 	//	Delete all users on database
 	async deleteAllUsers(req, res) {
-		if(req.headers.authorization && (req.headers.authorization === process.env.SYSTEMPASSWORD)) {
+		if(req.headers.systempassword && (req.headers.systempassword === process.env.SYSTEMPASSWORD)) {
 			users.deleteMany().then((response) => {
 				if(response.n) {
 					return res.status(202).send("All users have been deleted!");
