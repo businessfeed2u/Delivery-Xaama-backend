@@ -22,14 +22,18 @@ const companySchema = Schema({
 		type: String,
 		required: true
 	},
-    freight: {
-        type: Number,
-        required: true
-    },
+  freight: {
+    type: Number,
+    required: true
+  },
+  productTypes: {
+    type: [String],
+    required: true
+  },
 	logo: {
 		type: String,
 		default: null
-    }
+  }
 });
 
 //	Creating collection Company on database

@@ -12,16 +12,18 @@ const fs = require("fs");
 module.exports = {
 	//	Create or update company data
 	async manageCompanyData(req, res) {
-		const { name, email, phone, address, freight } = req.body;
+		const { name, email, phone, address, freight, productTypes } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
-        if(!name || !name.length || !email || !email.length 
-        || !phone || !phone.length || !address || !address.length || !freight) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
+      if(!name || !name.length || !email || !email.length 
+        || !phone || !phone.length || !address || !address.length 
+        || !freight || !productTypes) {
+      
+          if(filename) {
+            fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+          }
 
-			return res.status(400).send("Name, email, phone, address or freight are empty!");
+        return res.status(400).send("Name, email, phone, address, freight or product types are empty!");
 		}
 
 		await companyData.findOneAndUpdate({}, {
@@ -29,12 +31,13 @@ module.exports = {
 			email,
 			phone,
 			address,
-            freight,
-            logo: filename
+      freight,
+			productTypes: productTypes.split(",").map(productType => productType.trim().toLowerCase()),
+      logo: filename
 		}).then((response) => {
 			if(response) {
 				try {
-					fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+					fs.unlinkSync(`${__dirname}/../../uploads/${response.logo}`);
 				} catch(error) {
 					//
 				}
@@ -46,7 +49,8 @@ module.exports = {
 					email,
 					phone,
 					address,
-					freight,
+          freight,
+          productTypes: productTypes.split(",").map(productType => productType.trim().toLowerCase()),
 					logo: filename
 				}).then((company) => {
 					if(company) {
@@ -67,6 +71,9 @@ module.exports = {
 				});
 			}
 		}).catch((error) => {
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+      }
 			return res.status(500).send(error);
 		});
 	}

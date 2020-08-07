@@ -6,8 +6,9 @@ const multer = require("multer");
 const uploadConfig = require("./config/upload");
 const upload = multer(uploadConfig);
 
-// Requiring authorization function
+// Requiring helpers
 const authorized = require("./helpers/auth");
+const getProductTypes = require("./helpers/getProductTypes");
 
 //  Requiring route controllers
 const SessionController = require("./controllers/SessionController");
@@ -30,8 +31,10 @@ routes.get("/", (req, res) => {
 routes.get("/session", SessionController.index);
 routes.post("/session", SessionController.create);
 
-//	Admin
-routes.post("/company", authorized.eAdmin, upload.single("thumbnail"), AdminController.manageCompanyData);
+//	Company
+routes.post("/company", authorized.eAdmin, upload.single("logo"), AdminController.manageCompanyData);
+routes.get("/productTypes", getProductTypes.index);
+
 
 //  User
 routes.get("/user/:id", UserController.index);
