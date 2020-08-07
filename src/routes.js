@@ -37,23 +37,23 @@ routes.delete("/user", UserController.delete);
 
 // Product
 routes.get("/product/:id", ProductController.index);
-routes.post("/product", upload.single("thumbnail"), ProductController.create);
-routes.put("/product/:id", upload.single("thumbnail"), ProductController.update);
-routes.delete("/product/:id", ProductController.delete);
+routes.post("/product", authorized.eManager, upload.single("thumbnail"), ProductController.create);
+routes.put("/product/:id", authorized.eManager, upload.single("thumbnail"), ProductController.update);
+routes.delete("/product/:id", authorized.eManager, ProductController.delete);
 routes.get("/product", ProductController.allProducts);
 
 // Product addition
 routes.get("/addition/:id", AdditionController.index);
-routes.post("/addition", upload.single("thumbnail"), AdditionController.create);
-routes.put("/addition/:id", upload.single("thumbnail"), AdditionController.update);
-routes.delete("/addition/:id", AdditionController.delete);
+routes.post("/addition", authorized.eManager, upload.single("thumbnail"), AdditionController.create);
+routes.put("/addition/:id", authorized.eManager, upload.single("thumbnail"), AdditionController.update);
+routes.delete("/addition/:id", authorized.eManager, AdditionController.delete);
 routes.get("/addition", AdditionController.allAdditions);
 
 // Order
 routes.get("/order/:id", OrderController.index);
 routes.post("/order", OrderController.create);
-routes.delete("/order/:id", OrderController.delete);
-routes.get("/order", OrderController.allOrders);
+routes.delete("/order/:id", authorized.eManager, OrderController.delete);
+routes.get("/order", authorized.eManager, OrderController.allOrders);
 
 //  Development routes - caution
 routes.get("/allUsers", authorized.eAdmin, SystemController.allUsers);
