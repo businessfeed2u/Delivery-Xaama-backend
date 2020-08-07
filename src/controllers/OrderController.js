@@ -9,11 +9,20 @@ const orders = mongoose.model("Orders");
 module.exports = {
 	//	Return an order on database given id
 	async index(req, res) {
-		const orderId = req.params.id;
+    const orderId = req.params.id;
+    const userId = req.headers.authorization;
+
+    if(!userId || !userId.length) {
+			return res.status(400).send("No user is logged in!");
+		}
 		
-		await orders.findOne({ _id: orderId }).then((order) => {
+		await orders.findById(orderId).then((order) => {
 			if(order) {
-				return res.status(200).json(order);
+        if(order.user._id == userId) {
+          return res.status(200).json(order);
+        } else {
+          return res.status(401).send("You don't have permission to access this order!");
+        }
 			} else {
 				return res.status(400).send("Order not found!");
 			}
