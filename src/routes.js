@@ -11,6 +11,7 @@ const authorized = require("./helpers/auth");
 
 //  Requiring route controllers
 const SessionController = require("./controllers/SessionController");
+const AdminController = require("./controllers/AdminController");
 const UserController = require("./controllers/UserController");
 const SystemController = require("./controllers/DevelopmentController");
 const ProductController = require("./controllers/ProductController");
@@ -28,6 +29,9 @@ routes.get("/", (req, res) => {
 //	Session
 routes.get("/session", SessionController.index);
 routes.post("/session", SessionController.create);
+
+//	Admin
+routes.post("/company", authorized.eAdmin, upload.single("thumbnail"), AdminController.manageCompanyData);
 
 //  User
 routes.get("/user/:id", UserController.index);
