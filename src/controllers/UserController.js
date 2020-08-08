@@ -1,8 +1,8 @@
-//  Requiring database and bcryptjs
+//  Loading database and bcryptjs modules
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-//	Loading Users collection from database
+//	Loading User schema and Users collection from database
 require("../models/User");
 const users = mongoose.model("Users");
 
@@ -13,7 +13,7 @@ const fs = require("fs");
 module.exports = {
 	//	Return an user on database given email
 	async index(req, res) {
-		const userId = req.headers.authorization;
+		const userId = req.params.id;
 
 		if(!userId || !userId.length) {
 			return res.status(400).send("No user is logged in!");
@@ -274,7 +274,7 @@ module.exports = {
 	},
 
 	//	Return all users on database
-	async allUsers(req, res) {
+	async all(req, res) {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length) {

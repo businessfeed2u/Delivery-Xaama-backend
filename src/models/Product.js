@@ -1,4 +1,4 @@
-//  Requiring database
+//  Loading database module
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose and calling schemas
@@ -8,20 +8,18 @@ const productAdditionSchema = require("./Addition");
 
 //	Defining Product schema
 const productSchema = Schema({
-    product: {
-        type: productMenuSchema,
-        required: true
-    },
-
-    size: {
-        type: Number,
-        required: true
-    },
-
-    additions: {
-        type: [productAdditionSchema]
-    },
-
+	product: {
+		type: productMenuSchema,
+		required: true
+	},
+	size: {
+		type: Number,
+		required: true
+	},
+	additions: {
+		type: [productAdditionSchema],
+		default: []
+	},
 	creationDate: {
 		type: Date,
 		default: Date.now()

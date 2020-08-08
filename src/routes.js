@@ -1,20 +1,18 @@
-//  Requiring express-js
+//  Loading express-js and multer modules
 const express = require("express");
-
-// Requiring upload controller
 const multer = require("multer");
+
+//	Loading upload controller and setting it up
 const uploadConfig = require("./config/upload");
 const upload = multer(uploadConfig);
 
-// Requiring helpers
-const authorized = require("./helpers/auth");
-const getProductTypes = require("./helpers/getProductTypes");
+//	Loading helpers
+const authorization = require("./helpers/auth");
 
-//  Requiring route controllers
+//  Loading route controllers
 const SessionController = require("./controllers/SessionController");
-const AdminController = require("./controllers/AdminController");
+const companyController = require("./controllers/CompanyController");
 const UserController = require("./controllers/UserController");
-const SystemController = require("./controllers/DevelopmentController");
 const ProductController = require("./controllers/ProductController");
 const AdditionController = require("./controllers/AdditionController");
 const OrderController = require("./controllers/OrderController");
@@ -32,38 +30,35 @@ routes.get("/session", SessionController.index);
 routes.post("/session", SessionController.create);
 
 //	Company
-routes.post("/company", authorized.eAdmin, upload.single("logo"), AdminController.manageCompanyData);
-routes.get("/productTypes", getProductTypes.index);
+routes.get("/productTypes", companyController.productTypes);
+routes.get("/company", companyController.companyData);
+routes.post("/company", authorization.admin, upload.single("logo"), companyController.manageCompanyData);
 
-
-//  User
+//	User
 routes.get("/user/:id", UserController.index);
 routes.post("/user", upload.single("thumbnail"), UserController.create);
 routes.put("/user", upload.single("thumbnail"), UserController.update);
 routes.delete("/user", UserController.delete);
-routes.get("/user", authorized.eAdmin, UserController.allUsers);
+routes.get("/user", authorization.admin, UserController.all);
 
-// Product
+//	Product
 routes.get("/product/:id", ProductController.index);
-routes.post("/product", authorized.eManager, upload.single("thumbnail"), ProductController.create);
-routes.put("/product/:id", authorized.eManager, upload.single("thumbnail"), ProductController.update);
-routes.delete("/product/:id", authorized.eManager, ProductController.delete);
-routes.get("/product", ProductController.allProducts);
+routes.post("/product", authorization.manager, upload.single("thumbnail"), ProductController.create);
+routes.put("/product/:id", authorization.manager, upload.single("thumbnail"), ProductController.update);
+routes.delete("/product/:id", authorization.manager, ProductController.delete);
+routes.get("/product", ProductController.all);
 
-// Product addition
+//	Product addition
 routes.get("/addition/:id", AdditionController.index);
-routes.post("/addition", authorized.eManager, upload.single("thumbnail"), AdditionController.create);
-routes.put("/addition/:id", authorized.eManager, upload.single("thumbnail"), AdditionController.update);
-routes.delete("/addition/:id", authorized.eManager, AdditionController.delete);
-routes.get("/addition", AdditionController.allAdditions);
+routes.post("/addition", authorization.manager, upload.single("thumbnail"), AdditionController.create);
+routes.put("/addition/:id", authorization.manager, upload.single("thumbnail"), AdditionController.update);
+routes.delete("/addition/:id", authorization.manager, AdditionController.delete);
+routes.get("/addition", AdditionController.all);
 
-// Order
+//	Order
 routes.get("/order/:id", OrderController.index);
 routes.post("/order", OrderController.create);
-routes.delete("/order/:id", authorized.eManager, OrderController.delete);
-routes.get("/order", authorized.eManager, OrderController.allOrders);
-
-//  Development routes - caution
-routes.get("/deleteAllUsers", SystemController.deleteAllUsers);
+routes.delete("/order/:id", authorization.manager, OrderController.delete);
+routes.get("/order", authorization.manager, OrderController.all);
 
 module.exports = routes;

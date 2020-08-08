@@ -1,4 +1,4 @@
-//  Requiring database and bcryptjs
+//  Loading database and bcryptjs modules
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
@@ -9,7 +9,7 @@ const users = mongoose.model("Users");
 //	Exporting Session features
 module.exports = {
 	//	Return user info from current session
-  async index(req, res) {
+	async index(req, res) {
 		const userId = req.headers.authorization;
 
 		if(userId && userId.length) {
@@ -27,6 +27,7 @@ module.exports = {
 		}
 
 	},
+	
 	//	Create a new session from user info
 	async create(req, res) {
 		const { email, password } = req.body;

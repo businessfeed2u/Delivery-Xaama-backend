@@ -1,11 +1,13 @@
-//  Requiring database
+//  Loading database module
 const mongoose = require("mongoose");
 
-//	Loading Orders and COmpany collection from database
+//	Loading Orders and Company collections from database
 require("../models/Order");
 require("../models/Company");
+require("../models/User");
 const orders = mongoose.model("Orders");
 const companyData = mongoose.model("Company");
+const users = mongoose.model("Users");
 
 //	Exporting Order features
 module.exports = {
@@ -17,10 +19,12 @@ module.exports = {
 		if(!userId || !userId.length) {
 			return res.status(400).send("No user is logged in!");
 		}
+
+		const user = await users.findById(userId);
 		
 		await orders.findById(orderId).then((order) => {
 			if(order) {
-				if(order.user._id == userId) {
+				if(order.user._id == userId || user.userType == 1 || user.userType == 2) {
 					return res.status(200).json(order);
 				} else {
 					return res.status(401).send("You don't have permission to access this order!");
@@ -41,19 +45,17 @@ module.exports = {
 			return res.status(400).send("User or products are empty!");
 		}
 
-		//	Get freight price
+		//	Get freight price and add if deliver is true
 		var total = await companyData.findOne({}).exec();
 		total = (deliver) ? total.freight : 0.0;
 
-		//	Calculate products and its additions total price if exists
-		if(products) {
-			for(var x of products) {
-				for(var y of x.additions) {
-					if(x.size >= 0 && x.size < x.product.prices.length) {
-						total += (x.product.prices[x.size] + y.price);
-					} else {
-						return res.status(400).send(`${x.product.name} size doesn't exist!`);
-					}
+		//	Calculate products and its additions total price
+		for(var x of products) {
+			for(var y of x.additions) {
+				if(x.size >= 0 && x.size < x.product.prices.length) {
+					total += (x.product.prices[x.size] + y.price);
+				} else {
+					return res.status(400).send(`${x.product.name} size doesn't exist!`);
 				}
 			}
 		}
@@ -89,7 +91,7 @@ module.exports = {
 	},
 	
 	//	Return all orders
-	async allOrders(req, res) {
+	async all(req, res) {
 		await orders.find().sort({ 
 			creationDate: "asc" 
 		}).then((response) => {

@@ -1,4 +1,4 @@
-//  Requiring database
+//  Loading database module
 const mongoose = require("mongoose");
 
 //	Loading ProductMenu schema and ProductsMenu collection from database
@@ -123,12 +123,13 @@ module.exports = {
 	},
   
 	//	Return all products
-	async allProducts(req, res) {
+	async all(req, res) {
 		await products.find().sort({ 
+			type: "asc",
 			name: "asc", 
 			creationDate: "asc" 
 		}).then((response) => {
-			if(response && response.length ) {
+			if(response && response.length) {
 				return res.status(200).json(response);
 			} else {
 				return res.status(400).send("Products not found!");

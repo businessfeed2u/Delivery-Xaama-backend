@@ -1,4 +1,4 @@
-//  Requiring express-js, CORS, database and routes modules
+//  Loading expressjs, CORS, database and routes modules
 const express = require("express");
 const cors = require("cors");
 const routes = require("./routes");
@@ -16,4 +16,6 @@ app.use(routes);
 //  Listening requests on the given port
 app.listen(port, () => {
 	console.log("Server running on port " + port);
+}).on("error", (error) => {
+	console.error("Unable to listen to port: " + port + "\n", error);
 });

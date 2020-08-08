@@ -1,4 +1,4 @@
-//  Requiring database
+//  Loading database module
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose

@@ -1,4 +1,4 @@
-//  Requiring database
+//  Loading database module
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose
@@ -15,25 +15,25 @@ const companySchema = Schema({
 		required: true
 	},
 	phone: {
-        type: String,
+		type: String,
 		required: true
 	},
 	address: {
 		type: String,
 		required: true
 	},
-  freight: {
-    type: Number,
-    required: true
-  },
-  productTypes: {
-    type: [String],
-    required: true
-  },
+	freight: {
+		type: Number,
+		required: true
+	},
+	productTypes: {
+		type: [String],
+		required: true
+	},
 	logo: {
 		type: String,
 		default: null
-  }
+	}
 });
 
 //	Creating collection Company on database

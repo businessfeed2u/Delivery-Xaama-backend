@@ -1,4 +1,4 @@
-//  Requiring database
+//  Loading database module
 const mongoose = require("mongoose");
 
 //	Loading Addition schema and Additions collection from database
@@ -119,7 +119,7 @@ module.exports = {
 	},
   
 	//	Return all additions additions
-	async allAdditions(req, res) {
+	async all(req, res) {
 		await additions.find().sort({ 
 			type: "asc", 
 			name: "asc", 
