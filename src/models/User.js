@@ -36,6 +36,14 @@ const userSchema = Schema({
 		type: Date,
 		default: Date.now()
 	}
+}, {
+  toJSON: {
+    virtuals: true,
+  },
+});
+
+userSchema.virtual("thumbnail_url").get(function() {
+  return `http://localhost:4000/files/${this.thumbnail}`;
 });
 
 //	Creating collection Users on database
