@@ -8,6 +8,7 @@ const users = mongoose.model("Users");
 
 // Loading module to delete uploads
 const fs = require("fs");
+const { exception } = require("console");
 
 //	Exporting User features
 module.exports = {
@@ -251,19 +252,40 @@ module.exports = {
 	//	Remove current user from database
 	async delete(req, res) {
 		const userId = req.headers.authorization;
+		const { password } = req.body;
 
-		if(!userId || !userId.length) {
-			return res.status(400).send("No user is logged in!");
+		if(!userId || !userId.length || !password || !password.length) {
+			return res.status(400).send("No user is logged in or password is empty!");
 		}
 
-		await users.findByIdAndDelete(userId).then((user) => {
+		await users.findById(userId).then((user) => {
 			if(user) {
-				try {
-					fs.unlinkSync(`${__dirname}/../../uploads/${user.thumbnail}`);
-
-					return res.status(202).send("The user has been deleted!");
-				} catch(e) { 
-					return res.status(202).send("The user has been deleted, but the profile picture was not found!");
+				if(user.userType == 2) {
+					return res.status(401).send("Admin account can't be deleted");
+				} else {
+					bcrypt.compare(password, user.password).then((match) => {
+						if(match) {
+							user.remove().then((uDeleted) => {
+								if(uDeleted) {
+									try {
+										fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
+				
+										return res.status(202).send("The user has been deleted!");
+									} catch(e) { 
+										return res.status(202).send("The user has been deleted, but the profile picture was not found!");
+									}
+								} else {
+									return res.status(400).send("User not found!");
+								}
+							}).catch((error) => {
+								return res.status(500).send(error);
+							});
+						} else {
+							return res.status(400).send("Wrong password!");
+						}
+					}).catch((error) => {
+						return res.status(500).send(error.message);
+					});
 				}
 			} else {
 				return res.status(400).send("User not found!");
