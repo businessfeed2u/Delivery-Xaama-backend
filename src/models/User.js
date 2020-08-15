@@ -37,11 +37,12 @@ const userSchema = Schema({
 		default: Date.now()
 	}
 }, {
-  toJSON: {
-    virtuals: true,
-  },
+	toJSON: {
+		virtuals: true,
+	},
 });
 
+//	Creating route to get thumbnails
 userSchema.virtual("thumbnail_url").get(function() {
   return `http://localhost:4000/files/${this.thumbnail}`;
 });

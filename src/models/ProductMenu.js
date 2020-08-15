@@ -34,6 +34,15 @@ const productMenuSchema = Schema({
 		type: Date,
 		default: Date.now()
 	}
+}, {
+	toJSON: {
+		virtuals: true,
+	},
+});
+
+//	Creating route to get thumbnails
+productMenuSchema.virtual("thumbnail_url").get(function() {
+  return `http://localhost:4000/files/${this.thumbnail}`;
 });
 
 //	Creating collection ProductsMenu on database
