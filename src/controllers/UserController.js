@@ -109,7 +109,7 @@ module.exports = {
 	//	Update current user on database
 	async update(req, res) {
 		const userId = req.headers.authorization;
-		const { name, email, passwordO, passwordN } = req.body;
+		const { name, email, passwordO, passwordN, address, phone } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
 		if(!userId || !userId.length) {
@@ -126,7 +126,9 @@ module.exports = {
 			}
 
 			return res.status(400).send("Name or email are empty!");
-		}
+    }
+    
+    
 
 		if(passwordN && passwordN.length > 0) {
 			await users.findById(userId).then((user) => {
@@ -155,7 +157,9 @@ module.exports = {
 							user.name = (name.length > 0) ? name : user.name;
 							user.email = (email.length > 0) ? email.trim().toLowerCase() : user.email;
 							user.password = hash;
-							user.thumbnail = filename;
+              user.thumbnail = filename;
+              user.phone = phone;
+              user.address= address ? (address.split(",").map(a => a.trim())) : user.address;
 						
 							user.save().then((response) => {
 								if(response) {
@@ -213,7 +217,9 @@ module.exports = {
 
 					user.name = (name.length > 0 ) ? name : user.name;
 					user.email = (email.length > 0 ) ? email.trim().toLowerCase() : user.email;
-					user.thumbnail = filename;
+          user.thumbnail = filename;
+          user.phone = phone;
+          user.address= address ? (address.split(",").map(a => a.trim())) : user.address;
 				
 					user.save().then((response) => {
 						if(response) {

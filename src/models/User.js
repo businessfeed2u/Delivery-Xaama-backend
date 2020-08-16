@@ -18,7 +18,7 @@ const userSchema = Schema({
 		type: String
 	},
 	address: {
-		type: String
+		type: [String]
 	},
 	userType: {
 		type: Number,
