@@ -158,8 +158,8 @@ module.exports = {
 							user.email = (email.length > 0) ? email.trim().toLowerCase() : user.email;
 							user.password = hash;
               user.thumbnail = filename;
-              user.phone = phone;
-              user.address= address ? (address.split(",").map(a => a.trim())) : user.address;
+              user.phone = (phone.length > 0) ? phone : user.phone;
+              user.address= (address.length > 0) ? (address.split(",").map(a => a.trim())) : user.address;
 						
 							user.save().then((response) => {
 								if(response) {
