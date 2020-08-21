@@ -54,11 +54,11 @@ module.exports = {
 				return res.status(400).send("We couldn't create a new addition, try again later!");
 			}
 		}).catch((error) => {
-		if(filename) {
-			fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-		}
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
 
-		return res.status(500).send(error);
+			return res.status(500).send(error);
 		});
 	},
   

@@ -6,7 +6,7 @@ require("../models/User");
 const users = mongoose.model("Users");
 
 module.exports = {
-	async admin(req, res, next){
+	async admin(req, res, next) {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length) {
@@ -28,7 +28,7 @@ module.exports = {
 		});
 	},
 
-	async manager(req, res, next){
+	async manager(req, res, next) {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length) {
@@ -46,7 +46,7 @@ module.exports = {
 				return res.status(400).send("User not found!");
 			}
 		}).catch((error) => {
-		return res.status(500).send(error);
+			return res.status(500).send(error);
 		});
 	}
 };
