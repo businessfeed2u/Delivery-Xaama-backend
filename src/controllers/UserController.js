@@ -301,7 +301,9 @@ module.exports = {
 			return res.status(400).send("No user is logged in!");
 		}
 		
-		await users.find().then((response) => {
+		await users.find().sort({ 
+      userType: "desc"
+    }).then((response) => {
 			if(response) {
 				return res.status(200).json(response);
 			} else {
