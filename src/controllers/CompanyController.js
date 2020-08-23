@@ -1,5 +1,6 @@
-//  Loading database module
+//  Loading database and bcryptjs modules
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 //	Loading Company collection from database
 require("../models/Company");
@@ -112,7 +113,7 @@ module.exports = {
   //	Update current user on database
 	async update(req, res) {
     const userId = req.headers.authorization;
-    const { userUpdateId, type } = req.body;
+    const { userUpdateId, type, password } = req.body;
 
 		if(!userId || !userId.length || !userUpdateId || !userUpdateId.length) {
 			return res.status(400).send("No user is logged in or no has user to update!");
@@ -122,26 +123,49 @@ module.exports = {
       return res.status(400).send("User type invalid!");
     }
 
-    await users.findById(userUpdateId).then((user) => {
-      if(user) {
-
-        user.userType = type;
-      
-        user.save().then((response) => {
-          if(response) {
-            return res.status(202).send("Successful on changing your data!");
-          } else {
-            return res.status(400).send("We couldn't save your changes, try again later!");
-          }
-        }).catch((error) => {
-          return res.status(500).send(error);
-        });
-      } else {
-        return res.status(400).send("User not found!");
-      }
+    let hash="";
+    await users.findById(userId).then((userAdmin) => { 
+      hash = userAdmin.password;
     }).catch((error) => {
       return res.status(500).send(error);
     });
+
+    if(password && password.length > 0) {
+      await users.findById(userUpdateId).then((user) => {
+        if(user) {
+          bcrypt.compare(password, hash).then((match) => {
+            if(match) {
+              if(type == user.userType) {
+                return res.status(400).send("Aborted! The user is already of that type requested!");
+              } else {
+                user.userType = type;
+        
+                user.save().then((response) => {
+                  if(response) {
+                    return res.status(202).send("Successful on changing your data!");
+                  } else {
+                    return res.status(400).send("We couldn't save your changes, try again later!");
+                  }
+                }).catch((error) => {
+                  return res.status(500).send(error);
+                });
+              }
+            } else {
+              return res.status(400).send("Password don't match, try again!");
+            }
+          }).catch((error) => {
+            return res.status(500).send(error.message);
+          });
+  
+        } else {
+          return res.status(400).send("User not found!");
+        }
+      }).catch((error) => {
+        return res.status(500).send(error);
+      });
+    } else {
+      return res.status(400).send("Password is empty!");
+    }
 	}
 
 };
