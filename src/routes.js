@@ -32,6 +32,7 @@ routes.post("/session", SessionController.create);
 //	Company
 routes.get("/productTypes", companyController.productTypes);
 routes.get("/company", companyController.companyData);
+routes.put("/company", authorization.admin, companyController.update);
 routes.post("/company", authorization.admin, upload.single("logo"), companyController.manageCompanyData);
 
 //	User
