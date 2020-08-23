@@ -118,6 +118,10 @@ module.exports = {
 		if(!userId || !userId.length || !userUpdateId || !userUpdateId.length) {
 			return res.status(400).send("No user is logged in or no has user to update!");
     }
+
+    if(userId == userUpdateId) {
+      return res.status(400).send("Aborted! You can't lower yourself!");
+    }
     
     if(type < 0 || type > 2) {
       return res.status(400).send("User type invalid!");
