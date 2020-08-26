@@ -43,7 +43,11 @@ module.exports = {
 
 		if(!user || !products) {
 			return res.status(400).send("User or products are empty!");
-		}
+    }
+    
+    if(deliver == null) {
+      return res.status(400).send("Delivery are empty or wrong!");
+    }
 
 		//	Get freight price and add if deliver is true
 		var total = await companyData.findOne({}).exec();
@@ -63,7 +67,8 @@ module.exports = {
 		await orders.create({
 			user,
 			products,
-			total
+      total,
+      deliver
 		}).then((response) => {
 			if(response) {
 				return res.status(201).send("Order created successfully!");
@@ -93,7 +98,7 @@ module.exports = {
 	//	Return all orders
 	async all(req, res) {
 		await orders.find().sort({ 
-			creationDate: "asc" 
+			creationDate: "desc" 
 		}).then((response) => {
 			if(response && response.length ) {
 				return res.status(200).json(response);

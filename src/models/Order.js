@@ -19,6 +19,10 @@ const orderSchema = Schema({
 	total: {
 		type: Number,
 		required: true
+  },
+  deliver: {
+		type: Boolean,
+		required: true
 	},
 	creationDate: {
 		type: Date,
