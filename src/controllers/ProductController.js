@@ -40,9 +40,9 @@ module.exports = {
 
 		await products.create({
 			name,
-			ingredients: ingredients.split(",").map(ingredient => ingredient.trim().toLowerCase()),
+			ingredients: ingredients.split(",").filter(ing => ing.trim() !== "").map(ing => ing.trim().toLowerCase()),
 			type: type.trim().toLowerCase(),
-			prices: prices.split(",").map(price => parseFloat(price.trim())),
+			prices: prices.split(",").filter(p => p.trim() !== "" && p.trim() !== ".").map(p => parseFloat(p.trim())),
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
@@ -80,9 +80,9 @@ module.exports = {
 
 		await products.findOneAndUpdate({ _id: productId }, {
 			name,
-			ingredients: ingredients.split(",").map(ingredient => ingredient.trim().toLowerCase()),
+			ingredients: ingredients.split(",").filter(ing => ing.trim() !== "").map(ing => ing.trim().toLowerCase()),
 			type: type.trim().toLowerCase(),
-			prices: prices.split(",").map(price => parseFloat(price.trim())),
+			prices: prices.split(",").filter(p => p.trim() !== "" && p .trim()!== ".").map(p => parseFloat(p.trim())),
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
