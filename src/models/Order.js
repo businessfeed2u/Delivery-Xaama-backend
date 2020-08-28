@@ -23,7 +23,14 @@ const orderSchema = Schema({
   deliver: {
 		type: Boolean,
 		required: true
-	},
+  },
+  address: {
+    type: [String],
+  },
+  status: {
+    type: Boolean,
+    default: false
+  },
 	creationDate: {
 		type: Date,
 		default: Date.now()

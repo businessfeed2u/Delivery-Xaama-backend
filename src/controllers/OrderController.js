@@ -39,7 +39,7 @@ module.exports = {
 
 	//	Create a new order
 	async create(req, res) {
-		const { user, products, deliver } = req.body;
+		const { user, products, deliver, address } = req.body;
 
 		if(!user || !products) {
 			return res.status(400).send("User or products are empty!");
@@ -47,6 +47,10 @@ module.exports = {
     
     if(deliver == null) {
       return res.status(400).send("Delivery are empty or wrong!");
+    }
+
+    if(deliver && !(address.length)){
+      return res.status(400).send("The shipping address is empty!");
     }
 
 		//	Get freight price and add if deliver is true
@@ -68,7 +72,8 @@ module.exports = {
 			user,
 			products,
       total,
-      deliver
+      deliver,
+      address: address.length ? (address.split(",").map(a => a.trim())) : null
 		}).then((response) => {
 			if(response) {
 				return res.status(201).send("Order created successfully!");
@@ -78,6 +83,45 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
+  },
+  
+  //	Update current order status
+	async update(req, res) {
+    const orderId = req.params.id;
+		const userId = req.headers.authorization;
+    const { status } = req.body;
+
+		if(!userId || !userId.length) {
+			return res.status(400).send("No user is logged in!");
+    }
+
+    if(!orderId || !orderId.length) {
+			return res.status(400).send("No order received!");
+    }
+    
+    if(typeof status != "boolean") {
+      return res.status(400).send("Status is empty!");
+    }
+		
+    await orders.findById(orderId).then((order) => {
+      if(order) {
+        order.status = status;
+      
+        order.save().then((response) => {
+          if(response) {
+            return res.status(202).send("Successful on changing your data!");
+          } else {
+            return res.status(400).send("We couldn't save your changes, try again later!");
+          }
+        }).catch((error) => {
+          return res.status(500).send(error);
+        });
+      } else {
+        return res.status(400).send("User not found!");
+      }
+    }).catch((error) => {
+      return res.status(500).send(error);
+    });
 	},
 
 	//	Delete a specific order
@@ -97,7 +141,8 @@ module.exports = {
 	
 	//	Return all orders
 	async all(req, res) {
-		await orders.find().sort({ 
+		await orders.find().sort({
+      status: "asc",
 			creationDate: "desc" 
 		}).then((response) => {
 			if(response && response.length ) {
