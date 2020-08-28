@@ -13,8 +13,12 @@ module.exports = {
 	//	Return a product on database given id
 	async index(req, res) {
 		const productId = req.params.id;
+
+		if(!productId || !productId.length) {
+			return res.status(400).send("Invalid id!");
+		}
 			
-		await products.findOne({ _id: productId }).then((product) => {
+		await products.findById(productId).then((product) => {
 			if(product) {
 				return res.status(200).json(product);
 			} else {
@@ -30,19 +34,45 @@ module.exports = {
 		const { name, ingredients, type, prices } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
-		if(!name || !name.length || !ingredients || !ingredients.length || !type || !type.length || !prices) {
+		if(!name || !name.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Name, ingredients, type or price are empty!");
+			return res.status(400).send("Invalid name!");
+		}
+
+		if(!type || !type.length) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid type!");
+		}
+
+		if(!prices || !prices.length || !/^[0-9]+(\.[0-9])*(,\s[0-9]+(\.?[0-9])*)*$/.test(prices)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid price!");
+		}
+
+		const ingRegExp = new RegExp(/^[A-Za-z^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+(,\s[A-Za-z^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+)*$/);
+
+		if(!ingredients || !ingredients.length || !ingRegExp.test(ingredients)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid ingredients!");
 		}
 
 		await products.create({
 			name,
-			ingredients: ingredients.split(",").filter(ing => ing.trim() !== "").map(ing => ing.trim().toLowerCase()),
+			ingredients: ingredients.split(",").map(ing => ing.trim().toLowerCase()),
 			type: type.trim().toLowerCase(),
-			prices: prices.split(",").filter(p => p.trim() !== "" && p.trim() !== ".").map(p => parseFloat(p.trim())),
+			prices: prices.split(",").map(p => parseFloat(p.trim())),
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
@@ -66,23 +96,56 @@ module.exports = {
 	//	Update a specific product
 	async update(req, res) {
 		const productId = req.params.id;
-
 		const { name, ingredients, type, prices } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
-		if(!name || !name.length || !ingredients || !ingredients.length || !type || !type.length || !prices) {
+		if(!productId || !productId.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Name, ingredients, type or price are empty!");
+			return res.status(400).send("Invalid id!");
 		}
 
-		await products.findOneAndUpdate({ _id: productId }, {
+		if(!name || !name.length) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid name!");
+		}
+
+		if(!type || !type.length) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid type!");
+		}
+
+		if(!prices || !prices.length || !/^[0-9]+(\.[0-9])*(,\s[0-9]+(\.?[0-9])*)*$/.test(prices)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid price!");
+		}
+
+		const ingRegExp = new RegExp(/^[A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]+(,\s[A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]+)*$/);
+
+		if(!ingredients || !ingredients.length || !ingRegExp.test(ingredients)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid ingredients!");
+		}
+
+		await products.findByIdAndUpdate(productId, {
 			name,
-			ingredients: ingredients.split(",").filter(ing => ing.trim() !== "").map(ing => ing.trim().toLowerCase()),
+			ingredients: ingredients.split(",").map(ing => ing.trim().toLowerCase()),
 			type: type.trim().toLowerCase(),
-			prices: prices.split(",").filter(p => p.trim() !== "" && p .trim()!== ".").map(p => parseFloat(p.trim())),
+			prices: prices.split(",").map(p => parseFloat(p.trim())),
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
@@ -100,12 +163,16 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-  
+
 	//	Delete a specific product
 	async delete(req, res) {
 		const productId = req.params.id;
 
-		await products.findOneAndDelete({ _id: productId }).then((response) => {
+		if(!productId || !productId.length) {
+			return res.status(400).send("Invalid id!");
+		}
+
+		await products.findByIdAndDelete(productId).then((response) => {
 			if(response) {
 				try {
 					fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
@@ -121,7 +188,7 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-  
+
 	//	Return all products
 	async all(req, res) {
 		await products.find().sort({ 

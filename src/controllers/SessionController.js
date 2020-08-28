@@ -32,8 +32,12 @@ module.exports = {
 	async create(req, res) {
 		const { email, password } = req.body;
 
-		if(!email || !email.length || !password || !password.length) {
-			return res.status(400).send("Email or password are empty!");
+		if(!email || !email.length || !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(email)) {
+			return res.status(400).send("Invalid email!");
+		}
+
+		if(!password || !password.length) {
+			return res.status(400).send("Invalid password!");
 		}
 		
 		await users.findOne({ email: email.trim().toLowerCase() }).then((user) => {
