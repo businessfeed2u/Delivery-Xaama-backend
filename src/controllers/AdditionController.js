@@ -13,8 +13,12 @@ module.exports = {
 	//	Return an addition on database given id
 	async index(req, res) {
 		const additionId = req.params.id;
+
+		if(!additionId || !additionId.length) {
+			return res.status(400).send("Invalid id!");
+		}
 		
-		await additions.findOne({ _id: additionId }).then((addition) => {
+		await additions.findById(additionId).then((addition) => {
 			if(addition) {
 				return res.status(200).json(addition);
 			} else {
@@ -30,12 +34,28 @@ module.exports = {
 		const { name, type, price } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
-		if(!name || !name.length || !type || !price) {
+		if(!name || !name.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Name, type or price are empty!");
+			return res.status(400).send("Invalid name!");
+		}
+
+		if(!type || !type.length || !/^[A-Za-z]+(,\s[A-Za-z]+)*$/.test(type)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid type!");
+		}
+
+		if(!price || !price.length || !/^[0-9]+(\.[0-9])*$/.test(price)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid price!");
 		}
 
 		await additions.create({
@@ -65,19 +85,42 @@ module.exports = {
 	//	Update a specific addition
 	async update(req, res) {
 		const additionId = req.params.id;
-		
 		const { name, type, price } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
-		if(!name || !name.length || !type || !price) {
+		if(!additionId || !additionId.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Name, type or price are empty!");
+			return res.status(400).send("Invalid id!");
 		}
 
-		await additions.findOneAndUpdate({ _id: additionId }, {
+		if(!name || !name.length) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid name!");
+		}
+
+		if(!type || !type.length || !/^[A-Za-z]+(,\s[A-Za-z]+)*$/.test(type)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid type!");
+		}
+
+		if(!price || !price.length || !/^[0-9]+(\.[0-9])*$/.test(price)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid price!");
+		}
+
+		await additions.findByIdAndUpdate(additionId, {
 			name,
 			type: type.split(",").map(t => t.trim().toLowerCase()),
 			price,
@@ -101,7 +144,11 @@ module.exports = {
 	async delete(req, res) {
 		const additionId = req.params.id;
 
-		await additions.findOneAndDelete({ _id: additionId }).then((response) => {
+		if(!additionId || !additionId.length) {
+			return res.status(400).send("Invalid id!");
+		}
+
+		await additions.findByIdAndDelete(additionId).then((response) => {
 			if(response) {
 				try {
 					fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);

@@ -8,7 +8,6 @@ const users = mongoose.model("Users");
 
 // Loading module to delete uploads
 const fs = require("fs");
-const { exception } = require("console");
 
 //	Exporting User features
 module.exports = {
@@ -17,7 +16,7 @@ module.exports = {
 		const userId = req.params.id;
 
 		if(!userId || !userId.length) {
-			return res.status(400).send("No user is logged in!");
+			return res.status(400).send("Invalid id!");
 		}
 		
 		await users.findById(userId).then((user) => {
@@ -36,12 +35,28 @@ module.exports = {
 		const { name, email, password, passwordC } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
-		if(!name || !name.length || !email || !email.length || !password || !password.length || !passwordC || !passwordC.length) {
+		if(!name || !name.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Name, email, password or password confirmation are empty!");
+			return res.status(400).send("Invalid name!");
+		}
+
+		if(!email || !email.length || !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(email)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid email!");
+		}
+
+		if(!password || !password.length || !passwordC || !passwordC.length) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid password!");
 		}
 
 		if(password !== passwordC) {
@@ -117,18 +132,40 @@ module.exports = {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("No user is logged in!");
+			return res.status(400).send("Invalid id!");
 		}
-		
-		if(!name || !name.length || !email || !email.length) {
+
+		if(!name || !name.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Name or email are empty!");
-    }
-    
-    
+			return res.status(400).send("Invalid name!");
+		}
+
+		if(!email || !email.length || !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(email)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid email!");
+		}
+
+		if(phone && phone.length && !/^[0-9]{2}[0-9]{8,9}$/.test(phone)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid phone!");
+		}
+
+		if(address && address.length && !/^[a-zA-z0-9\s]+,\s[a-zA-z0-9\s]+,\s[0-9]+(,\s[a-zA-z0-9\s]+)?$/.test(address)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid addess!");
+		}
 
 		if(passwordN && passwordN.length > 0) {
 			await users.findById(userId).then((user) => {
@@ -157,9 +194,9 @@ module.exports = {
 							user.name = (name.length > 0) ? name : user.name;
 							user.email = (email.length > 0) ? email.trim().toLowerCase() : user.email;
 							user.password = hash;
-              user.thumbnail = filename;
-              user.phone = (phone.length > 0) ? phone : user.phone;
-              user.address= (address.length > 0) ? (address.split(",").map(a => a.trim())) : user.address;
+							user.thumbnail = filename;
+							user.phone = (phone.length > 0) ? phone : user.phone;
+							user.address= (address.length > 0) ? (address.split(",").map(a => a.trim())) : user.address;
 						
 							user.save().then((response) => {
 								if(response) {
@@ -217,9 +254,9 @@ module.exports = {
 
 					user.name = (name.length > 0 ) ? name : user.name;
 					user.email = (email.length > 0 ) ? email.trim().toLowerCase() : user.email;
-          user.thumbnail = filename;
-          user.phone = phone;
-          user.address= address ? (address.split(",").map(a => a.trim())) : user.address;
+					user.thumbnail = filename;
+					user.phone = phone;
+					user.address= address ? (address.split(",").map(a => a.trim())) : user.address;
 				
 					user.save().then((response) => {
 						if(response) {
@@ -259,31 +296,30 @@ module.exports = {
 	async delete(req, res) {
 		const userId = req.headers.authorization;
 
-
 		if(!userId || !userId.length) {
-			return res.status(400).send("No user is logged in or password is empty!");
+			return res.status(400).send("Invalid id!");
 		}
 
 		await users.findById(userId).then((user) => {
 			if(user) {
-				if(user.userType == 2) {
+				if(user.userType === 2) {
 					return res.status(401).send("Admin account can't be deleted");
 				} else {
-          user.remove().then((uDeleted) => {
-            if(uDeleted) {
-              try {
-                fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
-    
-                return res.status(202).send("The user has been deleted!");
-              } catch(e) { 
-                return res.status(202).send("The user has been deleted, but the profile picture was not found!");
-              }
-            } else {
-              return res.status(400).send("User not found!");
-            }
-          }).catch((error) => {
-            return res.status(500).send(error);
-          });
+					user.remove().then((uDeleted) => {
+						if(uDeleted) {
+							try {
+								fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
+
+								return res.status(202).send("The user has been deleted!");
+							} catch(e) { 
+								return res.status(202).send("The user has been deleted, but the profile picture was not found!");
+							}
+						} else {
+							return res.status(400).send("User not found!");
+						}
+					}).catch((error) => {
+						return res.status(500).send(error);
+					});
 				}
 			} else {
 				return res.status(400).send("User not found!");
@@ -298,12 +334,12 @@ module.exports = {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length) {
-			return res.status(400).send("No user is logged in!");
+			return res.status(400).send("Invalid id!");
 		}
 		
 		await users.find().sort({ 
-      userType: "desc"
-    }).then((response) => {
+			userType: "desc"
+		}).then((response) => {
 			if(response) {
 				return res.status(200).json(response);
 			} else {
