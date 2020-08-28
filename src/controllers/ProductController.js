@@ -58,7 +58,9 @@ module.exports = {
 			return res.status(400).send("Invalid price!");
 		}
 
-		if(!ingredients || !ingredients.length || !/^[A-Za-z]+(,\s[A-Za-z]+)*$/.test(ingredients)) {
+		const ingRegExp = new RegExp(/^[A-Za-z^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+(,\s[A-Za-z^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+)*$/);
+
+		if(!ingredients || !ingredients.length || !ingRegExp.test(ingredients)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -129,7 +131,9 @@ module.exports = {
 			return res.status(400).send("Invalid price!");
 		}
 
-		if(!ingredients || !ingredients.length || !/^[A-Za-z]+(,\s[A-Za-z]+)*$/.test(ingredients)) {
+		const ingRegExp = new RegExp(/^[A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]+(,\s[A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]+)*$/);
+
+		if(!ingredients || !ingredients.length || !ingRegExp.test(ingredients)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}

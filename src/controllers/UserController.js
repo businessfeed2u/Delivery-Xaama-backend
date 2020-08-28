@@ -159,7 +159,9 @@ module.exports = {
 			return res.status(400).send("Invalid phone!");
 		}
 
-		if(address && address.length && !/^[a-zA-z0-9\s]+,\s[a-zA-z0-9\s]+,\s[0-9]+(,\s[a-zA-z0-9\s]+)?$/.test(address)) {
+		const addRegExp = new RegExp(/^[a-zA-z0-9^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+,\s[a-zA-z0-9^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+,\s[0-9]+(,\s[a-zA-z0-9^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+)?$/);
+
+		if(address && address.length && !addRegExp.test(address)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
