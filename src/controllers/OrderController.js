@@ -124,19 +124,19 @@ module.exports = {
     });
 	},
 
-	//	Delete a specific order
+	//	Delete all orders
 	async delete(req, res) {
-		const orderId = req.params.id;
 
-		await orders.findOneAndDelete({ _id: orderId }).then((response) => {
-			if(response) {
-				return res.status(200).send("The order has been deleted!");
-			} else {
-				return res.status(400).send("Order not found!");
-			}
-		}).catch((error) => {
-			return res.status(500).send(error);
-		});
+    await orders.deleteMany().then((response) => {
+      if(response.n) {
+        return res.status(200).send("All orders has been deleted!");
+      } else {
+        return res.status(400).send("Orders not found!");
+      }
+    }).catch((error) => {
+      return res.status(500).send(error);
+    });
+  
 	},
 	
 	//	Return all orders

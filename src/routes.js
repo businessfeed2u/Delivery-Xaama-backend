@@ -60,7 +60,7 @@ routes.get("/addition", AdditionController.all);
 routes.get("/order/:id", OrderController.index);
 routes.post("/order", OrderController.create);
 routes.put("/order/:id", authorization.manager, OrderController.update);
-routes.delete("/order/:id", authorization.manager, OrderController.delete);
+routes.delete("/order", authorization.manager, OrderController.delete);
 routes.get("/order", authorization.manager, OrderController.all);
 
 module.exports = routes;
