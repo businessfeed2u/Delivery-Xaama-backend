@@ -19,7 +19,11 @@ const productSchema = Schema({
 	additions: {
 		type: [productAdditionSchema],
 		default: []
-	},
+  },
+  note: {
+    type: String,
+    default: null
+  },
 	creationDate: {
 		type: Date,
 		default: Date.now()
