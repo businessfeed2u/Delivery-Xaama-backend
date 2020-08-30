@@ -31,7 +31,7 @@ module.exports = {
 
 	//	Create a new product for the menu
 	async create(req, res) {
-		const { name, ingredients, type, prices } = req.body;
+		const { name, ingredients, type, prices, sizes } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
 		if(!name || !name.length) {
@@ -58,9 +58,9 @@ module.exports = {
 			return res.status(400).send("Invalid price!");
 		}
 
-		const ingRegExp = new RegExp(/^[A-Za-z^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+(,\s[A-Za-z^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+)*$/);
+		const regExp = new RegExp(/^[A-Za-z^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+(,\s[A-Za-z^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+)*$/);
 
-		if(!ingredients || !ingredients.length || !ingRegExp.test(ingredients)) {
+		if(!ingredients || !ingredients.length || !regExp.test(ingredients)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -68,9 +68,26 @@ module.exports = {
 			return res.status(400).send("Invalid ingredients!");
 		}
 
+		if(!sizes || !sizes.length || !regExp.test(sizes)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid size!");
+		}
+
+		if(sizes.split(",").length !== prices.split(",").length) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Prices and sizes don't have the same length!");
+		}
+
 		await products.create({
 			name,
 			ingredients: ingredients.split(",").map(ing => ing.trim().toLowerCase()),
+			sizes: sizes.split(",").map(s => s.trim().toLowerCase()),
 			type: type.trim().toLowerCase(),
 			prices: prices.split(",").map(p => parseFloat(p.trim())),
 			thumbnail: filename
@@ -96,7 +113,7 @@ module.exports = {
 	//	Update a specific product
 	async update(req, res) {
 		const productId = req.params.id;
-		const { name, ingredients, type, prices } = req.body;
+		const { name, ingredients, type, prices, sizes } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
 		if(!productId || !productId.length) {
@@ -131,9 +148,9 @@ module.exports = {
 			return res.status(400).send("Invalid price!");
 		}
 
-		const ingRegExp = new RegExp(/^[A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]+(,\s[A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]+)*$/);
+		const regExp = new RegExp(/^[A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]+(,\s[A-Za-z\u00C0-\u024F\u1E00-\u1EFF\s]+)*$/);
 
-		if(!ingredients || !ingredients.length || !ingRegExp.test(ingredients)) {
+		if(!ingredients || !ingredients.length || !regExp.test(ingredients)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -141,9 +158,26 @@ module.exports = {
 			return res.status(400).send("Invalid ingredients!");
 		}
 
+		if(!sizes || !sizes.length || !regExp.test(sizes)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid size!");
+		}
+
+		if(sizes.split(",").length !== prices.split(",").length) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("Prices and sizes don't have the same length!");
+		}
+
 		await products.findByIdAndUpdate(productId, {
 			name,
 			ingredients: ingredients.split(",").map(ing => ing.trim().toLowerCase()),
+			sizes: sizes.split(",").map(s => s.trim().toLowerCase()),
 			type: type.trim().toLowerCase(),
 			prices: prices.split(",").map(p => parseFloat(p.trim())),
 			thumbnail: filename

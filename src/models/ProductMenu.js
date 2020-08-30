@@ -22,6 +22,10 @@ const productMenuSchema = Schema({
 		type: [Number],
 		required: true,
 	},
+	sizes: {
+		type: [String],
+		required: true,
+	},
 	available: {
 		type: Boolean,
 		default: true,
