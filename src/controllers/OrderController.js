@@ -13,24 +13,17 @@ const users = mongoose.model("Users");
 module.exports = {
 	//	Return an order on database given id
 	async index(req, res) {
-		const orderId = req.params.id;
-		const userId = req.headers.authorization;
+		const userId = req.params.id;
 
 		if(!userId || !userId.length) {
 			return res.status(400).send("No user is logged in!");
 		}
-
-		const user = await users.findById(userId);
 		
-		await orders.findById(orderId).then((order) => {
-			if(order) {
-				if(order.user._id == userId || user.userType == 1 || user.userType == 2) {
-					return res.status(200).json(order);
-				} else {
-					return res.status(401).send("You don't have permission to access this order!");
-				}
+		await orders.find({ "user._id": userId }).then((response) => {
+			if(response && response.length) {
+				return res.status(200).json(response);
 			} else {
-				return res.status(400).send("Order not found!");
+				return res.status(400).send("Orders not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
