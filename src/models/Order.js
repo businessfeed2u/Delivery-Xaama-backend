@@ -31,6 +31,10 @@ const orderSchema = Schema({
     type: Boolean,
     default: false
   },
+  feedback: {
+    type: String,
+    default: null
+  },
 	creationDate: {
 		type: Date,
 		default: Date.now()

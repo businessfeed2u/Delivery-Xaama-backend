@@ -82,7 +82,7 @@ module.exports = {
 	async update(req, res) {
     const orderId = req.params.id;
 		const userId = req.headers.authorization;
-    const { status } = req.body;
+    const { status, feedback } = req.body;
 
 		if(!userId || !userId.length) {
 			return res.status(400).send("No user is logged in!");
@@ -98,8 +98,10 @@ module.exports = {
 		
     await orders.findById(orderId).then((order) => {
       if(order) {
+        
         order.status = status;
-      
+        order.feedback = feedback ? feedback.trim() : null ;
+
         order.save().then((response) => {
           if(response) {
             return res.status(202).send("Successful on changing your data!");
