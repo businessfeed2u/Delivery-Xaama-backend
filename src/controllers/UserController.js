@@ -51,7 +51,7 @@ module.exports = {
 			return res.status(400).send("Invalid email!");
 		}
 
-		if(!password || !password.length || !passwordC || !passwordC.length) {
+		if(!password || !password.length || !passwordC || !passwordC.length || !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -149,7 +149,7 @@ module.exports = {
 			}
 
 			return res.status(400).send("Invalid email!");
-		}
+    }
 
 		if(phone && phone.length && !/^[0-9]{2}[0-9]{8,9}$/.test(phone)) {
 			if(filename) {
@@ -159,17 +159,25 @@ module.exports = {
 			return res.status(400).send("Invalid phone!");
 		}
 
-		const addRegExp = new RegExp(/^[a-zA-z0-9^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+,\s[a-zA-z0-9^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+,\s[0-9]+(,\s[a-zA-z0-9^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+)?$/);
+		//const addRegExp = new RegExp(/^[a-zA-z0-9^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+,\s[a-zA-z0-9^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+,\s[0-9]+(,\s[a-zA-z0-9^~`´\u00C0-\u024F\u1E00-\u1EFF\s]+)?$/);
 
-		if(address && address.length && !addRegExp.test(address)) {
+		if(!address && !address.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Invalid addess!");
+			return res.status(400).send("Invalid address!");
 		}
 
 		if(passwordN && passwordN.length > 0) {
+      if(!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(passwordN)) {
+        if(filename) {
+          fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+        }
+  
+        return res.status(400).send("Invalid new password!");
+      }
+
 			await users.findById(userId).then((user) => {
 				if(user) {
 					bcrypt.compare(passwordO, user.password).then((match) => {
@@ -197,7 +205,7 @@ module.exports = {
 							user.email = (email.length > 0) ? email.trim().toLowerCase() : user.email;
 							user.password = hash;
 							user.thumbnail = filename;
-							user.phone = (phone.length > 0) ? phone : user.phone;
+							user.phone = phone ? phone : user.phone;
 							user.address= (address.length > 0) ? (address.split(",").map(a => a.trim())) : user.address;
 						
 							user.save().then((response) => {
