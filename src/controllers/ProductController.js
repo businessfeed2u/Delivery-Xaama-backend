@@ -9,7 +9,7 @@ const products = mongoose.model("ProductsMenu");
 const fs = require("fs");
 
 //	Defining regular expression to validations
-const pricesRegEx = new RegExp(/^[0-9]+(\.[0-9])*(,\s?[0-9]+(\.?[0-9])*)*$/);
+const pricesRegEx = new RegExp(/^[0-9]+(\.[0-9]+)*(,\s?[0-9]+(\.?[0-9]+)*)*$/);
 const seqRegExp = new RegExp(/^[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+(,\s?[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+)*$/);
 
 //	Exporting Product Menu features
