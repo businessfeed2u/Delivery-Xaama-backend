@@ -81,12 +81,8 @@ module.exports = {
   //	Update current order status
 	async update(req, res) {
     const orderId = req.params.id;
-		const userId = req.headers.authorization;
+		
     const { status, feedback } = req.body;
-
-		if(!userId || !userId.length) {
-			return res.status(400).send("No user is logged in!");
-    }
 
     if(!orderId || !orderId.length) {
 			return res.status(400).send("No order received!");
