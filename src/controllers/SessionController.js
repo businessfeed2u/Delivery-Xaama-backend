@@ -6,6 +6,9 @@ const bcrypt = require("bcryptjs");
 require("../models/User");
 const users = mongoose.model("Users");
 
+//	Defining regular expression to validations
+const emailRegEx = new RegExp(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/);
+
 //	Exporting Session features
 module.exports = {
 	//	Return user info from current session
@@ -25,14 +28,13 @@ module.exports = {
 		} else {
 			return res.status(400).send("No user is logged in!");
 		}
-
 	},
 	
 	//	Create a new session from user info
 	async create(req, res) {
 		const { email, password } = req.body;
 
-		if(!email || !email.length || !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/.test(email)) {
+		if(!email || !email.length || !emailRegEx.test(email)) {
 			return res.status(400).send("Invalid email!");
 		}
 
