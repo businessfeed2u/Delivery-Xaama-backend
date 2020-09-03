@@ -9,6 +9,8 @@ const users = mongoose.model("Users");
 // Loading module to delete uploads
 const fs = require("fs");
 
+const { findConnections, sendMessage } = require("../config/websocket");
+
 //	Exporting User features
 module.exports = {
 	//	Return an user on database given email
@@ -96,6 +98,8 @@ module.exports = {
 					thumbnail: filename })
 				.then((response) => {
 					if(response) {
+            sendMessage(findConnections(), "new-user", response);
+
 						return res.status(201).json(response);
 					} else {
 						if(filename) {
