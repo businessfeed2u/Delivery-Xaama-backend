@@ -7,6 +7,8 @@ require("../models/Company");
 const orders = mongoose.model("Orders");
 const companyData = mongoose.model("Company");
 
+const { findConnections, sendMessage } = require("../config/websocket");
+
 //	Exporting Order features
 module.exports = {
 	//	Return an order on database given id
@@ -67,6 +69,7 @@ module.exports = {
 			address: deliver ? address.split(",").map(a => a.trim()) : null
 		}).then((response) => {
 			if(response) {
+        sendMessage(findConnections(), "new-order", response);
 				return res.status(201).send("Order created successfully!");
 			} else {
 				return res.status(400).send("We couldn't create a new order, try again later!");

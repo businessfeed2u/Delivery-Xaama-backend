@@ -277,7 +277,7 @@ module.exports = {
 						if(uDeleted) {
 							try {
 								fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
-
+                sendMessage(findConnections(), "delete-user");
 								return res.status(202).send("The user has been deleted!");
 							} catch(e) { 
 								return res.status(202).send("The user has been deleted, but the profile picture was not found!");
