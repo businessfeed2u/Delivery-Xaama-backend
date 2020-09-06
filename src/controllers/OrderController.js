@@ -32,7 +32,8 @@ module.exports = {
 
 	//	Create a new order
 	async create(req, res) {
-		const { user, products, deliver, address } = req.body;
+    const sendSocketMessageTo = await findConnections();
+    const { user, products, deliver, address } = req.body;
 
 		if(!user || !products) {
 			return res.status(400).send("User or products are empty!");
@@ -69,7 +70,7 @@ module.exports = {
 			address: deliver ? address.split(",").map(a => a.trim()) : null
 		}).then((response) => {
 			if(response) {
-        sendMessage(findConnections(), "new-order", response);
+        sendMessage(sendSocketMessageTo, "new-order", response);
 				return res.status(201).send("Order created successfully!");
 			} else {
 				return res.status(400).send("We couldn't create a new order, try again later!");

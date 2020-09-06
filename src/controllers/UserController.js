@@ -41,7 +41,8 @@ module.exports = {
 	//	Create a new user
 	async create(req, res) {
 		const { name, email, password, passwordC } = req.body;
-		const filename = (req.file) ? req.file.filename : null;
+    const filename = (req.file) ? req.file.filename : null;
+    const sendSocketMessageTo = await findConnections();
 
 		if(!name || !name.length) {
 			if(filename) {
@@ -111,8 +112,10 @@ module.exports = {
 					password: hash, 
 					thumbnail: filename })
 				.then((response) => {
+          
 					if(response) {
-            sendMessage(findConnections(), "new-user", response);
+            
+            sendMessage(sendSocketMessageTo, "new-user", response);
 
 						return res.status(201).json(response);
 					} else {
@@ -126,7 +129,7 @@ module.exports = {
 					if(filename) {
 						fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 					}
-
+          console.log("Erro 500", error);
 					return res.status(500).send(error);
 				});
 			}
@@ -262,7 +265,8 @@ module.exports = {
 
 	//	Remove current user from database
 	async delete(req, res) {
-		const userId = req.headers.authorization;
+    const userId = req.headers.authorization;
+    const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length) {
 			return res.status(400).send("Invalid id!");
@@ -277,7 +281,7 @@ module.exports = {
 						if(uDeleted) {
 							try {
 								fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
-                sendMessage(findConnections(), "delete-user");
+                sendMessage(sendSocketMessageTo, "delete-user");
 								return res.status(202).send("The user has been deleted!");
 							} catch(e) { 
 								return res.status(202).send("The user has been deleted, but the profile picture was not found!");
