@@ -114,9 +114,7 @@ module.exports = {
 				.then((response) => {
           
 					if(response) {
-            
             sendMessage(sendSocketMessageTo, "new-user", response);
-
 						return res.status(201).json(response);
 					} else {
 						if(filename) {
@@ -146,7 +144,8 @@ module.exports = {
 	async update(req, res) {
 		const userId = req.headers.authorization;
 		const { name, email, passwordO, passwordN, address, phone } = req.body;
-		const filename = (req.file) ? req.file.filename : null;
+    const filename = (req.file) ? req.file.filename : null;
+    const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length) {
 			if(filename) {
@@ -232,6 +231,7 @@ module.exports = {
 			
 				user.save().then((response) => {
 					if(response) {
+            sendMessage(sendSocketMessageTo, "update-user", response);
 						return res.status(202).send("Successful on changing your data!");
 					} else {
 						if(filename) {

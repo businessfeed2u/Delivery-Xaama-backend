@@ -32,8 +32,8 @@ module.exports = {
 
 	//	Create a new order
 	async create(req, res) {
-    const sendSocketMessageTo = await findConnections();
     const { user, products, deliver, address } = req.body;
+    const sendSocketMessageTo = await findConnections();
 
 		if(!user || !products) {
 			return res.status(400).send("User or products are empty!");
@@ -82,7 +82,8 @@ module.exports = {
   
 	//	Update current order status
 	async update(req, res) {
-		const orderId = req.params.id;
+    const orderId = req.params.id;
+    const sendSocketMessageTo = await findConnections();
 			
 		const { status, feedback } = req.body;
 
@@ -101,6 +102,7 @@ module.exports = {
 
 				order.save().then((response) => {
 					if(response) {
+            sendMessage(sendSocketMessageTo, "update-order", response);
 						return res.status(202).send("Successful on changing your data!");
 					} else {
 						return res.status(400).send("We couldn't save your changes, try again later!");
