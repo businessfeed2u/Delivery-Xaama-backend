@@ -16,6 +16,7 @@ const UserController = require("./controllers/UserController");
 const ProductController = require("./controllers/ProductController");
 const AdditionController = require("./controllers/AdditionController");
 const OrderController = require("./controllers/OrderController");
+const SocketController = require("./controllers/SocketController");
 
 //  Setting up routes
 const routes = express.Router();
@@ -62,5 +63,8 @@ routes.post("/order", OrderController.create);
 routes.put("/order/:id", OrderController.update);
 routes.delete("/order", authorization.manager, OrderController.delete);
 routes.get("/order", authorization.manager, OrderController.all);
+
+//	Socket
+routes.delete("/socket", SocketController.delete);
 
 module.exports = routes;
