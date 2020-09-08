@@ -1,10 +1,8 @@
 //  Loading database module
 const mongoose = require("mongoose");
 
-//	Loading Orders and Company collections from database
-require("../models/Order");
+//	Loading Soket collections from database
 require("../models/Socket");
-
 const socketData = mongoose.model("sockets");
 
 module.exports = {

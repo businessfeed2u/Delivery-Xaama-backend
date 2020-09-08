@@ -120,8 +120,10 @@ module.exports = {
 
 	//	Delete all orders
 	async delete(req, res) {
+    const sendSocketMessageTo = await findConnections();
 		await orders.deleteMany().then((response) => {
 			if(response.n) {
+        sendMessage(sendSocketMessageTo, "delete-user");
 				return res.status(200).send("All orders have been deleted!");
 			} else {
 				return res.status(400).send("Orders not found!");
