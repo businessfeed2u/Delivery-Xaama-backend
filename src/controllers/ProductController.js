@@ -21,7 +21,7 @@ module.exports = {
 		if(!productId || !productId.length) {
 			return res.status(400).send("Invalid id!");
 		}
-			
+
 		await products.findById(productId).then((product) => {
 			if(product) {
 				return res.status(200).json(product);
@@ -111,7 +111,7 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-  
+
 	//	Update a specific product
 	async update(req, res) {
 		const productId = req.params.id;
@@ -225,10 +225,10 @@ module.exports = {
 
 	//	Return all products
 	async all(req, res) {
-		await products.find().sort({ 
+		await products.find().sort({
 			type: "asc",
-			name: "asc", 
-			creationDate: "asc" 
+			name: "asc",
+			creationDate: "asc"
 		}).then((response) => {
 			if(response && response.length) {
 				return res.status(200).json(response);

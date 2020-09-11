@@ -37,8 +37,8 @@ const additionSchema = Schema({
 });
 
 //	Creating route to get thumbnails
-additionSchema.virtual("thumbnail_url").get(function() {
-  return this.thumbnail ? `http://localhost:4000/files/${this.thumbnail}` : null;
+additionSchema.virtual("thumbnail_url").get(() => {
+	return this.thumbnail ? `http://localhost:4000/files/${this.thumbnail}` : null;
 });
 
 //	Creating collection Additions on database

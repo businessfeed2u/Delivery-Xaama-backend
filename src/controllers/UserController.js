@@ -41,8 +41,8 @@ module.exports = {
 	//	Create a new user
 	async create(req, res) {
 		const { name, email, password, passwordC } = req.body;
-    const filename = (req.file) ? req.file.filename : null;
-    const sendSocketMessageTo = await findConnections();
+		const filename = (req.file) ? req.file.filename : null;
+		const sendSocketMessageTo = await findConnections();
 
 		if(!name || !name.length) {
 			if(filename) {
@@ -112,9 +112,9 @@ module.exports = {
 					password: hash, 
 					thumbnail: filename })
 				.then((response) => {
-          
+		  
 					if(response) {
-            sendMessage(sendSocketMessageTo, "new-user", response);
+			sendMessage(sendSocketMessageTo, "new-user", response);
 						return res.status(201).json(response);
 					} else {
 						if(filename) {
@@ -127,7 +127,7 @@ module.exports = {
 					if(filename) {
 						fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 					}
-          console.log("Erro 500", error);
+		  console.log("Erro 500", error);
 					return res.status(500).send(error);
 				});
 			}
@@ -144,8 +144,8 @@ module.exports = {
 	async update(req, res) {
 		const userId = req.headers.authorization;
 		const { name, email, passwordO, passwordN, address, phone } = req.body;
-    const filename = (req.file) ? req.file.filename : null;
-    const sendSocketMessageTo = await findConnections();
+	const filename = (req.file) ? req.file.filename : null;
+	const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length) {
 			if(filename) {
@@ -231,7 +231,7 @@ module.exports = {
 			
 				user.save().then((response) => {
 					if(response) {
-            sendMessage(sendSocketMessageTo, "update-user", response);
+			sendMessage(sendSocketMessageTo, "update-user", response);
 						return res.status(202).send("Successful on changing your data!");
 					} else {
 						if(filename) {
@@ -265,8 +265,8 @@ module.exports = {
 
 	//	Remove current user from database
 	async delete(req, res) {
-    const userId = req.headers.authorization;
-    const sendSocketMessageTo = await findConnections();
+	const userId = req.headers.authorization;
+	const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length) {
 			return res.status(400).send("Invalid id!");
@@ -281,7 +281,7 @@ module.exports = {
 						if(uDeleted) {
 							try {
 								fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
-                sendMessage(sendSocketMessageTo, "delete-user");
+				sendMessage(sendSocketMessageTo, "delete-user");
 								return res.status(202).send("The user has been deleted!");
 							} catch(e) { 
 								return res.status(202).send("The user has been deleted, but the profile picture was not found!");
