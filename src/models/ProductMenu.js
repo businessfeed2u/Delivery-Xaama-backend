@@ -45,7 +45,7 @@ const productMenuSchema = Schema({
 });
 
 //	Creating route to get thumbnails
-productMenuSchema.virtual("thumbnail_url").get(() => {
+productMenuSchema.virtual("thumbnail_url").get(function() {
 	return this.thumbnail ? `http://localhost:4000/files/${this.thumbnail}` : null;
 });
 
