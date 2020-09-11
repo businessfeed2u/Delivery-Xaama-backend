@@ -312,11 +312,7 @@ module.exports = {
 		await users.find().sort({ 
 			userType: "desc"
 		}).then((response) => {
-			if(response) {
-				return res.status(200).json(response);
-			} else {
-				return res.status(400).send("No user found!");
-			}
+			return res.status(200).json(response);
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});

@@ -20,11 +20,7 @@ module.exports = {
 		}
 		
 		await orders.find({ "user._id": userId }).then((response) => {
-			if(response && response.length) {
-				return res.status(200).json(response);
-			} else {
-				return res.status(400).send("Orders not found!");
-			}
+			return res.status(200).json(response);
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
@@ -139,11 +135,7 @@ module.exports = {
 			status: "asc",
 			creationDate: "desc" 
 		}).then((response) => {
-			if(response && response.length ) {
-				return res.status(200).json(response);
-			} else {
-				return res.status(400).send("Orders not found!");
-			}
+			return res.status(200).json(response);
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
