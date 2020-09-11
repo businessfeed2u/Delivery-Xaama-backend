@@ -15,7 +15,7 @@ module.exports = {
 	async index(req, res) {
 		const userId = req.headers.authorization;
 
-		if(!userId || !userId.length) {
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			return res.status(400).send("Invalid id!");
 		}
 

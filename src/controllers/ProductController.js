@@ -18,7 +18,7 @@ module.exports = {
 	async index(req, res) {
 		const productId = req.params.id;
 
-		if(!productId || !productId.length) {
+		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
 			return res.status(400).send("Invalid id!");
 		}
 
@@ -26,7 +26,7 @@ module.exports = {
 			if(product) {
 				return res.status(200).json(product);
 			} else {
-				return res.status(400).send("Product not found!");
+				return res.status(404).send("Product not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -118,7 +118,7 @@ module.exports = {
 		const { name, ingredients, type, prices, sizes } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
-		if(!productId || !productId.length) {
+		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -191,7 +191,7 @@ module.exports = {
 
 				return res.status(200).send("The product has been updated!");
 			} else {
-				return res.status(400).send("Product not found!");
+				return res.status(404).send("Product not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -202,7 +202,7 @@ module.exports = {
 	async delete(req, res) {
 		const productId = req.params.id;
 
-		if(!productId || !productId.length) {
+		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
 			return res.status(400).send("Invalid id!");
 		}
 
@@ -216,7 +216,7 @@ module.exports = {
 					return res.status(200).send("The product was deleted, but the thumbnail was not found");
 				}
 			} else {
-				return res.status(400).send("Product not found!");
+				return res.status(404).send("Product not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -233,7 +233,7 @@ module.exports = {
 			if(response && response.length) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(400).send("Products not found!");
+				return res.status(404).send("Products not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

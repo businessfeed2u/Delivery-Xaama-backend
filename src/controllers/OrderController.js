@@ -15,7 +15,7 @@ module.exports = {
 	async index(req, res) {
 		const userId = req.params.id;
 
-		if(!userId || !userId.length) {
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			return res.status(400).send("Invalid id!");
 		}
 
@@ -83,7 +83,7 @@ module.exports = {
 
 		const { status, feedback } = req.body;
 
-		if(!orderId || !orderId.length) {
+		if(!orderId || !orderId.length || !mongoose.Types.ObjectId.isValid(orderId)) {
 			return res.status(400).send("No order received!");
 		}
 
@@ -99,7 +99,7 @@ module.exports = {
 				order.save().then((response) => {
 					if(response) {
 						sendMessage(sendSocketMessageTo, "update-order", response);
-						return res.status(202).send("Successful on changing your data!");
+						return res.status(200).send("Successful on changing your data!");
 					} else {
 						return res.status(400).send("We couldn't save your changes, try again later!");
 					}
@@ -107,7 +107,7 @@ module.exports = {
 					return res.status(500).send(error);
 				});
 			} else {
-				return res.status(400).send("User not found!");
+				return res.status(404).send("User not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -122,7 +122,7 @@ module.exports = {
 				sendMessage(sendSocketMessageTo, "delete-user");
 				return res.status(200).send("All orders have been deleted!");
 			} else {
-				return res.status(400).send("Orders not found!");
+				return res.status(404).send("Orders not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

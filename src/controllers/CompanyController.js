@@ -27,7 +27,7 @@ module.exports = {
 			if(response) {
 				return res.status(200).json(response.productTypes);
 			} else {
-				return res.status(400).send("Product types not found!");
+				return res.status(404).send("Product types not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -192,7 +192,7 @@ module.exports = {
 
 							user.save().then((response) => {
 								if(response) {
-									return res.status(202).send("Successful on changing your data!");
+									return res.status(200).send("Successful on changing your data!");
 								} else {
 									return res.status(400).send("We couldn't save your changes, try again later!");
 								}
@@ -207,7 +207,7 @@ module.exports = {
 					return res.status(500).send(error.message);
 				});
 			} else {
-				return res.status(400).send("User not found!");
+				return res.status(404).send("User not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
