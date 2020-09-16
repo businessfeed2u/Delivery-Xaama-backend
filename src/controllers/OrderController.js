@@ -31,12 +31,12 @@ module.exports = {
 		const { user, products, deliver, address } = req.body;
 		const sendSocketMessageTo = await findConnections();
 
-		if(!user || !products) {
+		if(!user || !products || !products.length) {
 			return res.status(400).send("User or products are empty!");
 		}
 
 		if(deliver == null) {
-			return res.status(400).send("Delivery are empty or wrong!");
+			return res.status(400).send("Deliver is empty or wrong!");
 		}
 
 		if(deliver && (!address || !address.length)){
@@ -47,13 +47,17 @@ module.exports = {
 		var total = await companyData.findOne({}).exec();
 		total = (deliver) ? total.freight : 0.0;
 
-		//	Calculate products and its additions total price
+		//	Calculate order total price
 		for(var x of products) {
-			for(var y of x.additions) {
-				if(x.size >= 0 && x.size < x.product.prices.length) {
-					total += (x.product.prices[x.size] + y.price);
-				} else {
-					return res.status(400).send(`${x.product.name} size doesn't exist!`);
+			if(x.size >= 0 && x.size < x.product.prices.length) {
+				total += x.product.prices[x.size];
+			} else {
+				return res.status(400).send(`${x.product.name} size doesn't exist!`);
+			}
+
+			if(x.additions && x.additions.length) {
+				for(var y of x.additions) {
+						total += y.price;
 				}
 			}
 		}
