@@ -272,6 +272,10 @@ module.exports = {
 			return res.status(400).send("Invalid id!");
 		}
 
+		if(!password || !password.length) {
+			return res.status(400).send("Invalid password!");
+		}
+
 		await users.findById(userId).then((user) => {
 			if(user) {
 				if(user.userType === 2) {
