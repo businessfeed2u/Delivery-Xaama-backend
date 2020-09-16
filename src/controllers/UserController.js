@@ -264,6 +264,7 @@ module.exports = {
 
 	//	Remove current user from database
 	async delete(req, res) {
+		const { password } = req.headers;
 		const userId = req.headers.authorization;
 		const sendSocketMessageTo = await findConnections();
 
@@ -276,20 +277,23 @@ module.exports = {
 				if(user.userType === 2) {
 					return res.status(401).send("Admin account can't be deleted");
 				} else {
-					user.remove().then((uDeleted) => {
-						if(uDeleted) {
-							try {
-								fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
-								sendMessage(sendSocketMessageTo, "delete-user");
-								return res.status(200).send("The user has been deleted!");
-							} catch(e) {
-								return res.status(200).send("The user has been deleted, but the profile picture was not found!");
-							}
+					bcrypt.compare(password, user.password).then((match) => {
+						if(match) {
+							user.remove().then(() => {
+								try {
+									fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
+									sendMessage(sendSocketMessageTo, "delete-user");
+
+									return res.status(200).send("The user has been deleted!");
+								} catch(e) {
+									return res.status(200).send("The user has been deleted, but the profile picture was not found!");
+								}
+							}).catch((error) => {
+								return res.status(500).send(error);
+							});
 						} else {
-							return res.status(404).send("User not found!");
+							return res.status(400).send("Wrong password, try again!");
 						}
-					}).catch((error) => {
-						return res.status(500).send(error);
 					});
 				}
 			} else {
