@@ -10,9 +10,12 @@ exports.setupWebsocket = (server) => {
   io = socketio(server);
 
   io.on("connection", async socket => {
+    //console.log("socket: ", socket);
+    //console.log("=======================================================");
     await sockets.create({ 
-      id: socket.id, 
+      id: socket.id,
     });
+    
   });
 };
 
