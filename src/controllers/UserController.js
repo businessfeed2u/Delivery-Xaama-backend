@@ -23,10 +23,10 @@ module.exports = {
 	async index(req, res) {
 		const userId = req.params.id;
 
-		if(!userId || !userId.length) {
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			return res.status(400).send("Invalid id!");
 		}
-		
+
 		await users.findById(userId).then((user) => {
 			if(user) {
 				return res.status(200).json(user);
@@ -41,8 +41,8 @@ module.exports = {
 	//	Create a new user
 	async create(req, res) {
 		const { name, email, password, passwordC } = req.body;
-    const filename = (req.file) ? req.file.filename : null;
-    const sendSocketMessageTo = await findConnections();
+		const filename = (req.file) ? req.file.filename : null;
+		const sendSocketMessageTo = await findConnections();
 
 		if(!name || !name.length) {
 			if(filename) {
@@ -80,7 +80,7 @@ module.exports = {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
-			
+
 			return res.status(400).send("The password confirmation don't match, try again!");
 		}
 
@@ -101,20 +101,19 @@ module.exports = {
 					if(filename) {
 						fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 					}
-					
+
 					return res.status(500).send(error.message);
 				}
-				
-				users.create({ 
-					name, 
-					email: email.trim().toLowerCase(), 
-					userType: 0, 
-					password: hash, 
+
+				users.create({
+					name,
+					email: email.trim().toLowerCase(),
+					userType: 0,
+					password: hash,
 					thumbnail: filename })
 				.then((response) => {
-          
 					if(response) {
-            sendMessage(sendSocketMessageTo, "new-user", response);
+						sendMessage(sendSocketMessageTo, "new-user", response);
 						return res.status(201).json(response);
 					} else {
 						if(filename) {
@@ -127,7 +126,7 @@ module.exports = {
 					if(filename) {
 						fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 					}
-          console.log("Erro 500", error);
+
 					return res.status(500).send(error);
 				});
 			}
@@ -135,7 +134,7 @@ module.exports = {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
-			
+
 			return res.status(500).send(error);
 		});
 	},
@@ -144,10 +143,10 @@ module.exports = {
 	async update(req, res) {
 		const userId = req.headers.authorization;
 		const { name, email, passwordO, passwordN, address, phone } = req.body;
-    const filename = (req.file) ? req.file.filename : null;
-    const sendSocketMessageTo = await findConnections();
+		const filename = (req.file) ? req.file.filename : null;
+		const sendSocketMessageTo = await findConnections();
 
-		if(!userId || !userId.length) {
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -190,13 +189,13 @@ module.exports = {
 		await users.findById(userId).then((user) => {
 			if(user) {
 				var hash = "";
-				
+
 				if(passwordN && passwordN.length) {
 					if(!passwordRegEx.test(passwordN)) {
 						if(filename) {
 							fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 						}
-			
+
 						return res.status(400).send("Invalid new password!");
 					}
 
@@ -228,11 +227,11 @@ module.exports = {
 				user.thumbnail = filename;
 				user.phone = phone;
 				user.address= address.split(",").map(a => a.trim());
-			
+
 				user.save().then((response) => {
 					if(response) {
-            sendMessage(sendSocketMessageTo, "update-user", response);
-						return res.status(202).send("Successful on changing your data!");
+						sendMessage(sendSocketMessageTo, "update-user", response);
+						return res.status(200).send("Successful on changing your data!");
 					} else {
 						if(filename) {
 							fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
@@ -252,7 +251,7 @@ module.exports = {
 					fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 				}
 
-				return res.status(400).send("User not found!" );
+				return res.status(404).send("User not found!" );
 			}
 		}).catch((error) => {
 			if(filename) {
@@ -265,11 +264,16 @@ module.exports = {
 
 	//	Remove current user from database
 	async delete(req, res) {
-    const userId = req.headers.authorization;
-    const sendSocketMessageTo = await findConnections();
+		const { password } = req.headers;
+		const userId = req.headers.authorization;
+		const sendSocketMessageTo = await findConnections();
 
-		if(!userId || !userId.length) {
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			return res.status(400).send("Invalid id!");
+		}
+
+		if(!password || !password.length) {
+			return res.status(400).send("Invalid password!");
 		}
 
 		await users.findById(userId).then((user) => {
@@ -277,24 +281,27 @@ module.exports = {
 				if(user.userType === 2) {
 					return res.status(401).send("Admin account can't be deleted");
 				} else {
-					user.remove().then((uDeleted) => {
-						if(uDeleted) {
-							try {
-								fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
-                sendMessage(sendSocketMessageTo, "delete-user");
-								return res.status(202).send("The user has been deleted!");
-							} catch(e) { 
-								return res.status(202).send("The user has been deleted, but the profile picture was not found!");
-							}
+					bcrypt.compare(password, user.password).then((match) => {
+						if(match) {
+							user.remove().then(() => {
+								try {
+									fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
+									sendMessage(sendSocketMessageTo, "delete-user");
+
+									return res.status(200).send("The user has been deleted!");
+								} catch(e) {
+									return res.status(200).send("The user has been deleted, but the profile picture was not found!");
+								}
+							}).catch((error) => {
+								return res.status(500).send(error);
+							});
 						} else {
-							return res.status(400).send("User not found!");
+							return res.status(400).send("Wrong password, try again!");
 						}
-					}).catch((error) => {
-						return res.status(500).send(error);
 					});
 				}
 			} else {
-				return res.status(400).send("User not found!");
+				return res.status(404).send("User not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -303,13 +310,7 @@ module.exports = {
 
 	//	Return all users on database
 	async all(req, res) {
-		const userId = req.headers.authorization;
-
-		if(!userId || !userId.length) {
-			return res.status(400).send("Invalid id!");
-		}
-		
-		await users.find().sort({ 
+		await users.find().sort({
 			userType: "desc"
 		}).then((response) => {
 			return res.status(200).json(response);

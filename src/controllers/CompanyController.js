@@ -27,7 +27,7 @@ module.exports = {
 			if(response) {
 				return res.status(200).json(response.productTypes);
 			} else {
-				return res.status(400).send("Product types not found!");
+				return res.status(404).send("Product types not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -83,7 +83,7 @@ module.exports = {
 
 			return res.status(400).send("Invalid address!");
 		}
-		
+
 		if(!freight || !freight.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
@@ -148,11 +148,11 @@ module.exports = {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
-			
+
 			return res.status(500).send(error);
 		});
   },
-  
+
 	//	Update current user on database
 	async update(req, res) {
 		const userId = req.headers.authorization;
@@ -169,13 +169,13 @@ module.exports = {
 		if(!password || !password.length) {
 			return res.status(400).send("Password is empty!");
 		}
-		
+
 		if(type < 0 || type > 2) {
 			return res.status(400).send("User type invalid!");
 		}
 
 		let hash = "";
-		await users.findById(userId).then((userAdmin) => { 
+		await users.findById(userId).then((userAdmin) => {
 			hash = userAdmin.password;
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -189,10 +189,10 @@ module.exports = {
 							return res.status(400).send("Aborted! The user is already of that type requested!");
 						} else {
 							user.userType = type;
-					
+
 							user.save().then((response) => {
 								if(response) {
-									return res.status(202).send("Successful on changing your data!");
+									return res.status(200).send("Successful on changing your data!");
 								} else {
 									return res.status(400).send("We couldn't save your changes, try again later!");
 								}
@@ -207,7 +207,7 @@ module.exports = {
 					return res.status(500).send(error.message);
 				});
 			} else {
-				return res.status(400).send("User not found!");
+				return res.status(404).send("User not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

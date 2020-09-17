@@ -9,19 +9,19 @@ module.exports = {
 	async admin(req, res, next) {
 		const userId = req.headers.authorization;
 
-		if(!userId || !userId.length) {
-			return res.status(400).send("No user is logged in!");
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			return res.status(400).send("Invalid id!");
 		}
-	
+
 		await users.findById(userId).then((response) => {
 			if(response) {
 				if(response.userType != 2) {
 					return res.status(401).send("User not authorized!");
 				}
-				
+
 				return next();
 			} else {
-				return res.status(400).send("User not found!");
+				return res.status(404).send("User not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -31,10 +31,10 @@ module.exports = {
 	async manager(req, res, next) {
 		const userId = req.headers.authorization;
 
-		if(!userId || !userId.length) {
-			return res.status(400).send("No user is logged in!");
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			return res.status(400).send("Invalid id!");
 		}
-	
+
 		await users.findById(userId).then((response) => {
 			if(response) {
 				if(response.userType != 1 && response.userType != 2) {
@@ -43,7 +43,7 @@ module.exports = {
 
 				return next();
 			} else {
-				return res.status(400).send("User not found!");
+				return res.status(404).send("User not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

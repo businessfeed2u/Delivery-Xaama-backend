@@ -15,21 +15,21 @@ module.exports = {
 	async index(req, res) {
 		const userId = req.headers.authorization;
 
-		if(userId && userId.length) {
-			await users.findById(userId).then((user) => {
-				if(user) {
-					return res.status(200).json(user);
-				} else {
-					return res.status(400).send("No user found using this email!");
-				}
-			}).catch((error) => {
-				return res.status(500).send(error);
-			});
-		} else {
-			return res.status(400).send("No user is logged in!");
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			return res.status(400).send("Invalid id!");
 		}
+
+		await users.findById(userId).then((user) => {
+			if(user) {
+				return res.status(200).json(user);
+			} else {
+				return res.status(404).send("User not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
 	},
-	
+
 	//	Create a new session from user info
 	async create(req, res) {
 		const { email, password } = req.body;
@@ -41,7 +41,7 @@ module.exports = {
 		if(!password || !password.length) {
 			return res.status(400).send("Invalid password!");
 		}
-		
+
 		await users.findOne({ email: email.trim().toLowerCase() }).then((user) => {
 			if(user) {
 				bcrypt.compare(password, user.password).then((match) => {

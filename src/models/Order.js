@@ -19,22 +19,23 @@ const orderSchema = Schema({
 	total: {
 		type: Number,
 		required: true
-  },
-  deliver: {
+	},
+	deliver: {
 		type: Boolean,
 		required: true
-  },
-  address: {
-    type: [String],
-  },
-  status: {
-    type: Boolean,
-    default: false
-  },
-  feedback: {
-    type: String,
-    default: null
-  },
+	},
+	address: {
+		type: [String],
+		default: null
+	},
+	status: {
+		type: Boolean,
+		default: false
+	},
+	feedback: {
+		type: String,
+		default: null
+	},
 	creationDate: {
 		type: Date,
 		default: Date.now()

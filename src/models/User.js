@@ -44,7 +44,7 @@ const userSchema = Schema({
 
 //	Creating route to get thumbnails
 userSchema.virtual("thumbnail_url").get(function() {
-  return this.thumbnail ? `http://localhost:4000/files/${this.thumbnail}` : null;
+	return this.thumbnail ? `http://localhost:4000/files/${this.thumbnail}` : null;
 });
 
 //	Creating collection Users on database

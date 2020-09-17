@@ -7,7 +7,7 @@ const sockets = mongoose.model("sockets");
 let io;
 
 exports.setupWebsocket = (server) => {
-  io = socketio(server);
+	io = socketio(server);
 
   io.on("connection", async socket => {
     //console.log("socket: ", socket);
@@ -21,19 +21,19 @@ exports.setupWebsocket = (server) => {
 
 
 exports.findConnections = () => {
-  async function all () {
-    return await sockets.find().exec();
-  }
-  
-  return all();
+	async function all () {
+		return await sockets.find().exec();
+	}
+	
+	return all();
 };
 
 exports.sendMessage = (to, message, data) => {
-  if(to) {
-    to.forEach(connection => {
-      io.to(connection.id).emit(message, data);
-    });
-  } else {
-    //
-  }
+	if(to) {
+		to.forEach(connection => {
+			io.to(connection.id).emit(message, data);
+		});
+	} else {
+		//
+	}
 };

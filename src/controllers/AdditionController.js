@@ -18,15 +18,15 @@ module.exports = {
 	async index(req, res) {
 		const additionId = req.params.id;
 
-		if(!additionId || !additionId.length) {
+		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
 			return res.status(400).send("Invalid id!");
 		}
-		
+
 		await additions.findById(additionId).then((addition) => {
 			if(addition) {
 				return res.status(200).json(addition);
 			} else {
-				return res.status(400).send("Addition not found!");
+				return res.status(404).send("Addition not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -85,14 +85,14 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-  
+
 	//	Update a specific addition
 	async update(req, res) {
 		const additionId = req.params.id;
 		const { name, type, price } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
-		if(!additionId || !additionId.length) {
+		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -137,18 +137,18 @@ module.exports = {
 
 				return res.status(200).send("The addition has been updated!");
 			} else {
-				return res.status(400).send("Addition not found!");
+				return res.status(404).send("Addition not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-  
+
 	//	Delete a specific addition
 	async delete(req, res) {
 		const additionId = req.params.id;
 
-		if(!additionId || !additionId.length) {
+		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
 			return res.status(400).send("Invalid id!");
 		}
 
@@ -162,25 +162,25 @@ module.exports = {
 					return res.status(200).send("The addition have been deleted, but the thumbnail was not found");
 				}
 			} else {
-				return res.status(400).send("Addition not found!");
+				return res.status(404).send("Addition not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-  
+
 	//	Return all additions additions
 	async all(req, res) {
-		await additions.find().sort({ 
-			type: "asc", 
-			name: "asc", 
-			price: "asc", 
-			creationDate: "asc" 
+		await additions.find().sort({
+			type: "asc",
+			name: "asc",
+			price: "asc",
+			creationDate: "asc"
 		}).then((response) => {
 			if(response && response.length) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(400).send("Additions not found!");
+				return res.status(404).send("Additions not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

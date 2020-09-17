@@ -12,11 +12,10 @@ module.exports = {
 			if(response.n) {
 				return res.status(200).send("All sockets have been deleted!");
 			} else {
-				return res.status(400).send("Sockets not found!");
+				return res.status(404).send("Sockets not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-	},
-	
+	}
 };
