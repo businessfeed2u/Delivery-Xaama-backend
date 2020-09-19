@@ -13,11 +13,8 @@ const users = mongoose.model("Users");
 // Loading module to delete uploads
 const fs = require("fs");
 
-//	Defining regular expression to validations
-const emailRegEx = new RegExp(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/);
-const typeRegEx = new RegExp(/^[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+(,\s?[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+)*$/);
-const phoneRegEx = new RegExp(/^\(?[0-9]{2}\)?\s?[0-9]?\s?[0-9]{4}-?[0-9]{4}$/);
-const addressRegEx = new RegExp(/^[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+,\s?[0-9]+,\s?[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+(,\s?[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+)?$/);
+// Loading helpers
+const regEx = require("../helpers/regEx");
 
 //	Exporting Admin features
 module.exports = {
@@ -60,7 +57,7 @@ module.exports = {
 			return res.status(400).send("Invalid name!");
 		}
 
-		if(!email || !email.length || !emailRegEx.test(email)) {
+		if(!email || !email.length || !regEx.email.test(email)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -68,7 +65,7 @@ module.exports = {
 			return res.status(400).send("Invalid email!");
 		}
 
-		if(!phone || !phone.length || !phoneRegEx.test(phone)) {
+		if(!phone || !phone.length || !regEx.phone.test(phone)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -76,7 +73,7 @@ module.exports = {
 			return res.status(400).send("Invalid phone!");
 		}
 
-		if(address && address.length && !addressRegEx.test(address)) {
+		if(address && address.length && !regEx.address.test(address)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -92,7 +89,7 @@ module.exports = {
 			return res.status(400).send("Invalid freight!");
 		}
 
-		if(!productTypes || !productTypes.length || !typeRegEx.test(productTypes)) {
+		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}

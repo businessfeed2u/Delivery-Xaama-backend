@@ -8,9 +8,8 @@ const additions = mongoose.model("Additions");
 // Loading module to delete uploads
 const fs = require("fs");
 
-//	Defining regular expression to validations
-const typeRegEx = new RegExp(/^[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+(,\s?[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+)*$/);
-const priceRegEx = new RegExp(/^[0-9]+(\.[0-9]+)*$/);
+// Loading helpers
+const regEx = require("../helpers/regEx");
 
 //	Exporting Addition features
 module.exports = {
@@ -46,7 +45,7 @@ module.exports = {
 			return res.status(400).send("Invalid name!");
 		}
 
-		if(!type || !type.length || !typeRegEx.test(type)) {
+		if(!type || !type.length || !regEx.seq.test(type)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -54,7 +53,7 @@ module.exports = {
 			return res.status(400).send("Invalid type!");
 		}
 
-		if(!price || !price.length || !priceRegEx.test(price)) {
+		if(!price || !price.length || !regEx.price.test(price)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -108,7 +107,7 @@ module.exports = {
 			return res.status(400).send("Invalid name!");
 		}
 
-		if(!type || !type.length || !typeRegEx.test(type)) {
+		if(!type || !type.length || !regEx.seq.test(type)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -116,7 +115,7 @@ module.exports = {
 			return res.status(400).send("Invalid type!");
 		}
 
-		if(!price || !price.length || !priceRegEx.test(price)) {
+		if(!price || !price.length || !regEx.price.test(price)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}

@@ -6,14 +6,11 @@ const bcrypt = require("bcryptjs");
 require("../models/User");
 const users = mongoose.model("Users");
 
-//	Defining regular expression to validations
-const emailRegEx = new RegExp(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/);
-const passwordRegEx = new RegExp(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/);
-const phoneRegEx = new RegExp(/^\(?[0-9]{2}\)?\s?[0-9]?\s?[0-9]{4}-?[0-9]{4}$/);
-const addressRegEx = new RegExp(/^[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+,\s?[0-9]+,\s?[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+(,\s?[a-zA-Z0-9\s\-.^~`´'\u00C0-\u024F\u1E00-\u1EFF]+)?$/);
-
 // Loading module to delete uploads
 const fs = require("fs");
+
+// Loading helpers
+const regEx = require("../helpers/regEx");
 
 const { findConnections, sendMessage } = require("../config/websocket");
 
@@ -52,7 +49,7 @@ module.exports = {
 			return res.status(400).send("Invalid name!");
 		}
 
-		if(!email || !email.length || !emailRegEx.test(email)) {
+		if(!email || !email.length || !regEx.email.test(email)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -60,7 +57,7 @@ module.exports = {
 			return res.status(400).send("Invalid email!");
 		}
 
-		if(!password || !password.length || !passwordRegEx.test(password)) {
+		if(!password || !password.length || !regEx.password.test(password)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -68,7 +65,7 @@ module.exports = {
 			return res.status(400).send("Invalid password!");
 		}
 
-		if(!passwordC || !passwordC.length || !passwordRegEx.test(passwordC)) {
+		if(!passwordC || !passwordC.length || !regEx.password.test(passwordC)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -162,7 +159,7 @@ module.exports = {
 			return res.status(400).send("Invalid name!");
 		}
 
-		if(!email || !email.length || !emailRegEx.test(email)) {
+		if(!email || !email.length || !regEx.email.test(email)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -170,7 +167,7 @@ module.exports = {
 			return res.status(400).send("Invalid email!");
 		}
 
-		if(phone && phone.length && !phoneRegEx.test(phone)) {
+		if(phone && phone.length && !regEx.phone.test(phone)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -178,7 +175,7 @@ module.exports = {
 			return res.status(400).send("Invalid phone!");
 		}
 
-		if(address && address.length && !addressRegEx.test(address)) {
+		if(address && address.length && !regEx.address.test(address)) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -191,7 +188,7 @@ module.exports = {
 				var hash = "";
 
 				if(passwordN && passwordN.length) {
-					if(!passwordRegEx.test(passwordN)) {
+					if(!regEx.password.test(passwordN)) {
 						if(filename) {
 							fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 						}
