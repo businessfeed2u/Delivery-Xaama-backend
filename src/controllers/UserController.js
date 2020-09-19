@@ -230,7 +230,14 @@ module.exports = {
 
 				user.save().then((response) => {
 					if(response) {
-						sendMessage(sendSocketMessageTo, "update-user", response);
+            users.find().sort({
+              userType: "desc"
+            }).then((response) => {
+              sendMessage(sendSocketMessageTo, "update-user", response);
+            }).catch((error) => {
+              return res.status(500).send(error);
+            });
+						
 						return res.status(200).send("Successful on changing your data!");
 					} else {
 						if(filename) {
@@ -283,15 +290,29 @@ module.exports = {
 				} else {
 					bcrypt.compare(password, user.password).then((match) => {
 						if(match) {
-							user.remove().then(() => {
-								try {
-									fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
-									sendMessage(sendSocketMessageTo, "delete-user");
+							user.remove().then((uDeleted) => {
+                if(uDeleted){
+                  try {
+                    if(uDeleted.thumbnail){
+                      fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
+                    }
+          
+                    users.find().sort({
+                      userType: "desc"
+                    }).then((response) => {
+                      sendMessage(sendSocketMessageTo, "delete-user", response);
+                    }).catch((error) => {
+                      return res.status(500).send(error);
+                    });
+  
+                    return res.status(200).send("The user has been deleted!");
+                  } catch(e) {
+                    return res.status(200).send("The user has been deleted, but the profile picture was not found!");
+                  }
+                } else {
+                  return res.status(400).send("User not found!");
+                }
 
-									return res.status(200).send("The user has been deleted!");
-								} catch(e) {
-									return res.status(200).send("The user has been deleted, but the profile picture was not found!");
-								}
 							}).catch((error) => {
 								return res.status(500).send(error);
 							});

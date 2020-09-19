@@ -9,6 +9,7 @@ const companyData = mongoose.model("Company");
 
 const { findConnections, sendMessage } = require("../config/websocket");
 
+
 //	Exporting Order features
 module.exports = {
 	//	Return an order on database given id
@@ -85,7 +86,7 @@ module.exports = {
 		const orderId = req.params.id;
 		const sendSocketMessageTo = await findConnections();
 
-		const { status, feedback } = req.body;
+    const { status, feedback } = req.body;
 
 		if(!orderId || !orderId.length || !mongoose.Types.ObjectId.isValid(orderId)) {
 			return res.status(400).send("No order received!");
@@ -102,7 +103,16 @@ module.exports = {
 
 				order.save().then((response) => {
 					if(response) {
-						sendMessage(sendSocketMessageTo, "update-order", response);
+            
+            orders.find().sort({
+              status: "asc",
+              creationDate: "desc"
+            }).then((response) => {
+              sendMessage(sendSocketMessageTo, "update-order", response);
+            }).catch((error) => {
+              return res.status(500).send(error);
+            });
+            
 						return res.status(200).send("Successful on changing your data!");
 					} else {
 						return res.status(400).send("We couldn't save your changes, try again later!");
@@ -123,7 +133,7 @@ module.exports = {
 		const sendSocketMessageTo = await findConnections();
 		await orders.deleteMany().then((response) => {
 			if(response.n) {
-				sendMessage(sendSocketMessageTo, "delete-user");
+				sendMessage(sendSocketMessageTo, "delete-order", []);
 				return res.status(200).send("All orders have been deleted!");
 			} else {
 				return res.status(404).send("Orders not found!");
