@@ -48,53 +48,40 @@ module.exports = {
 	async manageCompanyData(req, res) {
 		const { name, email, phone, address, freight, productTypes } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
+		var errors = [];
 
 		if(!name || !name.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid name!");
+			errors.push("name");
 		}
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid email!");
+			errors.push("email");
 		}
 
 		if(!phone || !phone.length || !regEx.phone.test(phone)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid phone!");
+			errors.push("phone");
 		}
 
 		if(address && address.length && !regEx.address.test(address)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid address!");
+			errors.push("address");
 		}
 
 		if(!freight || !freight.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid freight!");
+			errors.push("freight");
 		}
 
 		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
+			errors.push("product type(s)");
+		}
+
+		if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Invalid product type(s)!");
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
 		}
 
 		await companyData.findOneAndUpdate({}, {
@@ -154,21 +141,32 @@ module.exports = {
 	async update(req, res) {
 		const userId = req.headers.authorization;
 		const { userUpdateId, type, password } = req.body;
+		var errors = [];
 
-		if(!userId || !userId.length || !userUpdateId || !userUpdateId.length) {
-			return res.status(400).send("No user is logged in or no has user to update!");
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			errors.push("admin id");
+		}
+
+		if(!userUpdateId || !userUpdateId.length || !mongoose.Types.ObjectId.isValid(userUpdateId)) {
+			errors.push("user id");
+		}
+
+		if(type < 0 || type > 2) {
+			errors.push("user type");
+		}
+
+		if(!password || !password.length) {
+			errors.push("password");
 		}
 
 		if(userId === userUpdateId) {
 			return res.status(400).send("Aborted! You can't lower yourself!");
 		}
 
-		if(!password || !password.length) {
-			return res.status(400).send("Password is empty!");
-		}
+		if(errors.length) {
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
-		if(type < 0 || type > 2) {
-			return res.status(400).send("User type invalid!");
+			return res.status(400).send(message);
 		}
 
 		let hash = "";

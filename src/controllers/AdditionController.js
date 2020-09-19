@@ -36,29 +36,28 @@ module.exports = {
 	async create(req, res) {
 		const { name, type, price } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
+		var errors = [];
 
 		if(!name || !name.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid name!");
+			errors.push("name");
 		}
 
 		if(!type || !type.length || !regEx.seq.test(type)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid type!");
+			errors.push("type");
 		}
 
 		if(!price || !price.length || !regEx.price.test(price)) {
+			errors.push("price");
+		}
+
+		if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Invalid price!");
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
 		}
 
 		await additions.create({
@@ -90,37 +89,32 @@ module.exports = {
 		const additionId = req.params.id;
 		const { name, type, price } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
+		var errors = [];
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid id!");
+			errors.push("id");
 		}
 
 		if(!name || !name.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid name!");
+			errors.push("name");
 		}
 
 		if(!type || !type.length || !regEx.seq.test(type)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid type!");
+			errors.push("type");
 		}
 
 		if(!price || !price.length || !regEx.price.test(price)) {
+			errors.push("price");
+		}
+
+		if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Invalid price!");
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
 		}
 
 		await additions.findByIdAndUpdate(additionId, {
