@@ -222,8 +222,8 @@ module.exports = {
 				user.email = email.trim().toLowerCase();
 				user.password = hash;
 				user.thumbnail = filename;
-				user.phone = phone;
-				user.address= address.split(",").map(a => a.trim());
+				user.phone = phone && phone.length ? phone : null;
+				user.address= address && address.length ? address.split(",").map(a => a.trim()) : null;
 
 				user.save().then((response) => {
 					if(response) {
@@ -234,7 +234,7 @@ module.exports = {
             }).catch((error) => {
               return res.status(500).send(error);
             });
-						
+
 						return res.status(200).send("Successful on changing your data!");
 					} else {
 						if(filename) {
@@ -293,7 +293,7 @@ module.exports = {
                     if(uDeleted.thumbnail){
                       fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
                     }
-          
+
                     users.find().sort({
                       userType: "desc"
                     }).then((response) => {
@@ -301,7 +301,7 @@ module.exports = {
                     }).catch((error) => {
                       return res.status(500).send(error);
                     });
-  
+
                     return res.status(200).send("The user has been deleted!");
                   } catch(e) {
                     return res.status(200).send("The user has been deleted, but the profile picture was not found!");
