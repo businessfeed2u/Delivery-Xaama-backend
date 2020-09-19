@@ -40,37 +40,32 @@ module.exports = {
 		const { name, email, password, passwordC } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 		const sendSocketMessageTo = await findConnections();
+		var errors = [];
 
 		if(!name || !name.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid name!");
+			errors.push("name");
 		}
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid email!");
+			errors.push("email");
 		}
 
 		if(!password || !password.length || !regEx.password.test(password)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid password!");
+			errors.push("password");
 		}
 
 		if(!passwordC || !passwordC.length || !regEx.password.test(passwordC)) {
+			errors.push("password confirmation");
+		}
+
+		if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Invalid password confirmation!");
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
 		}
 
 		if(password !== passwordC) {
@@ -107,8 +102,8 @@ module.exports = {
 					email: email.trim().toLowerCase(),
 					userType: 0,
 					password: hash,
-					thumbnail: filename })
-				.then((response) => {
+					thumbnail: filename
+				}).then((response) => {
 					if(response) {
 						sendMessage(sendSocketMessageTo, "new-user", response);
 						return res.status(201).json(response);
@@ -150,37 +145,32 @@ module.exports = {
 
 			return res.status(400).send("Invalid id!");
 		}
+		var errors = [];
 
 		if(!name || !name.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid name!");
+			errors.push("name");
 		}
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid email!");
+			errors.push("email");
 		}
 
 		if(phone && phone.length && !regEx.phone.test(phone)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid phone!");
+			errors.push("phone");
 		}
 
 		if(address && address.length && !regEx.address.test(address)) {
+			errors.push("address");
+		}
+
+		if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Invalid address!");
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
 		}
 
 		await users.findById(userId).then((user) => {
@@ -227,13 +217,13 @@ module.exports = {
 
 				user.save().then((response) => {
 					if(response) {
-            users.find().sort({
-              userType: "desc"
-            }).then((response) => {
-              sendMessage(sendSocketMessageTo, "update-user", response);
-            }).catch((error) => {
-              return res.status(500).send(error);
-            });
+						users.find().sort({
+							userType: "desc"
+						}).then((response) => {
+							sendMessage(sendSocketMessageTo, "update-user", response);
+						}).catch((error) => {
+							return res.status(500).send(error);
+						});
 
 						return res.status(200).send("Successful on changing your data!");
 					} else {
@@ -271,13 +261,20 @@ module.exports = {
 		const { password } = req.headers;
 		const userId = req.headers.authorization;
 		const sendSocketMessageTo = await findConnections();
+		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send("Invalid id!");
+			errors.push("id");
 		}
 
 		if(!password || !password.length) {
-			return res.status(400).send("Invalid password!");
+			errors.push("password");
+		}
+
+		if(errors.length) {
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
 		}
 
 		await users.findById(userId).then((user) => {
@@ -288,28 +285,27 @@ module.exports = {
 					bcrypt.compare(password, user.password).then((match) => {
 						if(match) {
 							user.remove().then((uDeleted) => {
-                if(uDeleted){
-                  try {
-                    if(uDeleted.thumbnail){
-                      fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
-                    }
+								if(uDeleted){
+									try {
+										if(uDeleted.thumbnail){
+											fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
+										}
 
-                    users.find().sort({
-                      userType: "desc"
-                    }).then((response) => {
-                      sendMessage(sendSocketMessageTo, "delete-user", response);
-                    }).catch((error) => {
-                      return res.status(500).send(error);
-                    });
+										users.find().sort({
+											userType: "desc"
+										}).then((response) => {
+											sendMessage(sendSocketMessageTo, "delete-user", response);
+										}).catch((error) => {
+											return res.status(500).send(error);
+										});
 
-                    return res.status(200).send("The user has been deleted!");
-                  } catch(e) {
-                    return res.status(200).send("The user has been deleted, but the profile picture was not found!");
-                  }
-                } else {
-                  return res.status(400).send("User not found!");
-                }
-
+										return res.status(200).send("The user has been deleted!");
+									} catch(e) {
+										return res.status(200).send("The user has been deleted, but the profile picture was not found!");
+									}
+								} else {
+									return res.status(400).send("User not found!");
+								}
 							}).catch((error) => {
 								return res.status(500).send(error);
 							});

@@ -36,45 +36,36 @@ module.exports = {
 	async create(req, res) {
 		const { name, ingredients, type, prices, sizes } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
+		var errors = [];
 
 		if(!name || !name.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid name!");
-		}
-
-		if(!type || !type.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid type!");
-		}
-
-		if(!prices || !prices.length || !regEx.prices.test(prices)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid price(s)!");
+			errors.push("name");
 		}
 
 		if(!ingredients || !ingredients.length || !regEx.seq.test(ingredients)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
+			errors.push("ingredients");
+		}
 
-			return res.status(400).send("Invalid ingredients!");
+		if(!type || !type.length) {
+			errors.push("type");
+		}
+
+		if(!prices || !prices.length || !regEx.prices.test(prices)) {
+			errors.push("price(s)");
 		}
 
 		if(!sizes || !sizes.length || !regEx.seq.test(sizes)) {
+			errors.push("size(s)");
+		}
+
+		if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Invalid size!");
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
 		}
 
 		if(sizes.split(",").length !== prices.split(",").length) {
@@ -116,53 +107,40 @@ module.exports = {
 		const productId = req.params.id;
 		const { name, ingredients, type, prices, sizes } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
+		var errors = [];
 
 		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid id!");
+			errors.push("id");
 		}
 
 		if(!name || !name.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid name!");
-		}
-
-		if(!type || !type.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid type!");
-		}
-
-		if(!prices || !prices.length || !regEx.prices.test(prices)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid price(s)!");
+			errors.push("name");
 		}
 
 		if(!ingredients || !ingredients.length || !regEx.seq.test(ingredients)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
+			errors.push("ingredients");
+		}
 
-			return res.status(400).send("Invalid ingredients!");
+		if(!type || !type.length) {
+			errors.push("type");
+		}
+
+		if(!prices || !prices.length || !regEx.prices.test(prices)) {
+			errors.push("price(s)");
 		}
 
 		if(!sizes || !sizes.length || !regEx.seq.test(sizes)) {
+			errors.push("size(s)");
+		}
+
+		if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
 
-			return res.status(400).send("Invalid size!");
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
 		}
 
 		if(sizes.split(",").length !== prices.split(",").length) {

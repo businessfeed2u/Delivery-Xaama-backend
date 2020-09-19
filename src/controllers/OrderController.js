@@ -9,7 +9,6 @@ const companyData = mongoose.model("Company");
 
 const { findConnections, sendMessage } = require("../config/websocket");
 
-
 //	Exporting Order features
 module.exports = {
 	//	Return an order on database given id
@@ -31,17 +30,28 @@ module.exports = {
 	async create(req, res) {
 		const { user, products, deliver, address } = req.body;
 		const sendSocketMessageTo = await findConnections();
+		var errors = [];
 
-		if(!user || !products || !products.length) {
-			return res.status(400).send("User or products are empty!");
+		if(!user || !Object.keys(user).length) {
+			errors.push("user");
+		}
+
+		if(!products || !products.length) {
+			errors.push("products");
 		}
 
 		if(deliver == null) {
-			return res.status(400).send("Deliver is empty or wrong!");
+			errors.push("deliver");
 		}
 
-		if(deliver && (!address || !address.length)){
-			return res.status(400).send("The delivery address is empty!");
+		if(deliver && (!address || !address.length)) {
+			errors.push("delivery address");
+		}
+
+		if(errors.length) {
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
 		}
 
 		//	Get freight price and add if deliver is true
@@ -84,9 +94,8 @@ module.exports = {
 	//	Update current order status
 	async update(req, res) {
 		const orderId = req.params.id;
+		const { status, feedback } = req.body;
 		const sendSocketMessageTo = await findConnections();
-
-    const { status, feedback } = req.body;
 
 		if(!orderId || !orderId.length || !mongoose.Types.ObjectId.isValid(orderId)) {
 			return res.status(400).send("No order received!");
@@ -103,16 +112,15 @@ module.exports = {
 
 				order.save().then((response) => {
 					if(response) {
-            
-            orders.find().sort({
-              status: "asc",
-              creationDate: "desc"
-            }).then((response) => {
-              sendMessage(sendSocketMessageTo, "update-order", response);
-            }).catch((error) => {
-              return res.status(500).send(error);
-            });
-            
+						orders.find().sort({
+							status: "asc",
+							creationDate: "desc"
+						}).then((response) => {
+							sendMessage(sendSocketMessageTo, "update-order", response);
+						}).catch((error) => {
+							return res.status(500).send(error);
+						});
+
 						return res.status(200).send("Successful on changing your data!");
 					} else {
 						return res.status(400).send("We couldn't save your changes, try again later!");

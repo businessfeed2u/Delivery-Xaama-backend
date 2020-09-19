@@ -33,13 +33,20 @@ module.exports = {
 	//	Create a new session from user info
 	async create(req, res) {
 		const { email, password } = req.body;
+		var errors = [];
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			return res.status(400).send("Invalid email!");
+			errors.push("email");
 		}
 
 		if(!password || !password.length) {
-			return res.status(400).send("Invalid password!");
+			errors.push("password");
+		}
+
+		if(errors.length) {
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
 		}
 
 		await users.findOne({ email: email.trim().toLowerCase() }).then((user) => {
