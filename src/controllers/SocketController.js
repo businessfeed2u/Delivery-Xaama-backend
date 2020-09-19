@@ -13,8 +13,6 @@ module.exports = {
 		if(!socketId || !socketId.length ) {
 			return res.status(400).send("Invalid id!");
     }
-    
-    console.log("sokcetID: ",socketId);
 
 		await sockets.findOne({id: socketId}).then((socket) => {
 			if(socket) {
