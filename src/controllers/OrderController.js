@@ -1,10 +1,13 @@
-//  Loading database module
+//  Loading database and bcryptjs modules
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 //	Loading Orders and Company collections from database
 require("../models/Order");
 require("../models/Company");
+
 const orders = mongoose.model("Orders");
+const users = mongoose.model("Users");
 const companyData = mongoose.model("Company");
 
 const { findConnections, sendMessage } = require("../config/websocket");
@@ -138,13 +141,50 @@ module.exports = {
 
 	//	Delete all orders
 	async delete(req, res) {
-		const sendSocketMessageTo = await findConnections();
-		await orders.deleteMany().then((response) => {
-			if(response.n) {
-				sendMessage(sendSocketMessageTo, "delete-order", []);
-				return res.status(200).send("All orders have been deleted!");
+    const { password } = req.headers;
+    const userId = req.headers.authorization;
+
+    const sendSocketMessageTo = await findConnections();
+    var errors = [];
+
+    if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			errors.push("id");
+		}
+
+    if(!password || !password.length) {
+			errors.push("password");
+		}
+
+		if(errors.length) {
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
+    }
+
+    async function deleteOrders() {
+      await orders.deleteMany().then((response) => {
+        if(response.n) {
+          sendMessage(sendSocketMessageTo, "delete-order", []);
+          return res.status(200).send("All orders have been deleted!");
+        } else {
+          return res.status(404).send("Orders not found!");
+        }
+      }).catch((error) => {
+        return res.status(500).send(error);
+      });
+    }
+
+    await users.findById(userId).then((user) => {
+			if(user) {
+        bcrypt.compare(password, user.password).then((match) => {
+          if(match) {
+            deleteOrders();
+          } else {
+            return res.status(400).send("Wrong password, try again!");
+          }
+        });
 			} else {
-				return res.status(404).send("Orders not found!");
+				return res.status(404).send("UserId not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
