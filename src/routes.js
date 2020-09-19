@@ -66,5 +66,6 @@ routes.get("/order", authorization.manager, OrderController.all);
 
 //	Socket
 routes.delete("/socket", SocketController.delete);
+routes.delete("/sockets", SocketController.deleteAll);
 
 module.exports = routes;
