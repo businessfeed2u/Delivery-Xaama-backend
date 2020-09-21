@@ -84,8 +84,8 @@ module.exports = {
 			address: deliver ? address.split(",").map(a => a.trim()) : null
 		}).then((response) => {
 			if(response) {
-				sendMessage(sendSocketMessageTo, "new-order", response);
-				return res.status(201).send("Order created successfully!");
+        sendMessage(sendSocketMessageTo, "new-order", [response]);
+				return res.status(201).json(response);
 			} else {
 				return res.status(400).send("We couldn't create a new order, try again later!");
 			}
