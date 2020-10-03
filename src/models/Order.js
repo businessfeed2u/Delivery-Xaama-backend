@@ -35,7 +35,15 @@ const orderSchema = Schema({
 	feedback: {
 		type: String,
 		default: null
-	},
+  },
+  typePayament: {
+    type: Number,
+    reqired: true
+  },
+  troco: {
+    type: Number,
+    default: null
+  },
 	creationDate: {
 		type: Date,
 		default: Date.now()
