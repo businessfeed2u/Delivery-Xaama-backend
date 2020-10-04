@@ -105,7 +105,7 @@ module.exports = {
 	//	Update a specific product
 	async update(req, res) {
 		const productId = req.params.id;
-		const { name, ingredients, type, prices, sizes } = req.body;
+		const { name, ingredients, type, prices, sizes, available } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 		var errors = [];
 
@@ -131,6 +131,10 @@ module.exports = {
 
 		if(!sizes || !sizes.length || !regEx.seq.test(sizes)) {
 			errors.push("size(s)");
+    }
+    
+    if(typeof available != "boolean") {
+      errors.push("Available is empty!");
 		}
 
 		if(errors.length) {
@@ -157,7 +161,8 @@ module.exports = {
 			sizes: sizes.split(",").map(s => s.trim().toLowerCase()),
 			type: type.trim().toLowerCase(),
 			prices: prices.split(",").map(p => parseFloat(p.trim())),
-			thumbnail: filename
+      thumbnail: filename,
+      available
 		}).then((response) => {
 			if(response) {
 				try {
