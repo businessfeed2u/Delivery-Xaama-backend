@@ -8,7 +8,6 @@ require("../models/Company");
 
 const orders = mongoose.model("Orders");
 const users = mongoose.model("Users");
-const companyData = mongoose.model("Company");
 
 const { findConnections, sendMessage } = require("../config/websocket");
 
