@@ -31,9 +31,9 @@ module.exports = {
 
 	//	Create a new order
 	async create(req, res) {
-		const { user, products, deliver, address } = req.body;
+		const { user, products, deliver, address, typePayament, troco, total } = req.body;
 		const sendSocketMessageTo = await findConnections();
-		var errors = [];
+    var errors = [];
 
 		if(!user || !Object.keys(user).length) {
 			errors.push("user");
@@ -49,7 +49,19 @@ module.exports = {
 
 		if(deliver && (!address || !address.length)) {
 			errors.push("delivery address");
-		}
+    }
+    
+    if(isNaN(typePayament)){
+      errors.push("delivery typePayament");
+    }
+
+    if(isNaN(total)) {
+      errors.push("delivery total");
+    }
+
+    if((typePayament == 0) && (isNaN(troco) || (troco < total))) {
+      errors.push("delivery troco");
+    }
 
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
@@ -57,31 +69,14 @@ module.exports = {
 			return res.status(400).send(message);
 		}
 
-		//	Get freight price and add if deliver is true
-		var total = await companyData.findOne({}).exec();
-		total = (deliver) ? total.freight : 0.0;
-
-		//	Calculate order total price
-		for(var x of products) {
-			if(x.size >= 0 && x.size < x.product.prices.length) {
-				total += x.product.prices[x.size];
-			} else {
-				return res.status(400).send(`${x.product.name} size doesn't exist!`);
-			}
-
-			if(x.additions && x.additions.length) {
-				for(var y of x.additions) {
-						total += y.price;
-				}
-			}
-		}
-
 		await orders.create({
 			user,
 			products,
 			total,
 			deliver,
-			address: deliver ? address.split(",").map(a => a.trim()) : null
+      address: deliver ? address.split(",").map(a => a.trim()) : null,
+      typePayament,
+      troco: (typePayament == 0) ? troco : null
 		}).then((response) => {
 			if(response) {
         sendMessage(sendSocketMessageTo, "new-order", [response]);
