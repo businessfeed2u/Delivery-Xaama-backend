@@ -33,7 +33,20 @@ const companySchema = Schema({
 	logo: {
 		type: String,
 		default: null
+	},
+	carousel: {
+		type: [String],
+		default: null
 	}
+}, {
+	toJSON: {
+		virtuals: true,
+	},
+});
+
+//	Creating route to get logo url
+companySchema.virtual("logo_url").get(function() {
+	return this.logo ? `http://localhost:4000/files/${this.logo}` : null;
 });
 
 //	Creating collection Company on database
