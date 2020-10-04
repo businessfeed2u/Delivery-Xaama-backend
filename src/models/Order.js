@@ -40,7 +40,7 @@ const orderSchema = Schema({
     type: Number,
     reqired: true
   },
-  troco: {
+  change: {
     type: Number,
     default: null
   },
