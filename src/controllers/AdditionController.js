@@ -87,7 +87,7 @@ module.exports = {
 	//	Update a specific addition
 	async update(req, res) {
 		const additionId = req.params.id;
-		const { name, type, price } = req.body;
+		const { name, type, price, available } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 		var errors = [];
 
@@ -105,6 +105,10 @@ module.exports = {
 
 		if(!price || !price.length || !regEx.price.test(price)) {
 			errors.push("price");
+    }
+    
+    if(!available || !available.length || (available != "false" && available != "true")) {
+      errors.push("Available is wrong!");
 		}
 
 		if(errors.length) {
@@ -121,7 +125,8 @@ module.exports = {
 			name,
 			type: type.split(",").map(t => t.trim().toLowerCase()),
 			price,
-			thumbnail: filename
+      thumbnail: filename,
+      available: (available === "true")
 		}).then((response) => {
 			if(response) {
 				if(response.thumbnail) {
@@ -165,7 +170,8 @@ module.exports = {
 	//	Return all additions additions
 	async all(req, res) {
 		await additions.find().sort({
-			type: "asc",
+      type: "asc",
+      available: "desc",
 			name: "asc",
 			price: "asc",
 			creationDate: "asc"

@@ -107,8 +107,8 @@ module.exports = {
 		const productId = req.params.id;
 		const { name, ingredients, type, prices, sizes, available } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-		var errors = [];
-
+    var errors = [];
+  
 		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
 			errors.push("id");
 		}
@@ -133,8 +133,8 @@ module.exports = {
 			errors.push("size(s)");
     }
     
-    if(typeof available != "boolean") {
-      errors.push("Available is empty!");
+    if(!available || !available.length || (available != "false" && available != "true")) {
+      errors.push("Available is wrong!");
 		}
 
 		if(errors.length) {
@@ -153,7 +153,7 @@ module.exports = {
 			}
 
 			return res.status(400).send("Prices and sizes don't have the same length!");
-		}
+    }
 
 		await products.findByIdAndUpdate(productId, {
 			name,
@@ -162,7 +162,7 @@ module.exports = {
 			type: type.trim().toLowerCase(),
 			prices: prices.split(",").map(p => parseFloat(p.trim())),
       thumbnail: filename,
-      available
+      available: (available === "true")
 		}).then((response) => {
 			if(response) {
 				try {
@@ -208,7 +208,8 @@ module.exports = {
 	//	Return all products
 	async all(req, res) {
 		await products.find().sort({
-			type: "asc",
+      type: "asc",
+      available: "desc",
 			name: "asc",
 			creationDate: "asc"
 		}).then((response) => {
