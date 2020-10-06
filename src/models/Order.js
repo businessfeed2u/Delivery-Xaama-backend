@@ -27,6 +27,10 @@ const orderSchema = Schema({
 	address: {
 		type: [String],
 		default: null
+  },
+  phone: {
+    type: String,
+    required: true
 	},
 	status: {
 		type: Boolean,

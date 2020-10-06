@@ -9,6 +9,9 @@ require("../models/Company");
 const orders = mongoose.model("Orders");
 const users = mongoose.model("Users");
 
+// Loading helpers
+const regEx = require("../helpers/regEx");
+
 const { findConnections, sendMessage } = require("../config/websocket");
 
 //	Exporting Order features
@@ -30,7 +33,7 @@ module.exports = {
 
 	//	Create a new order
 	async create(req, res) {
-		const { user, products, deliver, address, typePayament, change, total } = req.body;
+		const { user, products, deliver, address, typePayament, change, total, phone } = req.body;
 		const sendSocketMessageTo = await findConnections();
     var errors = [];
 
@@ -50,7 +53,7 @@ module.exports = {
 			errors.push("delivery address");
     }
     
-    if(isNaN(typePayament)){
+    if(isNaN(typePayament) || (typePayament != 0 && typePayament != 1)){
       errors.push("delivery typePayament");
     }
 
@@ -62,6 +65,28 @@ module.exports = {
       errors.push("delivery change");
     }
 
+    if(address && address.length && !regEx.address.test(address)) {
+			errors.push("address");
+		}
+
+    if(phone && phone.length && !regEx.phone.test(phone)) {
+			errors.push("phone");
+		}
+    
+    // Searching for a product or some addition of each product that is unavailable
+    for(var product of products) {
+      if(!product.product.available){
+        errors.push("some added product is unavailable");
+        break;
+      }
+      for(var addition of product.additions) {
+        if(!addition.available){
+          errors.push("some added addition is unavailable");
+          break;
+        }
+      }
+    }
+    
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
@@ -74,6 +99,7 @@ module.exports = {
 			total,
 			deliver,
       address: deliver ? address.split(",").map(a => a.trim()) : null,
+      phone,
       typePayament,
       change: (typePayament == 0) ? change : null
 		}).then((response) => {
