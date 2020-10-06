@@ -24,7 +24,10 @@ module.exports = {
 			return res.status(400).send("Invalid id!");
 		}
 
-		await orders.find({ "user._id": userId }).then((response) => {
+		await orders.find({ "user._id": userId }).sort({
+			status: "asc",
+			creationDate: "asc"
+		}).then((response) => {
 			return res.status(200).json(response);
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -52,7 +55,7 @@ module.exports = {
 		if(deliver && (!address || !address.length)) {
 			errors.push("delivery address");
     }
-    
+
     if(isNaN(typePayament) || (typePayament != 0 && typePayament != 1)){
       errors.push("delivery typePayament");
     }
@@ -72,7 +75,7 @@ module.exports = {
     if(phone && phone.length && !regEx.phone.test(phone)) {
 			errors.push("phone");
 		}
-    
+
     // Searching for a product or some addition of each product that is unavailable
     for(var product of products) {
       if(!product.product.available){
@@ -86,7 +89,7 @@ module.exports = {
         }
       }
     }
-    
+
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
@@ -215,7 +218,7 @@ module.exports = {
 	async all(req, res) {
 		await orders.find().sort({
 			status: "asc",
-			creationDate: "desc"
+			creationDate: "asc"
 		}).then((response) => {
 			return res.status(200).json(response);
 		}).catch((error) => {
