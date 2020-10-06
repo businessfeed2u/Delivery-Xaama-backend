@@ -29,7 +29,19 @@ const companySchema = Schema({
 	productTypes: {
 		type: [String],
 		required: true
-	},
+  },
+  systemOpenByAdm: {
+    type: Boolean,
+    default: true
+  },
+  manual: {
+    type: Boolean,
+    default: false
+  },
+  systemOpenByHour: {
+    type: Boolean,
+    default: true
+  },
 	logo: {
 		type: String,
 		default: null

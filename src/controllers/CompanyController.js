@@ -46,7 +46,7 @@ module.exports = {
 
 	//	Create or update company data
 	async manageCompanyData(req, res) {
-		const { name, email, phone, address, freight, productTypes } = req.body;
+		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm, systemOpenByHour } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 		var errors = [];
 
@@ -72,6 +72,18 @@ module.exports = {
 
 		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
 			errors.push("product type(s)");
+    }
+
+    if(!manual || !manual.length || (manual != "false" && manual != "true")) {
+      errors.push("manual is wrong!");
+		}
+    
+    if(!systemOpenByAdm || !systemOpenByAdm.length || (systemOpenByAdm != "false" && systemOpenByAdm != "true")) {
+      errors.push("systemOpenByAdm is wrong!");
+    }
+    
+    if(!systemOpenByHour || !systemOpenByHour.length || (systemOpenByHour != "false" && systemOpenByHour != "true")) {
+      errors.push("systemOpenByHour is wrong!");
 		}
 
 		if(errors.length) {
@@ -91,7 +103,10 @@ module.exports = {
 			address,
 			freight,
 			productTypes: productTypes.split(",").map(productType => productType.trim().toLowerCase()),
-			logo: filename
+      logo: filename,
+      manual: (manual === "true"),
+      systemOpenByAdm: (systemOpenByAdm === "true"),
+      systemOpenByHour: (systemOpenByHour === "true")
 		}).then((response) => {
 			if(response) {
 				try {
