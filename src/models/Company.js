@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose
 const Schema = mongoose.Schema;
+const timetableSchema = require("./Timetable");
 
 //	Defining Company schema
 const companySchema = Schema({
@@ -49,7 +50,11 @@ const companySchema = Schema({
 	carousel: {
 		type: [String],
 		default: null
-	}
+  },
+  timetable: {
+    type: [timetableSchema],
+    default: null
+  }
 }, {
 	toJSON: {
 		virtuals: true,

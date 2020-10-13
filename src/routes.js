@@ -34,6 +34,7 @@ routes.post("/session", SessionController.create);
 routes.get("/productTypes", companyController.productTypes);
 routes.get("/company", companyController.companyData);
 routes.put("/company", authorization.admin, companyController.update);
+routes.put("/companyUpdateTimetable", authorization.admin, companyController.updateOpeningHours);
 routes.post("/company", authorization.admin, upload.single("logo"), companyController.manageCompanyData);
 
 //	User

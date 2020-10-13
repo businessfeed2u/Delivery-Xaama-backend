@@ -222,5 +222,35 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-	}
+  },
+  
+  //	Update opening hours
+	async updateOpeningHours(req, res) {
+		const { timetable } = req.body;
+		var errors = [];
+
+    console.log("timetable: ", timetable);
+
+    if(!timetable || !timetable.length) {
+			errors.push("timetable");
+    }
+
+		if(errors.length) {
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
+		}
+
+		await companyData.findOneAndUpdate({}, {
+			timetable: {dayWeek, beginHour, endHour}
+		}).then((response) => {
+			if(response) {
+				return res.status(200).send("The company data has been updated!");
+			} else {
+				return res.status(400).send("There is no company!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
+  }
 };
