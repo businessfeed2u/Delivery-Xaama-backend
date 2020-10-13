@@ -47,7 +47,7 @@ module.exports = {
 	//	Create or update company data
 	async manageCompanyData(req, res) {
 		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm, systemOpenByHour } = req.body;
-		const filename = (req.file) ? req.file.filename : null;
+		const images = req.files;
 		var errors = [];
 
 		if(!name || !name.length) {
@@ -72,23 +72,24 @@ module.exports = {
 
 		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
 			errors.push("product type(s)");
-    }
-
-    if(!manual || !manual.length || (manual != "false" && manual != "true")) {
-      errors.push("manual is wrong!");
 		}
-    
-    if(!systemOpenByAdm || !systemOpenByAdm.length || (systemOpenByAdm != "false" && systemOpenByAdm != "true")) {
-      errors.push("systemOpenByAdm is wrong!");
-    }
-    
-    if(!systemOpenByHour || !systemOpenByHour.length || (systemOpenByHour != "false" && systemOpenByHour != "true")) {
-      errors.push("systemOpenByHour is wrong!");
+
+		if(!manual || !manual.length || (manual != "false" && manual != "true")) {
+			errors.push("manual is wrong!");
+		}
+
+		if(!systemOpenByAdm || !systemOpenByAdm.length || (systemOpenByAdm != "false" && systemOpenByAdm != "true")) {
+			errors.push("systemOpenByAdm is wrong!");
+		}
+
+		if(!systemOpenByHour || !systemOpenByHour.length || (systemOpenByHour != "false" && systemOpenByHour != "true")) {
+			errors.push("systemOpenByHour is wrong!");
 		}
 
 		if(errors.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			if(images) {
+				for(const im of images)
+					fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
 			}
 
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
@@ -103,13 +104,21 @@ module.exports = {
 			address,
 			freight,
 			productTypes: productTypes.split(",").map(productType => productType.trim().toLowerCase()),
-      logo: filename,
-      manual: (manual === "true"),
-      systemOpenByAdm: (systemOpenByAdm === "true"),
-      systemOpenByHour: (systemOpenByHour === "true")
+			logo: images[0] ? images[0].filename : null,
+			carousel: [
+				images[1] ? images[1].filename : null,
+				images[2] ? images[2].filename : null,
+				images[3] ? images[3].filename : null
+			],
+			manual: (manual === "true"),
+			systemOpenByAdm: (systemOpenByAdm === "true"),
+			systemOpenByHour: (systemOpenByHour === "true")
 		}).then((response) => {
 			if(response) {
 				try {
+					for(const im of response.carousel)
+						fs.unlinkSync(`${__dirname}/../../uploads/${im}`);
+
 					fs.unlinkSync(`${__dirname}/../../uploads/${response.logo}`);
 				} catch(error) {
 					//
@@ -124,28 +133,36 @@ module.exports = {
 					address,
 					freight,
 					productTypes: productTypes.split(",").map(productType => productType.trim().toLowerCase()),
-					logo: filename
+					logo: images[0] ? images[0].filename : null,
+					carousel: [
+						images[1] ? images[1].filename : null,
+						images[2] ? images[2].filename : null,
+						images[3] ? images[3].filename : null
+					]
 				}).then((company) => {
 					if(company) {
 						return res.status(201).json(company);
 					} else {
-						if(filename) {
-							fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+						if(images) {
+							for(const im of images)
+								fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
 						}
 
 						return res.status(400).send("We couldn't process your request, try again later!");
 					}
 				}).catch((error) => {
-					if(filename) {
-						fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+					if(images) {
+						for(const im of images)
+							fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
 					}
 
 					return res.status(500).send(error);
 				});
 			}
 		}).catch((error) => {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			if(images) {
+				for(const im of images)
+					fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
 			}
 
 			return res.status(500).send(error);

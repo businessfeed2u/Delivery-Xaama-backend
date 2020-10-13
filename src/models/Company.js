@@ -61,5 +61,15 @@ companySchema.virtual("logo_url").get(function() {
 	return this.logo ? `http://localhost:4000/files/${this.logo}` : null;
 });
 
+//	Creating route to get carousel urls
+companySchema.virtual("carousel_urls").get(function() {
+	var imNames = [];
+	for(const c of this.carousel) {
+		imNames.push(c ? `http://localhost:4000/files/${c}` : null);
+	}
+
+	return imNames.length ? imNames : null;
+});
+
 //	Creating collection Company on database
 mongoose.model("Company", companySchema);
