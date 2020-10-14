@@ -15,6 +15,7 @@ const fs = require("fs");
 
 // Loading helpers
 const regEx = require("../helpers/regEx");
+const { time } = require("console");
 
 //	Exporting Admin features
 module.exports = {
@@ -246,10 +247,15 @@ module.exports = {
 		const { timetable } = req.body;
 		var errors = [];
 
-    console.log("timetable: ", timetable);
-
     if(!timetable || !timetable.length) {
 			errors.push("timetable");
+    } else {
+      for(var i=0; i < timetable.length; i++) {
+        if(!timetable[i].dayWeek || !timetable[i].dayWeek.length){
+          errors.push("timetable day week");
+          break;
+        }
+      }
     }
 
 		if(errors.length) {
@@ -259,7 +265,7 @@ module.exports = {
 		}
 
 		await companyData.findOneAndUpdate({}, {
-			timetable: {dayWeek, beginHour, endHour}
+			timetable: timetable
 		}).then((response) => {
 			if(response) {
 				return res.status(200).send("The company data has been updated!");
