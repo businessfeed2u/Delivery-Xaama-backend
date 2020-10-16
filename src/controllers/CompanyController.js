@@ -247,7 +247,7 @@ module.exports = {
 		const { timetable } = req.body;
 		var errors = [];
 
-    if(!timetable || !timetable.length) {
+    if(!timetable || !timetable.length || timetable.length != 7) {
 			errors.push("timetable");
     } else {
       for(const t of timetable) {
