@@ -250,9 +250,17 @@ module.exports = {
     if(!timetable || !timetable.length) {
 			errors.push("timetable");
     } else {
-      for(var i=0; i < timetable.length; i++) {
-        if(!timetable[i].dayWeek || !timetable[i].dayWeek.length){
+      for(const t of timetable) {
+        if(!t.dayWeek || !t.dayWeek.length){
           errors.push("timetable day week");
+          break;
+        }
+
+        if((t.beginHour && !t.endHour) || (!t.beginHour && t.endHour) 
+          || (t.beginHour && !regEx.hour.test(t.beginHour)) 
+          || (t.endHour && !regEx.hour.test(t.endHour))) {
+          
+            errors.push("time format");
           break;
         }
       }
