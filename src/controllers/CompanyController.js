@@ -96,7 +96,7 @@ module.exports = {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
-		}
+    }
 
 		await companyData.findOneAndUpdate({}, {
 			name,
@@ -139,7 +139,10 @@ module.exports = {
 						images[1] ? images[1].filename : null,
 						images[2] ? images[2].filename : null,
 						images[3] ? images[3].filename : null
-					]
+          ],
+          manual: (manual === "true"),
+			    systemOpenByAdm: (systemOpenByAdm === "true"),
+			    systemOpenByHour: (systemOpenByHour === "true")
 				}).then((company) => {
 					if(company) {
 						return res.status(201).json(company);
