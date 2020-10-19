@@ -15,7 +15,6 @@ const fs = require("fs");
 
 // Loading helpers
 const regEx = require("../helpers/regEx");
-const { time } = require("console");
 
 //	Exporting Admin features
 module.exports = {
@@ -47,9 +46,10 @@ module.exports = {
 
 	//	Create or update company data
 	async manageCompanyData(req, res) {
-		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm, systemOpenByHour } = req.body;
+    const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm, 
+            systemOpenByHour, timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
 		const images = req.files;
-		var errors = [];
+    var errors = [];
 
 		if(!name || !name.length) {
 			errors.push("name");
@@ -85,6 +85,27 @@ module.exports = {
 
 		if(!systemOpenByHour || !systemOpenByHour.length || (systemOpenByHour != "false" && systemOpenByHour != "true")) {
 			errors.push("systemOpenByHour is wrong!");
+    }
+    
+    if(!timeWithdrawal || !timeWithdrawal.length) {
+			errors.push("timeWithdrawal");
+    }
+    
+    if(!timeDeliveryI || !timeDeliveryI.length) {
+			errors.push("timeDeliveryI");
+    }
+
+    if(!timeDeliveryF || !timeDeliveryF.length) {
+			errors.push("timeDeliveryF");
+    }
+
+    const tWithdrawal = parseInt(timeWithdrawal);
+    const tDeliveryI = parseInt(timeDeliveryI);
+    const tDeliveryF = parseInt(timeDeliveryF);
+    
+    if(tWithdrawal < 10 || tDeliveryI < 10 || tDeliveryF < 10 
+      || tDeliveryI > tDeliveryF || tDeliveryI === tDeliveryF) {
+			errors.push("timeDelivery or timeWithdrawal");
 		}
 
 		if(errors.length) {
@@ -113,7 +134,10 @@ module.exports = {
 			],
 			manual: (manual === "true"),
 			systemOpenByAdm: (systemOpenByAdm === "true"),
-			systemOpenByHour: (systemOpenByHour === "true")
+      systemOpenByHour: (systemOpenByHour === "true"),
+      timeWithdrawal: tWithdrawal,
+      timeDeliveryI: tDeliveryI,
+      timeDeliveryF: tDeliveryF
 		}).then((response) => {
 			if(response) {
 				try {

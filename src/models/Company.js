@@ -54,6 +54,18 @@ const companySchema = Schema({
   timetable: {
     type: [timetableSchema],
     default: null
+  },
+  timeWithdrawal: {
+    type: Number,
+    required: true
+  },
+  timeDeliveryI: {
+    type: Number,
+    required: true
+  },
+  timeDeliveryF: {
+    type: Number,
+    required: true
   }
 }, {
 	toJSON: {
