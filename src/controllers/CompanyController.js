@@ -46,10 +46,10 @@ module.exports = {
 
 	//	Create or update company data
 	async manageCompanyData(req, res) {
-    const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm, 
-            systemOpenByHour, timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
+		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm,
+			systemOpenByHour, timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
 		const images = req.files;
-    var errors = [];
+		var errors = [];
 
 		if(!name || !name.length) {
 			errors.push("name");
@@ -85,27 +85,27 @@ module.exports = {
 
 		if(!systemOpenByHour || !systemOpenByHour.length || (systemOpenByHour != "false" && systemOpenByHour != "true")) {
 			errors.push("systemOpenByHour is wrong!");
-    }
-    
-    if(!timeWithdrawal || !timeWithdrawal.length) {
-			errors.push("timeWithdrawal");
-    }
-    
-    if(!timeDeliveryI || !timeDeliveryI.length) {
-			errors.push("timeDeliveryI");
-    }
+		}
 
-    if(!timeDeliveryF || !timeDeliveryF.length) {
-			errors.push("timeDeliveryF");
-    }
+		if(!timeWithdrawal || !timeWithdrawal.length) {
+				errors.push("timeWithdrawal");
+		}
 
-    const tWithdrawal = parseInt(timeWithdrawal);
-    const tDeliveryI = parseInt(timeDeliveryI);
-    const tDeliveryF = parseInt(timeDeliveryF);
-    
-    if(tWithdrawal < 10 || tDeliveryI < 10 || tDeliveryF < 10 
-      || tDeliveryI > tDeliveryF || tDeliveryI === tDeliveryF) {
-			errors.push("timeDelivery or timeWithdrawal");
+		if(!timeDeliveryI || !timeDeliveryI.length) {
+				errors.push("timeDeliveryI");
+		}
+
+		if(!timeDeliveryF || !timeDeliveryF.length) {
+				errors.push("timeDeliveryF");
+		}
+
+		const tWithdrawal = parseInt(timeWithdrawal);
+		const tDeliveryI = parseInt(timeDeliveryI);
+		const tDeliveryF = parseInt(timeDeliveryF);
+
+		if(tWithdrawal < 10 || tDeliveryI < 10 || tDeliveryF < 10
+		|| tDeliveryI > tDeliveryF || tDeliveryI === tDeliveryF) {
+				errors.push("timeDelivery or timeWithdrawal");
 		}
 
 		if(errors.length) {
@@ -117,7 +117,7 @@ module.exports = {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
-    }
+		}
 
 		await companyData.findOneAndUpdate({}, {
 			name,
@@ -134,16 +134,19 @@ module.exports = {
 			],
 			manual: (manual === "true"),
 			systemOpenByAdm: (systemOpenByAdm === "true"),
-      systemOpenByHour: (systemOpenByHour === "true"),
-      timeWithdrawal: tWithdrawal,
-      timeDeliveryI: tDeliveryI,
-      timeDeliveryF: tDeliveryF
+			systemOpenByHour: (systemOpenByHour === "true"),
+			timeWithdrawal: tWithdrawal,
+			timeDeliveryI: tDeliveryI,
+			timeDeliveryF: tDeliveryF
 		}).then((response) => {
 			if(response) {
 				try {
 					for(const im of response.carousel)
 						fs.unlinkSync(`${__dirname}/../../uploads/${im}`);
-
+				} catch(error) {
+					//
+				}
+				try {
 					fs.unlinkSync(`${__dirname}/../../uploads/${response.logo}`);
 				} catch(error) {
 					//
@@ -163,10 +166,10 @@ module.exports = {
 						images[1] ? images[1].filename : null,
 						images[2] ? images[2].filename : null,
 						images[3] ? images[3].filename : null
-          ],
-          manual: (manual === "true"),
-			    systemOpenByAdm: (systemOpenByAdm === "true"),
-			    systemOpenByHour: (systemOpenByHour === "true")
+					],
+					manual: (manual === "true"),
+					systemOpenByAdm: (systemOpenByAdm === "true"),
+					systemOpenByHour: (systemOpenByHour === "true")
 				}).then((company) => {
 					if(company) {
 						return res.status(201).json(company);
@@ -268,30 +271,30 @@ module.exports = {
 			return res.status(500).send(error);
 		});
   },
-  
+
   //	Update opening hours
 	async updateOpeningHours(req, res) {
 		const { timetable } = req.body;
 		var errors = [];
 
-    if(!timetable || !timetable.length || timetable.length != 7) {
+	if(!timetable || !timetable.length || timetable.length != 7) {
 			errors.push("timetable");
-    } else {
-      for(const t of timetable) {
-        if(!t.dayWeek || !t.dayWeek.length){
-          errors.push("timetable day week");
-          break;
-        }
+	} else {
+	  for(const t of timetable) {
+		if(!t.dayWeek || !t.dayWeek.length){
+		  errors.push("timetable day week");
+		  break;
+		}
 
-        if((t.beginHour && !t.endHour) || (!t.beginHour && t.endHour) 
-          || (t.beginHour && !regEx.hour.test(t.beginHour)) 
-          || (t.endHour && !regEx.hour.test(t.endHour))) {
-          
-            errors.push("time format");
-          break;
-        }
-      }
-    }
+		if((t.beginHour && !t.endHour) || (!t.beginHour && t.endHour)
+		  || (t.beginHour && !regEx.hour.test(t.beginHour))
+		  || (t.endHour && !regEx.hour.test(t.endHour))) {
+
+			errors.push("time format");
+		  break;
+		}
+	  }
+	}
 
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");

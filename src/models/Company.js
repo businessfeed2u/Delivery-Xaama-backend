@@ -32,16 +32,16 @@ const companySchema = Schema({
 		required: true
   },
   systemOpenByAdm: {
-    type: Boolean,
-    default: true
+	type: Boolean,
+	default: true
   },
   manual: {
-    type: Boolean,
-    default: false
+	type: Boolean,
+	default: false
   },
   systemOpenByHour: {
-    type: Boolean,
-    default: true
+	type: Boolean,
+	default: true
   },
 	logo: {
 		type: String,
@@ -52,20 +52,20 @@ const companySchema = Schema({
 		default: null
   },
   timetable: {
-    type: [timetableSchema],
-    default: null
+	type: [timetableSchema],
+	default: null
   },
   timeWithdrawal: {
-    type: Number,
-    required: true
+	type: Number,
+	required: true
   },
   timeDeliveryI: {
-    type: Number,
-    required: true
+	type: Number,
+	required: true
   },
   timeDeliveryF: {
-    type: Number,
-    required: true
+	type: Number,
+	required: true
   }
 }, {
 	toJSON: {
