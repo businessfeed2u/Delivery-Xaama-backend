@@ -47,7 +47,7 @@ module.exports = {
 	//	Create or update company data
 	async manageCompanyData(req, res) {
 		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm,
-			      timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
+						timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
 		const images = req.files;
 		var errors = [];
 
@@ -274,20 +274,21 @@ module.exports = {
 	if(!timetable || !timetable.length || timetable.length != 7) {
 			errors.push("timetable");
 	} else {
-	  for(const t of timetable) {
-		if(!t.dayWeek || !t.dayWeek.length){
-		  errors.push("timetable day week");
-		  break;
-		}
+		for(const t of timetable) {
+			if(!t.dayWeek || !t.dayWeek.length){
+				errors.push("timetable day week");
+				break;
+			}
 
-		if((t.beginHour && !t.endHour) || (!t.beginHour && t.endHour)
-		  || (t.beginHour && !regEx.hour.test(t.beginHour))
-		  || (t.endHour && !regEx.hour.test(t.endHour))) {
+			if((t.beginHour && !t.endHour) || (!t.beginHour && t.endHour)
+				|| (t.beginHour && !regEx.hour.test(t.beginHour))
+				|| (t.endHour && !regEx.hour.test(t.endHour))
+				|| ((t.endHour === t.beginHour) && t.endHour != null && t.beginHour != null)) {
 
-			errors.push("time format");
-		  break;
+				errors.push("time format");
+				break;
+			}
 		}
-	  }
 	}
 
 		if(errors.length) {

@@ -94,8 +94,7 @@ module.exports = {
 
     await companyData.findOne({}).then((companyInfo) => {
 			if(companyInfo) {
-				if((companyInfo.manual && !companyInfo.systemOpenByAdm) 
-        || (!companyInfo.manual && !companyInfo.systemOpenByHour)) {
+				if(companyInfo.manual && !companyInfo.systemOpenByAdm) {
           errors.push("the company is closed");
         }
 			} else {
