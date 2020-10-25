@@ -39,10 +39,6 @@ const companySchema = Schema({
 	type: Boolean,
 	default: false
   },
-  systemOpenByHour: {
-	type: Boolean,
-	default: true
-  },
 	logo: {
 		type: String,
 		default: null

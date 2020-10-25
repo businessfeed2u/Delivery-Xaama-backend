@@ -47,7 +47,7 @@ module.exports = {
 	//	Create or update company data
 	async manageCompanyData(req, res) {
 		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm,
-			systemOpenByHour, timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
+			      timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
 		const images = req.files;
 		var errors = [];
 
@@ -81,10 +81,6 @@ module.exports = {
 
 		if(!systemOpenByAdm || !systemOpenByAdm.length || (systemOpenByAdm != "false" && systemOpenByAdm != "true")) {
 			errors.push("systemOpenByAdm is wrong!");
-		}
-
-		if(!systemOpenByHour || !systemOpenByHour.length || (systemOpenByHour != "false" && systemOpenByHour != "true")) {
-			errors.push("systemOpenByHour is wrong!");
 		}
 
 		if(!timeWithdrawal || !timeWithdrawal.length) {
@@ -134,7 +130,6 @@ module.exports = {
 			],
 			manual: (manual === "true"),
 			systemOpenByAdm: (systemOpenByAdm === "true"),
-			systemOpenByHour: (systemOpenByHour === "true"),
 			timeWithdrawal: tWithdrawal,
 			timeDeliveryI: tDeliveryI,
 			timeDeliveryF: tDeliveryF
@@ -169,7 +164,6 @@ module.exports = {
 					],
 					manual: (manual === "true"),
 					systemOpenByAdm: (systemOpenByAdm === "true"),
-					systemOpenByHour: (systemOpenByHour === "true")
 				}).then((company) => {
 					if(company) {
 						return res.status(201).json(company);
