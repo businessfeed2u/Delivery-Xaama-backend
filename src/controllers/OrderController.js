@@ -15,6 +15,7 @@ const companyData = mongoose.model("Company");
 const regEx = require("../helpers/regEx");
 
 const { findConnections, sendMessage } = require("../config/websocket");
+const { systemOpen } = require("../helpers/systemOpen");
 
 //	Exporting Order features
 module.exports = {
@@ -66,6 +67,29 @@ module.exports = {
       errors.push("delivery total");
     }
 
+    //	Get freight price and add if deliver is true
+		var totalB = await companyData.findOne({}).exec();
+		totalB = (deliver) ? total.freight : 0.0;
+
+		//	Calculate order total price
+		for(var x of products) {
+			if(x.size >= 0 && x.size < x.product.prices.length) {
+				totalB += x.product.prices[x.size];
+			} else {
+        errors.push(x.product.name + " size doesn't exist!");
+			}
+
+			if(x.additions && x.additions.length) {
+				for(var y of x.additions) {
+						totalB += y.price;
+				}
+			}
+    }
+    
+    if(total != totalB) {
+      errors.push("delivery total");
+    }
+
     if((typePayament == 0) && (isNaN(change) || (change < total))) {
       errors.push("delivery change");
     }
@@ -97,12 +121,15 @@ module.exports = {
 				if(companyInfo.manual && !companyInfo.systemOpenByAdm) {
           errors.push("the company is closed");
         }
+        else if(!systemOpen(companyInfo)) {
+          errors.push("the company is closed");
+        }
 			} else {
 				errors.push("no company data found");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
-		});
+    });
 
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
