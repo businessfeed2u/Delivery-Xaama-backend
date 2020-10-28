@@ -69,7 +69,7 @@ module.exports = {
 
     //	Get freight price and add if deliver is true
 		var totalB = await companyData.findOne({}).exec();
-		totalB = (deliver) ? total.freight : 0.0;
+		totalB = (deliver) ? totalB.freight : 0.0;
 
 		//	Calculate order total price
 		for(var x of products) {
@@ -85,7 +85,7 @@ module.exports = {
 				}
 			}
     }
-    
+
     if(total != totalB) {
       errors.push("delivery total");
     }
@@ -121,7 +121,7 @@ module.exports = {
 				if(companyInfo.manual && !companyInfo.systemOpenByAdm) {
           errors.push("the company is closed");
         }
-        else if(!systemOpen(companyInfo)) {
+        else if(!companyInfo.manual && !systemOpen(companyInfo)) {
           errors.push("the company is closed");
         }
 			} else {
