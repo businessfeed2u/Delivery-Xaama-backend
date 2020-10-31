@@ -102,6 +102,17 @@ module.exports = {
 			errors.push("phone");
     }
 
+    const date = new Date();
+
+    var hour = date.getHours();
+    var minutes = date.getMinutes();
+
+    hour = (hour < 10) ? "0" + hour : hour;
+    minutes = (minutes < 10) ? minutes + "0" : minutes;
+
+    const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+    const cd = week[date.getDay()] + " às " + hour + ":" + minutes;
+
     // Searching for a product or some addition of each product that is unavailable
     for(var product of products) {
       if(!product.product.available){
@@ -145,7 +156,8 @@ module.exports = {
       address: deliver ? address.split(",").map(a => a.trim()) : null,
       phone,
       typePayament,
-      change: (typePayament == 0) ? change : null
+      change: (typePayament == 0) ? change : null,
+      creationDate: cd
 		}).then((response) => {
 			if(response) {
         sendMessage(sendSocketMessageTo, "new-order", [response]);

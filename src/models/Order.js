@@ -49,8 +49,8 @@ const orderSchema = Schema({
     default: null
   },
 	creationDate: {
-		type: Date,
-		default: Date.now()
+		type: String,
+		default: ""
 	}
 });
 
