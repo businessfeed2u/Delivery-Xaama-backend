@@ -6,9 +6,13 @@ const bcrypt = require("bcryptjs");
 require("../models/Order");
 require("../models/Company");
 require("../models/User");
+require("../models/ProductMenu");
+require("../models/Addition");
 
 const orders = mongoose.model("Orders");
 const users = mongoose.model("Users");
+const productsMenu = mongoose.model("ProductsMenu");
+const additions = mongoose.model("Additions");
 const companyData = mongoose.model("Company");
 
 // Loading helpers
@@ -41,14 +45,36 @@ module.exports = {
 	async create(req, res) {
 		const { user, products, deliver, address, typePayament, change, total, phone } = req.body;
 		const sendSocketMessageTo = await findConnections();
-    var errors = [];
+		var errors = [];
 
-		if(!user || !Object.keys(user).length) {
+		//	Validantig order user
+		if(!user || !Object.keys(user).length || !(await users.findById(user._id).exec())) {
 			errors.push("user");
 		}
 
+		//	Validating order products and their additions
 		if(!products || !products.length) {
 			errors.push("products");
+		} else {
+			var invalid = false;
+			for(const prod of products) {
+				if(!(await productsMenu.findById(prod.product._id).exec())) {
+					errors.push("products");
+					break;
+				}
+
+				for(const addition of prod.additions) {
+					if(!(await additions.findById(addition._id).exec())) {
+						invalid = true;
+						break;
+					}
+				}
+
+				if(invalid) {
+					errors.push("products");
+					break;
+				}
+			}
 		}
 
 		if(deliver == null) {
@@ -57,17 +83,17 @@ module.exports = {
 
 		if(deliver && (!address || !address.length)) {
 			errors.push("delivery address");
-    }
+		}
 
-    if(isNaN(typePayament) || (typePayament != 0 && typePayament != 1)){
-      errors.push("delivery typePayament");
-    }
+		if(isNaN(typePayament) || (typePayament != 0 && typePayament != 1)){
+			errors.push("delivery typePayament");
+		}
 
-    if(isNaN(total)) {
-      errors.push("delivery total");
-    }
+		if(isNaN(total)) {
+			errors.push("delivery total");
+		}
 
-    //	Get freight price and add if deliver is true
+		//	Get freight price and add if deliver is true
 		var totalB = await companyData.findOne({}).exec();
 		totalB = (deliver) ? totalB.freight : 0.0;
 
@@ -76,7 +102,7 @@ module.exports = {
 			if(x.size >= 0 && x.size < x.product.prices.length) {
 				totalB += x.product.prices[x.size];
 			} else {
-        errors.push(x.product.name + " size doesn't exist!");
+				errors.push(x.product.name + " size doesn't exist!");
 			}
 
 			if(x.additions && x.additions.length) {
@@ -84,17 +110,17 @@ module.exports = {
 						totalB += y.price;
 				}
 			}
-    }
+		}
 
-    if(total != totalB) {
-      errors.push("delivery total");
-    }
+		if(total != totalB) {
+			errors.push("delivery total");
+		}
 
-    if((typePayament == 0) && (isNaN(change) || (change < total))) {
-      errors.push("delivery change");
-    }
+		if((typePayament == 0) && (isNaN(change) || (change < total))) {
+			errors.push("delivery change");
+		}
 
-    if(address && address.length && !regEx.address.test(address)) {
+		if(address && address.length && !regEx.address.test(address)) {
 			errors.push("address");
 		}
 
