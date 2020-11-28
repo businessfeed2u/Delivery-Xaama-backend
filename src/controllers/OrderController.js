@@ -43,7 +43,7 @@ module.exports = {
 
 	//	Create a new order
 	async create(req, res) {
-		const { user, products, deliver, address, typePayament, change, total, phone } = req.body;
+		const { user, products, deliver, address, typePayment, change, total, phone } = req.body;
 		const sendSocketMessageTo = await findConnections();
 		var errors = [];
 
@@ -85,8 +85,8 @@ module.exports = {
 			errors.push("delivery address");
 		}
 
-		if(isNaN(typePayament) || (typePayament != 0 && typePayament != 1)){
-			errors.push("delivery typePayament");
+		if(isNaN(typePayment) || (typePayment != 0 && typePayment != 1)){
+			errors.push("delivery typePayment");
 		}
 
 		if(isNaN(total)) {
@@ -116,7 +116,7 @@ module.exports = {
 			errors.push("delivery total");
 		}
 
-		if((typePayament == 0) && (isNaN(change) || (change < total))) {
+		if((typePayment == 0) && (isNaN(change) || (change < total))) {
 			errors.push("delivery change");
 		}
 
@@ -179,11 +179,11 @@ module.exports = {
 			products,
 			total,
 			deliver,
-      address: deliver ? address.split(",").map(a => a.trim()) : null,
-      phone,
-      typePayament,
-      change: (typePayament == 0) ? change : null,
-      creationDate: cd
+			address: deliver ? address.split(",").map(a => a.trim()) : null,
+			phone,
+			typePayment,
+			change: (typePayment == 0) ? change : null,
+			creationDate: cd
 		}).then((response) => {
 			if(response) {
         sendMessage(sendSocketMessageTo, "new-order", [response]);

@@ -27,10 +27,10 @@ const orderSchema = Schema({
 	address: {
 		type: [String],
 		default: null
-  },
-  phone: {
-    type: String,
-    required: true
+	},
+	phone: {
+		type: String,
+		required: true
 	},
 	status: {
 		type: Boolean,
@@ -39,15 +39,15 @@ const orderSchema = Schema({
 	feedback: {
 		type: String,
 		default: null
-  },
-  typePayament: {
-    type: Number,
-    reqired: true
-  },
-  change: {
-    type: Number,
-    default: null
-  },
+	},
+	typePayment: {
+		type: Number,
+		reqired: true
+	},
+	change: {
+		type: Number,
+		default: null
+	},
 	creationDate: {
 		type: String,
 		default: ""
