@@ -6,6 +6,10 @@ const bcrypt = require("bcryptjs");
 require("../models/User");
 const users = mongoose.model("Users");
 
+//	Loading Company collection from database
+require("../models/Company");
+const companyData = mongoose.model("Company");
+
 // Loading module to delete uploads
 const fs = require("fs");
 
@@ -37,10 +41,11 @@ module.exports = {
 
 	//	Create a new user
 	async create(req, res) {
-		const { name, email, password, passwordC } = req.body;
+		const { name, email, password, passwordC, cards } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 		const sendSocketMessageTo = await findConnections();
-		var errors = [];
+    var errors = [];
+    
 
 		if(!name || !name.length) {
 			errors.push("name");
@@ -57,8 +62,47 @@ module.exports = {
 		if(!passwordC || !passwordC.length || !regEx.password.test(passwordC)) {
 			errors.push("password confirmation");
 		}
+    
+    //	Validating cards fidelity
+    if(!cards || !cards.length) {
+      errors.push("cards");
+    } else {
+      var Company;
+      
+      await companyData.findOne({}).then((response) => {
+        if(response) {
+          Company = response;
+        } else {
+          errors.join("No company data found!");
+        }
+      }).catch((error) => {
+        errors.join("Erro ao carregar informações da empresa");
+      });
+      
+      var i = 0;
+      for(const card of cards) {
+        if(!Company.cards || !Company.cards[i] || 
+          (card.cardFidelity.type != Company.cards[i].type) ||
+          (card.cardFidelity.available != Company.cards[i].available) ||
+          (card.cardFidelity.qtdMax != Company.cards[i].qtdMax) ||
+          card.qtdCurrent != 0) {
 
-		if(errors.length) {
+            errors.push("card");
+            break;
+        }
+        i++;
+      }
+    }
+    
+		if(password !== passwordC) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+			}
+
+			return res.status(400).send("The password confirmation don't match, try again!");
+    }
+    
+    if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
 			}
@@ -66,15 +110,7 @@ module.exports = {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
-		}
-
-		if(password !== passwordC) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
-
-			return res.status(400).send("The password confirmation don't match, try again!");
-		}
+    }
 
 		await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
 			if(response) {
@@ -102,7 +138,8 @@ module.exports = {
 					email: email.trim().toLowerCase(),
 					userType: 0,
 					password: hash,
-					thumbnail: filename
+          thumbnail: filename,
+          cards: cards,
 				}).then((response) => {
 					if(response) {
 						sendMessage(sendSocketMessageTo, "new-user", response);

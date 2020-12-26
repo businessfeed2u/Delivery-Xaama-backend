@@ -13,12 +13,7 @@ const cardFidelityUserSchema = Schema({
 	},
   qtdCurrent: {
 		type: Number,
-    default: 0,
-    required: true
-	},
-	creationDate: {
-		type: Date,
-		default: Date.now()
+    default: 0
 	}
 });
 
