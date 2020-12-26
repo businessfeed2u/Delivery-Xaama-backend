@@ -85,7 +85,7 @@ module.exports = {
           (card.cardFidelity.type != Company.cards[i].type) ||
           (card.cardFidelity.available != Company.cards[i].available) ||
           (card.cardFidelity.qtdMax != Company.cards[i].qtdMax) ||
-          card.qtdCurrent != 0) {
+          (card.qtdCurrent != 0)) {
 
             errors.push("card");
             break;
