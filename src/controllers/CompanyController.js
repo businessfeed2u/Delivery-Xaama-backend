@@ -47,7 +47,7 @@ module.exports = {
 	//	Create or update company data
 	async manageCompanyData(req, res) {
 		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm,
-						timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
+						timeWithdrawal, timeDeliveryI, timeDeliveryF, cards } = req.body;
 		const images = req.files;
 		var errors = [];
 
@@ -73,7 +73,9 @@ module.exports = {
 
 		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
 			errors.push("product type(s)");
-		}
+    }
+    
+    const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
 
 		if(!manual || !manual.length || (manual != "false" && manual != "true")) {
 			errors.push("manual is wrong!");
@@ -102,6 +104,52 @@ module.exports = {
 		if(tWithdrawal < 10 || tDeliveryI < 10 || tDeliveryF < 10
 		|| tDeliveryI > tDeliveryF || tDeliveryI === tDeliveryF) {
 				errors.push("timeDelivery or timeWithdrawal");
+    }
+    
+    //	Validating cards fidelity
+		if(!cards || !cards.length) {
+			errors.push("cards");
+		} else {
+			for(const card of cards) {
+				if(!card.type || !card.type.length){
+          errors.push("cards type");
+          break;
+        }
+        
+        var invalid = true;
+        for(const type of typesP) {
+          if(type == card.type) {
+            invalid = false;
+            break;
+          }
+        }
+
+        if(invalid) {
+          errors.push("card type do not exists");
+          break;
+        }
+
+        if(!card.available || !card.available.length || (card.available != "false" && card.available != "true")) {
+          errors.push("card available is wrong!");
+          break;
+        }
+ 
+        card.available = (card.available === "true");
+
+        if(!card.qtdMax || !card.qtdMax.length) {
+          errors.push("card qtdMax");
+          break;
+        }
+
+        const qtdMax = parseInt(card.qtdMax);
+      
+        if(qtdMax < 1){
+            errors.push("card qtdMax value invalid");
+            break;
+        }
+
+        card.qtdMax = qtdMax;
+			}
 		}
 
 		if(errors.length) {
@@ -121,18 +169,19 @@ module.exports = {
 			phone,
 			address,
 			freight,
-			productTypes: productTypes.split(",").map(productType => productType.trim().toLowerCase()),
-			logo: images[0] ? images[0].filename : null,
+			productTypes: typesP,
+			logo: images && images[0] ? images[0].filename : null,
 			carousel: [
-				images[1] ? images[1].filename : null,
-				images[2] ? images[2].filename : null,
-				images[3] ? images[3].filename : null
+				images && images[1] ? images[1].filename : null,
+				images && images[2] ? images[2].filename : null,
+				images && images[3] ? images[3].filename : null
 			],
 			manual: (manual === "true"),
 			systemOpenByAdm: (systemOpenByAdm === "true"),
 			timeWithdrawal: tWithdrawal,
 			timeDeliveryI: tDeliveryI,
-			timeDeliveryF: tDeliveryF
+      timeDeliveryF: tDeliveryF,
+      cards: cards
 		}).then((response) => {
 			if(response) {
 				try {
@@ -156,14 +205,15 @@ module.exports = {
 					address,
 					freight,
 					productTypes: productTypes.split(",").map(productType => productType.trim().toLowerCase()),
-					logo: images[0] ? images[0].filename : null,
+					logo: images && images[0] ? images[0].filename : null,
 					carousel: [
-						images[1] ? images[1].filename : null,
-						images[2] ? images[2].filename : null,
-						images[3] ? images[3].filename : null
+						images && images[1] ? images[1].filename : null,
+						images && images[2] ? images[2].filename : null,
+						images && images[3] ? images[3].filename : null
 					],
 					manual: (manual === "true"),
-					systemOpenByAdm: (systemOpenByAdm === "true"),
+          systemOpenByAdm: (systemOpenByAdm === "true"),
+          card: cards
 				}).then((company) => {
 					if(company) {
 						return res.status(201).json(company);
