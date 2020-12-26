@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 //	Using schema feature from mongoose
 const Schema = mongoose.Schema;
 const timetableSchema = require("./Timetable");
+const cardFidelitySchema = require("./CardFidelity");
 
 //	Defining Company schema
 const companySchema = Schema({
@@ -48,21 +49,25 @@ const companySchema = Schema({
 		default: null
   },
   timetable: {
-	type: [timetableSchema],
-	default: null
+    type: [timetableSchema],
+    default: null
   },
   timeWithdrawal: {
-	type: Number,
-	required: true
+    type: Number,
+    required: true
   },
   timeDeliveryI: {
-	type: Number,
-	required: true
+    type: Number,
+    required: true
   },
   timeDeliveryF: {
-	type: Number,
-	required: true
-  }
+    type: Number,
+    required: true
+  },
+  cards: {
+    type: [cardFidelitySchema],
+    default: null
+  },
 }, {
 	toJSON: {
 		virtuals: true,

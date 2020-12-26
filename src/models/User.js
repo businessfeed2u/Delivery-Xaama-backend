@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose
 const Schema = mongoose.Schema;
+const cardFidelityUserSchema = require("./CardFidelityUser");
 
 //	Defining User schema
 const userSchema = Schema({
@@ -31,7 +32,11 @@ const userSchema = Schema({
 	thumbnail: {
 		type: String,
 		default: null
-	},
+  },
+  cards: {
+    type: [cardFidelityUserSchema],
+    default: null
+  },
 	creationDate: {
 		type: Date,
 		default: Date.now()
