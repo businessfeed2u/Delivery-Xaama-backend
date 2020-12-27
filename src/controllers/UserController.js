@@ -291,6 +291,87 @@ module.exports = {
 
 			return res.status(500).send(error);
 		});
+  },
+
+  // vai ir para o frontend:
+  // var myMapTypesProducts = new Map();
+  // myMapTypesProducts.set(product.product.type, 
+  //   myMapTypesProducts.get(product.product.type) ? 
+  //   myMapTypesProducts.get(product.product.type) + 1 : 1);
+
+  // TODO:  
+  // validar os cards vindos com a comany
+  // criar um atributo no model de card para dizer se completou aquele card (sera um cupom depois)
+  // verificar se é maior ou igual a qtd maxima, se sim, colocar que completou o card e zerars 
+
+  //	Update current card of user on database
+	async updateCard(req, res) {
+    const userAdmId = req.headers.authorization;
+    const userId = req.params.id;
+		const { cards } = req.body;
+		
+		const sendSocketMessageTo = await findConnections();
+
+		if(!userAdmId || !userAdmId.length || !mongoose.Types.ObjectId.isValid(userAdmId)) {
+			errors.join("user Adm id");
+    }
+
+    if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			errors.join("user id");
+    }
+    
+    if(!cards || !cards.length) {
+      errors.join("cards");
+    }
+
+		var errors = [];
+
+		if(errors.length) {
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
+		}
+
+		await users.findById(userAdmId).then((user) => {
+			if(user) {
+        if(user.userType != 2) {
+          return res.status(404).send("User is not adm!" );
+        }
+			} else {
+				return res.status(404).send("User not found!" );
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+    });
+    
+    await users.findById(userId).then((user) => {
+      if(user) {
+        user.cards = cards;
+        
+        user.save().then((response) => {
+          if(response) {
+            users.find().sort({
+              userType: "desc"
+            }).then((response) => {
+              sendMessage(sendSocketMessageTo, "update-user", response);
+            }).catch((error) => {
+              return res.status(500).send(error);
+            });
+
+            return res.status(200).send("Successful on changing your data!");
+          } else {
+            return res.status(400).send("We couldn't save your changes, try again later!");
+          }
+        }).catch((error) => {
+          return res.status(500).send(error);
+        });
+      
+      } else {
+        return res.status(404).send("User not found!" );
+      }
+    }).catch((error) => {
+			return res.status(500).send(error);
+    });
 	},
 
 	//	Remove current user from database

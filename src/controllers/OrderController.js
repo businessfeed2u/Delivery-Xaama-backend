@@ -139,15 +139,11 @@ module.exports = {
     const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     const cd = week[date.getDay()] + " às " + hour + ":" + minutes;
     
-    var myMapTypesProducts = new Map();
+    
 
     // Searching for a product or some addition of each product that is unavailable
     for(var product of products) {
-      myMapTypesProducts.set(product.product.type, 
-        myMapTypesProducts.get(product.product.type) ? 
-        myMapTypesProducts.get(product.product.type) + 1 : 1);
-      
-        if(!product.product.available){
+      if(!product.product.available){
         errors.push("some added product is unavailable");
         break;
       }
@@ -179,8 +175,6 @@ module.exports = {
 
 			return res.status(400).send(message);
     }
-
-    // TODO: criar uma rota pra atualizar o qtd de cards para usuaŕio. (Pensar melhor)
 
 		await orders.create({
 			user,

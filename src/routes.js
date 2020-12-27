@@ -42,6 +42,7 @@ routes.post("/company", authorization.admin, upload.single("logo"), companyContr
 routes.get("/user/:id", UserController.index);
 routes.post("/user", upload.single("thumbnail"), UserController.create);
 routes.put("/user", upload.single("thumbnail"), UserController.update);
+routes.put("/user/:id", authorization.admin, UserController.updateCard);
 routes.delete("/user", UserController.delete);
 routes.get("/user", authorization.admin, UserController.all);
 
