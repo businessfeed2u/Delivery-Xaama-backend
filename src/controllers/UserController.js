@@ -89,11 +89,18 @@ module.exports = {
           (card.cardFidelity.type != Company.cards[i].type) ||
           (card.cardFidelity.available != Company.cards[i].available) ||
           (card.cardFidelity.qtdMax != Company.cards[i].qtdMax) ||
-          (card.qtdCurrent != 0)) {
+          (card.cardFidelity.discount != Company.cards[i].discount) ||
+          (card.qtdCurrent != 0) || (card.completed != false && card.completed != true)) {
 
             errors.push("card");
             break;
         }
+
+        if(card.qtdCurrent >= card.cardFidelity.qtdMax) {
+          card.qtdCurrent = 0;
+          card.completed = true;
+        }
+
         i++;
       }
     }
@@ -303,10 +310,11 @@ module.exports = {
   //   myMapTypesProducts.get(product.product.type) ? 
   //   myMapTypesProducts.get(product.product.type) + 1 : 1);
 
-  // TODO:  
-  // validar os cards vindos com a comany
-  // criar um atributo no model de card para dizer se completou aquele card (sera um cupom depois)
-  // verificar se é maior ou igual a qtd maxima, se sim, colocar que completou o card e zerars 
+  // TODO:
+  // atualizar api na hora de criar empresa
+  // atualizar api na hora de criar usuário
+  // na hora do finalizr o pedido, verificar se tem o desconto, se sim aplicálo
+  // se uma empresa atualizar as info dos cards, deve atualizar pra todos usuários
 
   //	Update current card of user on database
 	async updateCard(req, res) {
@@ -314,21 +322,59 @@ module.exports = {
     const userId = req.params.id;
 		const { cards } = req.body;
 		
-		const sendSocketMessageTo = await findConnections();
+    const sendSocketMessageTo = await findConnections();
+    
+    var errors = [];
 
 		if(!userAdmId || !userAdmId.length || !mongoose.Types.ObjectId.isValid(userAdmId)) {
-			errors.join("user Adm id");
+			errors.push("user Adm id");
     }
 
     if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.join("user id");
+			errors.push("user id");
     }
     
+    //	Validating cards fidelity
     if(!cards || !cards.length) {
-      errors.join("cards");
-    }
+      errors.push("cards");
+    } else {
+      var Company;
+  
+      await companyData.findOne({}).then((response) => {
+        if(response) {
+          Company = response;
+        } else {
+          errors.push("No company data found!");
+        }
+      }).catch(() => {
+        errors.push("Erro ao carregar informações da empresa");
+      });
+     
+      var i = 0;
+      for(const card of cards) {
+      
+        if(!Company.cards || !Company.cards[i] || 
+          (card.cardFidelity.type != Company.cards[i].type) ||
+          (card.cardFidelity.available != Company.cards[i].available) ||
+          (card.cardFidelity.qtdMax != Company.cards[i].qtdMax) ||
+          (card.cardFidelity.discount != Company.cards[i].discount) ||
+          (card.qtdCurrent < 0) || (card.completed != false && card.completed != true)) {
 
-		var errors = [];
+            errors.push("card");
+            break;
+        }
+      
+        if(card.qtdCurrent >= card.cardFidelity.qtdMax) {
+          card.qtdCurrent = card.qtdCurrent - card.cardFidelity.qtdMax;
+          if(card.qtdCurrent >= card.cardFidelity.qtdMax) {
+            card.qtdCurrent = 0;
+          }
+          card.completed = true;
+        }
+
+        i++;
+      }
+    }
 
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");

@@ -133,26 +133,21 @@ module.exports = {
           break;
         }
 
-        if(!card.available || !card.available.length || (card.available != "false" && card.available != "true")) {
-          errors.push("card available is wrong!");
+        if(card.available == null || typeof(card.available) != "boolean") {
+          errors.push("card available");
           break;
         }
- 
-        card.available = (card.available === "true");
 
-        if(!card.qtdMax || !card.qtdMax.length) {
+        if(isNaN(card.qtdMax) || card.qtdMax < 1) {
           errors.push("card qtdMax");
           break;
         }
 
-        const qtdMax = parseInt(card.qtdMax);
-      
-        if(qtdMax < 1){
-            errors.push("card qtdMax value invalid");
-            break;
+        if(isNaN(card.discount) || card.discount < 1) {
+          errors.push("card discount");
+          break;
         }
 
-        card.qtdMax = qtdMax;
 			}
 		}
 

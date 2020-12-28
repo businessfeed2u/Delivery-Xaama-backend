@@ -14,7 +14,11 @@ const cardFidelityUserSchema = Schema({
   qtdCurrent: {
 		type: Number,
     default: 0
-	}
+  },
+  completed: {
+    type: Boolean,
+    default: 0
+  }
 });
 
 //	Creating collection CardsFidelityUser on database

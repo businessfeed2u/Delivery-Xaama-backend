@@ -19,7 +19,11 @@ const cardFidelitySchema = Schema({
 		type: Number,
     default: 10,
     required: true
-	},
+  },
+  discount: {
+		type: Number,
+    default: 10
+  },
 	creationDate: {
 		type: Date,
 		default: Date.now()
