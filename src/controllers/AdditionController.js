@@ -11,6 +11,10 @@ const fs = require("fs");
 // Loading helpers
 const regEx = require("../helpers/regEx");
 
+// Loading dirname
+const path = require("path");
+var __dirname = path.resolve();
+
 //	Exporting Addition features
 module.exports = {
 	//	Return an addition on database given id

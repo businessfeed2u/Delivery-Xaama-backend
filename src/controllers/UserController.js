@@ -18,6 +18,10 @@ const regEx = require("../helpers/regEx");
 
 const { findConnections, sendMessage } = require("../config/websocket");
 
+// Loading dirname
+const path = require("path");
+var __dirname = path.resolve();
+
 //	Exporting User features
 module.exports = {
 	//	Return an user on database given email
@@ -75,7 +79,7 @@ module.exports = {
         } else {
           errors.join("No company data found!");
         }
-      }).catch((error) => {
+      }).catch(() => {
         errors.join("Erro ao carregar informações da empresa");
       });
       
