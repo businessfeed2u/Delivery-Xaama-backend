@@ -51,7 +51,7 @@ module.exports = {
 	//	Create or update company data
 	async manageCompanyData(req, res) {
 		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm,
-						timeWithdrawal, timeDeliveryI, timeDeliveryF, cards } = req.body;
+						timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
 		const images = req.files;
 		var errors = [];
 
@@ -109,47 +109,6 @@ module.exports = {
 		|| tDeliveryI > tDeliveryF || tDeliveryI === tDeliveryF) {
 				errors.push("timeDelivery or timeWithdrawal");
     }
-    
-    //	Validating cards fidelity
-		if(!cards || !cards.length) {
-			errors.push("cards");
-		} else {
-			for(const card of cards) {
-				if(!card.type || !card.type.length){
-          errors.push("cards type");
-          break;
-        }
-        
-        var invalid = true;
-        for(const type of typesP) {
-          if(type == card.type) {
-            invalid = false;
-            break;
-          }
-        }
-
-        if(invalid) {
-          errors.push("card type do not exists");
-          break;
-        }
-
-        if(card.available == null || typeof(card.available) != "boolean") {
-          errors.push("card available");
-          break;
-        }
-
-        if(isNaN(card.qtdMax) || card.qtdMax < 1) {
-          errors.push("card qtdMax");
-          break;
-        }
-
-        if(isNaN(card.discount) || card.discount < 1) {
-          errors.push("card discount");
-          break;
-        }
-
-			}
-		}
 
 		if(errors.length) {
 			if(images) {
@@ -179,8 +138,7 @@ module.exports = {
 			systemOpenByAdm: (systemOpenByAdm === "true"),
 			timeWithdrawal: tWithdrawal,
 			timeDeliveryI: tDeliveryI,
-      timeDeliveryF: tDeliveryF,
-      cards: cards
+      timeDeliveryF: tDeliveryF
 		}).then((response) => {
 			if(response) {
 				try {
@@ -211,8 +169,7 @@ module.exports = {
 						images && images[3] ? images[3].filename : null
 					],
 					manual: (manual === "true"),
-          systemOpenByAdm: (systemOpenByAdm === "true"),
-          card: cards
+          systemOpenByAdm: (systemOpenByAdm === "true")
 				}).then((company) => {
 					if(company) {
 						return res.status(201).json(company);
@@ -348,6 +305,72 @@ module.exports = {
 
 		await companyData.findOneAndUpdate({}, {
 			timetable: timetable
+		}).then((response) => {
+			if(response) {
+				return res.status(200).send("The company data has been updated!");
+			} else {
+				return res.status(400).send("There is no company!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
+  },
+
+  //	Update opening hours
+	async updateCards(req, res) {
+    const { productTypes, cards } = req.body;
+    const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
+		var errors = [];
+
+     //	Validating cards fidelity
+		if(!cards || !cards.length) {
+			errors.push("cards");
+		} else {
+			for(const card of cards) {
+				if(!card.type || !card.type.length){
+          errors.push("cards type");
+          break;
+        }
+        
+        var invalid = true;
+        for(const type of typesP) {
+          if(type == card.type) {
+            invalid = false;
+            break;
+          }
+        }
+
+        if(invalid) {
+          errors.push("card type do not exists");
+          break;
+        }
+
+        if(card.available == null || typeof(card.available) != "boolean") {
+          errors.push("card available");
+          break;
+        }
+
+        if(isNaN(card.qtdMax) || card.qtdMax < 1) {
+          errors.push("card qtdMax");
+          break;
+        }
+
+        if(isNaN(card.discount) || card.discount < 1) {
+          errors.push("card discount");
+          break;
+        }
+
+			}
+		}
+    
+		if(errors.length) {
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
+		}
+
+		await companyData.findOneAndUpdate({}, {
+			cards: cards
 		}).then((response) => {
 			if(response) {
 				return res.status(200).send("The company data has been updated!");
