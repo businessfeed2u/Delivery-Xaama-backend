@@ -315,6 +315,7 @@ module.exports = {
   // atualizar api na hora de criar usuário
   // na hora do finalizr o pedido, verificar se tem o desconto, se sim aplicálo
   // se uma empresa atualizar as info dos cards, deve atualizar pra todos usuários
+  // atualizar cards do usuario quando a empresa enviar o pedido
 
   //	Update current card of user on database
 	async updateCard(req, res) {
