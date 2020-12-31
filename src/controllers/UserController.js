@@ -426,11 +426,11 @@ module.exports = {
   
    //	Update current cards of users on database
 	async updateAll(req, res) {
-    const userAdmId = req.headers.authorization;
+    const userId = req.headers.authorization;
     
     var errors = [];
 
-		if(!userAdmId || !userAdmId.length || !mongoose.Types.ObjectId.isValid(userAdmId)) {
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			errors.push("user Adm id");
     }
 
@@ -452,7 +452,7 @@ module.exports = {
 			return res.status(400).send(message);
 		}
 
-		await users.findById(userAdmId).then((user) => {
+		await users.findById(userId).then((user) => {
 			if(user) {
         if(user.userType != 2) {
           return res.status(404).send("User is not adm!" );
