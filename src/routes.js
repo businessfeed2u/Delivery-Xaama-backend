@@ -44,6 +44,7 @@ routes.get("/user/:id", UserController.index);
 routes.post("/user", upload.single("thumbnail"), UserController.create);
 routes.put("/user", upload.single("thumbnail"), UserController.update);
 routes.put("/user/:id", authorization.admin, UserController.updateCard);
+routes.put("/userAll", authorization.admin, UserController.updateAll);
 routes.delete("/user", UserController.delete);
 routes.get("/user", authorization.admin, UserController.all);
 

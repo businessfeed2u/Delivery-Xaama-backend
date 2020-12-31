@@ -311,7 +311,6 @@ module.exports = {
   //   myMapTypesProducts.get(product.product.type) + 1 : 1);
 
   // TODO:
-  // atualizar api na hora de criar empresa
   // atualizar api na hora de criar usuário
   // na hora do finalizr o pedido, verificar se tem o desconto, se sim aplicálo
   // se uma empresa atualizar as info dos cards, deve atualizar pra todos usuários
@@ -419,6 +418,57 @@ module.exports = {
       
       } else {
         return res.status(404).send("User not found!" );
+      }
+    }).catch((error) => {
+			return res.status(500).send(error);
+    });
+  },
+  
+   //	Update current cards of users on database
+	async updateAll(req, res) {
+    const userAdmId = req.headers.authorization;
+    
+    var errors = [];
+
+		if(!userAdmId || !userAdmId.length || !mongoose.Types.ObjectId.isValid(userAdmId)) {
+			errors.push("user Adm id");
+    }
+
+    var Company;
+  
+    await companyData.findOne({}).then((response) => {
+      if(response) {
+        Company = response;
+      } else {
+        errors.push("No company data found!");
+      }
+    }).catch(() => {
+      errors.push("Erro ao carregar informações da empresa");
+    });
+
+		if(errors.length) {
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
+		}
+
+		await users.findById(userAdmId).then((user) => {
+			if(user) {
+        if(user.userType != 2) {
+          return res.status(404).send("User is not adm!" );
+        }
+			} else {
+				return res.status(404).send("User not found!" );
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+    });
+    
+    await users.updateMany({},{"$set":{"cards": Company.cards}}).then((response) => {
+      if(response.n) {
+        return res.status(200).send("All users cards have been update!");
+      } else {
+        return res.status(404).send("Users not found!");
       }
     }).catch((error) => {
 			return res.status(500).send(error);
