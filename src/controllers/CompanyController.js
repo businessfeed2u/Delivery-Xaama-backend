@@ -316,7 +316,7 @@ module.exports = {
 		});
   },
 
-  //	Update opening hours
+  //	Update cards
 	async updateCards(req, res) {
     const { productTypes, cards } = req.body;
     const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
@@ -350,12 +350,12 @@ module.exports = {
           break;
         }
 
-        if(isNaN(card.qtdMax) || card.qtdMax < 1) {
+        if(isNaN(card.qtdMax) || card.qtdMax < 10 || card.qtdMax > 20) {
           errors.push("card qtdMax");
           break;
         }
 
-        if(isNaN(card.discount) || card.discount < 1) {
+        if(isNaN(card.discount) || card.discount < 8 || card.discount > 20) {
           errors.push("card discount");
           break;
         }
