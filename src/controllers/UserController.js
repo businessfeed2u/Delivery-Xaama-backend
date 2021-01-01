@@ -302,6 +302,7 @@ module.exports = {
   // TODO:
   // na hora do finalizr o pedido, verificar se tem o desconto, se sim aplicálo
   // atualizar cards do usuario quando a empresa enviar o pedido
+  // na hora que a empresa atualizar os tpos de produtos, deve atualizar os tipos de cards (solução: buscar duas vezes a empresa)
 
   //	Update current card of user on database
 	async updateCard(req, res) {
