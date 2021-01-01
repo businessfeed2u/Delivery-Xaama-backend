@@ -45,7 +45,7 @@ module.exports = {
 
 	//	Create a new user
 	async create(req, res) {
-		const { name, email, password, passwordC, cards } = req.body;
+		const { name, email, password, passwordC } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 		const sendSocketMessageTo = await findConnections();
     var errors = [];
@@ -67,43 +67,32 @@ module.exports = {
 			errors.push("password confirmation");
 		}
     
-    //	Validating cards fidelity
-    if(!cards || !cards.length) {
-      errors.push("cards");
-    } else {
-      var Company;
-      
-      await companyData.findOne({}).then((response) => {
-        if(response) {
-          Company = response;
-        } else {
-          errors.join("No company data found!");
-        }
-      }).catch(() => {
-        errors.join("Erro ao carregar informações da empresa");
-      });
-      
-      var i = 0;
-      for(const card of cards) {
-        if(!Company.cards || !Company.cards[i] || 
-          (card.cardFidelity.type != Company.cards[i].type) ||
-          (card.cardFidelity.available != Company.cards[i].available) ||
-          (card.cardFidelity.qtdMax != Company.cards[i].qtdMax) ||
-          (card.cardFidelity.discount != Company.cards[i].discount) ||
-          (card.qtdCurrent != 0) || (card.completed != false && card.completed != true)) {
-
-            errors.push("card");
-            break;
-        }
-
-        if(card.qtdCurrent >= card.cardFidelity.qtdMax) {
-          card.qtdCurrent = 0;
-          card.completed = true;
-        }
-
-        i++;
+    var Company;
+    
+    await companyData.findOne({}).then((response) => {
+      if(response) {
+        Company = response;
+      } else {
+        errors.join("No company data found!");
       }
-    }
+    }).catch(() => {
+      errors.join("Erro ao carregar informações da empresa");
+    });
+      
+    var cards = [];
+		var i = 0;
+		
+		for(var c of Company.cards) {
+			const data = {
+				cardFidelity: c,
+				qtdCurrent: 0,
+				completed: false
+			};
+
+			cards[i] = data;
+			
+			i++;
+		}
     
 		if(password !== passwordC) {
 			if(filename) {
@@ -313,7 +302,6 @@ module.exports = {
   // TODO:
   // atualizar api na hora de criar usuário
   // na hora do finalizr o pedido, verificar se tem o desconto, se sim aplicálo
-  // se uma empresa atualizar as info dos cards, deve atualizar pra todos usuários
   // atualizar cards do usuario quando a empresa enviar o pedido
 
   //	Update current card of user on database
@@ -446,6 +434,9 @@ module.exports = {
       errors.push("Erro ao carregar informações da empresa");
     });
 
+    console.log("COmpany: " + Company.cards[0].qtdMax);
+    console.log("COmpany: " + Company.cards[0].discount);
+
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
@@ -463,16 +454,89 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
     });
+
+    var allUsers;
     
-    await users.updateMany({},{"$set":{"cards": Company.cards}}).then((response) => {
-      if(response.n) {
-        return res.status(200).send("All users cards have been update!");
-      } else {
-        return res.status(404).send("Users not found!");
-      }
-    }).catch((error) => {
+    await users.find()
+    .then((response) => {
+			allUsers = response;
+		}).catch((error) => {
 			return res.status(500).send(error);
-    });
+		});
+
+    for(var u of allUsers) {
+      console.log("_id: " + u._id);
+      await users.findById(u._id).then((user) => {
+        //console.log("user: " + user);
+        if(user) {
+          console.log("Aq 1: ");
+          var i = 0;
+          
+          for(var c of user.cards ) {
+            
+            var data = {
+              cardFidelity: Company.cards[i],
+              qtdCurrent: c && c.qtdCurrent ? c.qtdCurrent : 0,
+              completed: c && c.completed ? c.completed : 0
+            };
+           // console.log(data);
+            user.cards[i].cardFidelity.available = data.cardFidelity.available;
+            user.cards[i].cardFidelity.qtdMax = data.cardFidelity.qtdMax;
+            user.cards[i].cardFidelity.discount = data.cardFidelity.discount;
+            user.cards[i].qtdCurrent = data.qtdCurrent;
+            user.cards[i].completed = data.completed;
+            i++;
+            console.log("Aq 4");
+          }
+          
+          console.log("Aq 2");
+          console.log(user.cards);
+          user.save().then((response) => {
+            console.log("Aq 3");
+            console.log(response.cards);
+            if(response) {
+              return res;
+            } else {
+              return res.status(400).send("We couldn't save your changes, try again later!");
+            }
+          }).catch((error) => {
+            return res.status(500).send(error);
+          });
+        } else {  
+          return res.status(404).send("User not found!" );
+        }
+      }).catch((error) => {
+        console.log("erro: " + error);
+        return res.status(500).send(error);
+      });
+    }
+
+    return res.status(200).send("All users cards have been update!");
+
+    // var cards = [];
+		// var i = 0;
+		
+		// for(var c of Company.cards) {
+		// 	const data = {
+		// 		cardFidelity: c,
+		// 		qtdCurrent: 0,
+		// 		completed: false
+		// 	};
+
+		// 	cards[i] = data;
+			
+		// 	i++;
+		// }
+    
+    // await users.updateMany({},{"$set":{"cards": cards}}).then((response) => {
+    //   if(response.n) {
+    //     return res.status(200).send("All users cards have been update!");
+    //   } else {
+    //     return res.status(404).send("Users not found!");
+    //   }
+    // }).catch((error) => {
+		// 	return res.status(500).send(error);
+    // });
 	},
 
 	//	Remove current user from database
