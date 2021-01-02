@@ -302,7 +302,6 @@ module.exports = {
   // TODO:
   // na hora do finalizr o pedido, verificar se tem o desconto, se sim aplicálo
   // atualizar cards do usuario quando a empresa enviar o pedido
-  // na hora que a empresa atualizar os tpos de produtos, deve atualizar os tipos de cards (solução: buscar duas vezes a empresa)
 
   //	Update current card of user on database
 	async updateCard(req, res) {
@@ -473,6 +472,103 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
+  },
+  
+  //	Update current cards of users on database
+	async updateAll(req, res) {
+    const userId = req.headers.authorization;
+
+    var errors = [];
+
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			errors.push("user id");
+    }
+
+    var Company;
+
+    await companyData.findOne({}).then((response) => {
+      if(response) {
+        Company = response;
+      } else {
+        errors.push("No company data found!");
+      }
+    }).catch(() => {
+      errors.push("Erro ao carregar informações da empresa");
+    });
+
+		if(errors.length) {
+			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			return res.status(400).send(message);
+		}
+
+		await users.findById(userId).then((user) => {
+			if(user) {
+        if(user.userType != 2) {
+          return res.status(404).send("User is not adm!" );
+        }
+			} else {
+				return res.status(404).send("User not found!" );
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+    });
+
+    var allUsers;
+
+    await users.find()
+    .then((response) => {
+			allUsers = response;
+		}).catch((error) => {
+			return res.status(500).send(error);
+    });
+
+    for(var u of allUsers) {
+      await users.findById(u._id).then((user) => {
+        if(user) {
+          var data = [];
+          var exist = false;
+          
+          for(var type of Company.productTypes) {
+            exist = false;
+            for(var c of user.cards) {
+              if(type == c.cardFidelity) {
+                data.push(c);
+                exist = true;
+                break;
+              }
+            }
+            if(!exist) {
+              var newCard = {
+                cardFidelity: type,
+                qtdCurrent: 0,
+                completed: false
+              };
+              data.push(newCard);
+            }
+          }
+
+          user.cards = data;
+          
+          user.save().then((response) => {
+            if(response) {
+              return res;
+            } else {
+              return res.status(400).send("We couldn't save your changes, try again later!");
+            }
+          }).catch((error) => {
+            return res.status(500).send(error);
+          });
+        } else {  
+          return res.status(404).send("User not found!" );
+        }
+      }).catch((error) => {
+        return res.status(500).send(error);
+      });
+    }
+
+    return res.status(200).send("All users cards have been update!");
+
 	},
 
 	//	Return all users on database
