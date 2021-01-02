@@ -120,7 +120,42 @@ module.exports = {
 
 			return res.status(400).send(message);
     }
+
+    var company;
+    await companyData.findOne({}, {
+		}).then((response) => {
+			if(response) {
+				company = response;
+			} else {
+				return res.status(400).send("There is no company!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+    });
+
+    var data = [];
+    var exist = false;
     
+    for(var type of typesP) {
+      exist = false;
+      for(var c of company.cards) {
+        if(type == c.type) {
+          data.push(c);
+          exist = true;
+          break;
+        }
+      }
+      if(!exist) {
+        var newCard = {
+          type: type,
+          available: false,
+          qtdMax: 10,
+          discount : 8
+        };
+        data.push(newCard);
+      }
+    }
+
 		await companyData.findOneAndUpdate({}, {
 			name,
 			email,
@@ -138,7 +173,8 @@ module.exports = {
 			systemOpenByAdm: (systemOpenByAdm === "true"),
 			timeWithdrawal: tWithdrawal,
 			timeDeliveryI: tDeliveryI,
-      timeDeliveryF: tDeliveryF
+      timeDeliveryF: tDeliveryF,
+      cards: data
 		}).then((response) => {
 			if(response) {
 				try {
@@ -161,7 +197,7 @@ module.exports = {
 					phone,
 					address,
 					freight,
-					productTypes: productTypes.split(",").map(productType => productType.trim().toLowerCase()),
+					productTypes: typesP,
 					logo: images && images[0] ? images[0].filename : null,
 					carousel: [
 						images && images[1] ? images[1].filename : null,
@@ -169,7 +205,8 @@ module.exports = {
 						images && images[3] ? images[3].filename : null
 					],
 					manual: (manual === "true"),
-          systemOpenByAdm: (systemOpenByAdm === "true")
+          systemOpenByAdm: (systemOpenByAdm === "true"),
+          cards: data
 				}).then((company) => {
 					if(company) {
 						return res.status(201).json(company);
