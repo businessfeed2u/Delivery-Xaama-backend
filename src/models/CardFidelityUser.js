@@ -17,6 +17,10 @@ const cardFidelityUserSchema = Schema({
   completed: {
     type: Boolean,
     default: 0
+  },
+  status: {
+    type: Boolean,
+    default: false
   }
 });
 

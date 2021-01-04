@@ -86,7 +86,8 @@ module.exports = {
 			const data = {
 				cardFidelity: c.type,
 				qtdCurrent: 0,
-				completed: false
+        completed: false,
+        status: false
 			};
 
 			cards[i] = data;
@@ -342,7 +343,8 @@ module.exports = {
       
         if(!Company.cards || !Company.cards[i] || 
           (card.cardFidelity != Company.cards[i].type) ||
-          (card.qtdCurrent < 0) || (card.completed != false && card.completed != true)) {
+          (card.qtdCurrent < 0) || (card.completed != false && card.completed != true) ||
+          (card.status != false && card.status != true)) {
 
             errors.push("card");
             break;
@@ -542,7 +544,8 @@ module.exports = {
               var newCard = {
                 cardFidelity: type,
                 qtdCurrent: 0,
-                completed: false
+                completed: false,
+                status: false
               };
               data.push(newCard);
             }
