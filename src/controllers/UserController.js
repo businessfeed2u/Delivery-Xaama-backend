@@ -193,11 +193,11 @@ module.exports = {
 			errors.push("email");
 		}
 
-		if(phone && phone.length && !regEx.phone.test(phone)) {
+		if(!phone || !phone.length || !regEx.phone.test(phone)) {
 			errors.push("phone");
 		}
 
-		if(address && address.length && !regEx.address.test(address)) {
+		if(!address || !address.length || !regEx.address.test(address)) {
 			errors.push("address");
 		}
 
@@ -302,7 +302,7 @@ module.exports = {
 
   // TODO:
   // na hora do finalizr o pedido, verificar se tem o desconto, se sim aplicálo
-  //      - mudar o satatus de false para truee
+  //      - mudar o status de false para true
   // atualizar cards do usuario quando a empresa enviar o pedido
 
   //	Update current card of user on database

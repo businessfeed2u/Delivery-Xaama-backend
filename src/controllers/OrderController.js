@@ -81,10 +81,6 @@ module.exports = {
 			errors.push("deliver");
 		}
 
-		if(deliver && (!address || !address.length)) {
-			errors.push("delivery address");
-		}
-
 		if(isNaN(typePayment) || (typePayment != 0 && typePayment != 1)){
 			errors.push("delivery typePayment");
 		}
@@ -97,11 +93,11 @@ module.exports = {
 			errors.push("delivery change");
 		}
 
-		if(address && address.length && !regEx.address.test(address)) {
+		if(deliver && (!address || !address.length || !regEx.address.test(address))) {
 			errors.push("address");
 		}
 
-    if(phone && phone.length && !regEx.phone.test(phone)) {
+    if(!phone || !phone.length || !regEx.phone.test(phone)) {
 			errors.push("phone");
     }
 
