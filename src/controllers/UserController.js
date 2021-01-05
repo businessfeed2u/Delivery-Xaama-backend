@@ -302,7 +302,6 @@ module.exports = {
 
   // TODO:
   // na hora do finalizr o pedido, verificar se tem o desconto, se sim aplicálo
-  //      - aplicar o desconto no frontend
   //      - aplicar o desconto no backend
   //      - mudar o satatus de false para true
   // atualizar cards do usuario quando a empresa enviar o pedido

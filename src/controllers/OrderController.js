@@ -93,29 +93,6 @@ module.exports = {
 			errors.push("delivery total");
 		}
 
-		//	Get freight price and add if deliver is true
-		var totalB = await companyData.findOne({}).exec();
-		totalB = (deliver) ? totalB.freight : 0.0;
-
-		//	Calculate order total price
-		for(var x of products) {
-			if(x.size >= 0 && x.size < x.product.prices.length) {
-				totalB += x.product.prices[x.size];
-			} else {
-				errors.push(x.product.name + " size doesn't exist!");
-			}
-
-			if(x.additions && x.additions.length) {
-				for(var y of x.additions) {
-						totalB += y.price;
-				}
-			}
-		}
-
-		if(total != totalB) {
-			errors.push("delivery total");
-		}
-
 		if((typePayment == 0) && (isNaN(change) || (change < total))) {
 			errors.push("delivery change");
 		}
@@ -139,8 +116,6 @@ module.exports = {
     const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     const cd = week[date.getDay()] + " às " + hour + ":" + minutes;
     
-    
-
     // Searching for a product or some addition of each product that is unavailable
     for(var product of products) {
       if(!product.product.available){
@@ -155,8 +130,10 @@ module.exports = {
       }
     }
 
+    var company = null;
     await companyData.findOne({}).then((companyInfo) => {
 			if(companyInfo) {
+        company = companyInfo;
 				if(companyInfo.manual && !companyInfo.systemOpenByAdm) {
           errors.push("the company is closed");
         }
@@ -169,6 +146,64 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
     });
+
+    //	Get freight price and add if deliver is true
+		var totalB = await companyData.findOne({}).exec();
+		totalB = (deliver) ? totalB.freight : 0.0;
+
+		//	Calculate order total price
+		for(var x of products) {
+			if(x.size >= 0 && x.size < x.product.prices.length) {
+				totalB += x.product.prices[x.size];
+			} else {
+				errors.push(x.product.name + " size doesn't exist!");
+			}
+
+			if(x.additions && x.additions.length) {
+				for(var y of x.additions) {
+						totalB += y.price;
+				}
+			}
+    }
+
+    //	Calculate order total price
+    var myMapTypesProducts = new Map();
+			
+    if(products){
+      for(x of products) {
+        if(x.size >= 0 && x.size < x.product.prices.length) {
+          myMapTypesProducts.set(x && x.product.type ? x.product.type : "", 
+            myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size]) : 
+              x.product.prices[x.size]);
+        }
+
+        if(x.additions && x.additions.length) {
+          for(y of x.additions) {
+            myMapTypesProducts.set(x && x.product.type ? x.product.type : "", 
+              myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + y.price) : 
+                y.price);
+          }
+        }
+      }
+    }
+
+    // Calculate discount
+    var d = 0;
+    
+    if(user && user.cards && company && company.cards){
+			user.cards.map((card,index) => {
+				card.completed && !card.status && myMapTypesProducts && myMapTypesProducts.get(card.cardFidelity) ?
+					d = parseInt(d) + parseInt((company.cards[index].discount < myMapTypesProducts.get(card.cardFidelity) ? 
+						company.cards[index].discount : myMapTypesProducts.get(card.cardFidelity)))
+					:
+					null;
+			});
+    }
+    totalB -= d;
+
+		if(total != totalB) {
+			errors.push("delivery total");
+		}
 
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
