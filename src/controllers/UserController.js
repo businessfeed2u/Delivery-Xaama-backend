@@ -172,7 +172,7 @@ module.exports = {
 	//	Update current user on database
 	async update(req, res) {
 		const userId = req.headers.authorization;
-		const { name, email, passwordO, passwordN, address, phone } = req.body;
+		const { name, email, passwordO, passwordN, address, phone, status } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 		const sendSocketMessageTo = await findConnections();
 
@@ -199,7 +199,11 @@ module.exports = {
 
 		if(!address || !address.length || !regEx.address.test(address)) {
 			errors.push("address");
-		}
+    }
+    
+    if(!status || !status.length) {
+      errors.push("vector of status");
+    }
 
 		if(errors.length) {
 			if(filename) {
@@ -244,14 +248,38 @@ module.exports = {
 					}
 				} else {
 					hash = user.password;
-				}
+        }
+        
+        if(user.cards.length != status.length) {
+          if(filename) {
+            fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+          }
 
+          return res.status(400).send("vector length of status");
+        }
+
+        var data = [];
+        var i = 0;
+        
+        for(var u of user.cards) {
+          var newCard = {
+            cardFidelity: u.cardFidelity,
+            qtdCurrent: u.qtdCurrent,
+            completed: u.completed,
+            status: status[i]
+          };
+          
+          data.push(newCard);
+          i ++; 
+        }
+
+        user.cards = data;
 				user.name = name;
 				user.email = email.trim().toLowerCase();
 				user.password = hash;
 				user.thumbnail = filename;
 				user.phone = phone && phone.length ? phone : null;
-				user.address= address && address.length ? address.split(",").map(a => a.trim()) : null;
+        user.address= address && address.length ? address.split(",").map(a => a.trim()) : null;
 
 				user.save().then((response) => {
 					if(response) {
