@@ -195,6 +195,7 @@ module.exports = {
 					null;
 			});
     }
+
     totalB -= d;
 
 		if(total != totalB) {

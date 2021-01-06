@@ -277,9 +277,12 @@ module.exports = {
 				user.name = name;
 				user.email = email.trim().toLowerCase();
 				user.password = hash;
-				user.thumbnail = filename;
 				user.phone = phone && phone.length ? phone : null;
         user.address= address && address.length ? address.split(",").map(a => a.trim()) : null;
+
+        if(filename) {
+          user.thumbnail = filename;
+        }
 
 				user.save().then((response) => {
 					if(response) {
@@ -329,15 +332,13 @@ module.exports = {
   //   myMapTypesProducts.get(product.product.type) + 1 : 1);
 
   // TODO:
-  // na hora do finalizr o pedido, verificar se tem o desconto, se sim aplicálo
-  //      - mudar o status de false para true
   // atualizar cards do usuario quando a empresa enviar o pedido
 
   //	Update current card of user on database
 	async updateCard(req, res) {
     const userAdmId = req.headers.authorization;
     const userId = req.params.id;
-		const { cards } = req.body;
+		const { cardsNewQtd } = req.body;
 		
     const sendSocketMessageTo = await findConnections();
     
@@ -352,11 +353,11 @@ module.exports = {
     }
     
     //	Validating cards fidelity
-    if(!cards || !cards.length) {
-      errors.push("cards");
+    var Company = null;
+
+    if(!cardsNewQtd || !cardsNewQtd.length) {
+      errors.push("cardsNewQtd");
     } else {
-      var Company;
-  
       await companyData.findOne({}).then((response) => {
         if(response) {
           Company = response;
@@ -366,29 +367,11 @@ module.exports = {
       }).catch(() => {
         errors.push("Erro ao carregar informações da empresa");
       });
-     
-      var i = 0;
-      for(const card of cards) {
-      
-        if(!Company.cards || !Company.cards[i] || 
-          (card.cardFidelity != Company.cards[i].type) ||
-          (card.qtdCurrent < 0) || (card.completed != false && card.completed != true) ||
-          (card.status != false && card.status != true)) {
 
-            errors.push("card");
-            break;
-        }
-      
-        if(card.qtdCurrent >= card.cardFidelity.qtdMax) {
-          card.qtdCurrent = card.qtdCurrent - card.cardFidelity.qtdMax;
-          if(card.qtdCurrent >= card.cardFidelity.qtdMax) {
-            card.qtdCurrent = 0;
-          }
-          card.completed = true;
-        }
-
-        i++;
+      if(cardsNewQtd.length != Company.cards.length) {
+        return res.status(400).send("Invalid cards lenght value");
       }
+     
     }
 
 		if(errors.length) {
@@ -396,22 +379,60 @@ module.exports = {
 
 			return res.status(400).send(message);
 		}
-
-		await users.findById(userAdmId).then((user) => {
-			if(user) {
-        if(user.userType != 2) {
-          return res.status(404).send("User is not adm!" );
-        }
-			} else {
-				return res.status(404).send("User not found!" );
-			}
-		}).catch((error) => {
-			return res.status(500).send(error);
-    });
     
     await users.findById(userId).then((user) => {
       if(user) {
-        user.cards = cards;
+
+        var data = [];
+
+        var i = 0;
+        for(const qtd of cardsNewQtd) {
+        
+          if(!user.cards || !user.cards[i] || 
+            (qtd.cardFidelity != user.cards[i].cardFidelity) ||
+            (qtd.qtdCurrent < 0)) {
+  
+              return res.status(400).send("Invalid card value");
+          }
+
+          var q = user.cards[i].qtdCurrent;
+          var complete = user.cards[i].completed;
+          var s = user.cards[i].status;
+
+          if(Company.cards[i].available) {
+            if((!complete && s)) {
+              return res.status(400).send("Invalid completed and satus value");
+            }
+
+            if(s) {
+              s = false;
+              complete = false;
+            }
+
+            q = q + qtd.qtdCurrent;
+            
+            if(q >= Company.cards[i].qtdMax) {
+              q = q - Company.cards[i].qtdMax;
+              if(q >= Company.cards[i].qtdMax) {
+                q = Company.cards[i].qtdMax - 1;
+              }
+              complete = true;
+            }
+          }
+          
+          var newCard = {
+            cardFidelity: qtd.cardFidelity,
+            qtdCurrent: q,
+            completed: complete,
+            status: s
+          };
+
+          data.push(newCard);
+          
+          i++;
+        }
+        
+        user.cards = data;
         
         user.save().then((response) => {
           if(response) {
