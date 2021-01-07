@@ -112,8 +112,9 @@ module.exports = {
 
 		if(errors.length) {
 			if(images) {
-				for(const im of images)
-					fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
+				for(const im of images){
+          fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
+        }
 			}
 
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
@@ -127,6 +128,11 @@ module.exports = {
 			if(response) {
 				company = response;
 			} else {
+        if(images) {
+          for(const im of images){
+            fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
+          }
+        }
 				return res.status(400).send("There is no company!");
 			}
 		}).catch((error) => {
@@ -178,13 +184,10 @@ module.exports = {
 		}).then((response) => {
 			if(response) {
 				try {
-					for(const im of response.carousel)
-						fs.unlinkSync(`${__dirname}/../../uploads/${im}`);
-				} catch(error) {
-					//
-				}
-				try {
-					fs.unlinkSync(`${__dirname}/../../uploads/${response.logo}`);
+          fs.unlinkSync(`${__dirname}/uploads/${response.logo}`);
+					for(const im of response.carousel) {
+            fs.unlinkSync(`${__dirname}/uploads/${im}`);
+          }
 				} catch(error) {
 					//
 				}
@@ -213,7 +216,7 @@ module.exports = {
 					} else {
 						if(images) {
 							for(const im of images)
-								fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
+								fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
 						}
 
 						return res.status(400).send("We couldn't process your request, try again later!");
@@ -221,7 +224,7 @@ module.exports = {
 				}).catch((error) => {
 					if(images) {
 						for(const im of images)
-							fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
+							fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
 					}
 
 					return res.status(500).send(error);
@@ -230,7 +233,7 @@ module.exports = {
 		}).catch((error) => {
 			if(images) {
 				for(const im of images)
-					fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
+					fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
 			}
 
 			return res.status(500).send(error);
