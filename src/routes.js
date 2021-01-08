@@ -34,7 +34,7 @@ routes.post("/session", SessionController.create);
 routes.get("/productTypes", companyController.productTypes);
 routes.get("/company", companyController.companyData);
 routes.put("/company", authorization.admin, companyController.update);
-routes.put("/companyUpdateCards", authorization.admin, companyController.updateCards);
+routes.put("/companyUpdateCards", authorization.manager, companyController.updateCards);
 routes.put("/companyUpdateTimetable", authorization.admin, companyController.updateOpeningHours);
 routes.post("/company", authorization.admin, upload.array("images", 4), companyController.manageCompanyData);
 routes.post("/company", authorization.admin, upload.single("logo"), companyController.manageCompanyData);
@@ -43,7 +43,8 @@ routes.post("/company", authorization.admin, upload.single("logo"), companyContr
 routes.get("/userData", authorization.verify, UserController.index);
 routes.post("/user", authorization.verify, upload.single("thumbnail"), UserController.create);
 routes.put("/user", authorization.verify, upload.single("thumbnail"), UserController.update);
-routes.put("/user/:id", authorization.admin, UserController.updateCard);
+routes.put("/user/:id", authorization.manager, UserController.updateCard);
+routes.put("/userCard", authorization.admin, UserController.updateAll);
 routes.delete("/user", authorization.verify, UserController.delete);
 routes.get("/user", authorization.admin, UserController.all);
 

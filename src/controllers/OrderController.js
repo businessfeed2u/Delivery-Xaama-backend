@@ -81,10 +81,6 @@ module.exports = {
 			errors.push("deliver");
 		}
 
-		if(deliver && (!address || !address.length)) {
-			errors.push("delivery address");
-		}
-
 		if(isNaN(typePayment) || (typePayment != 0 && typePayment != 1)){
 			errors.push("delivery typePayment");
 		}
@@ -93,7 +89,61 @@ module.exports = {
 			errors.push("delivery total");
 		}
 
-		//	Get freight price and add if deliver is true
+		if((typePayment == 0) && (isNaN(change) || (change < total))) {
+			errors.push("delivery change");
+		}
+
+		if(deliver && (!address || !address.length || !regEx.address.test(address))) {
+			errors.push("address");
+		}
+
+    if(!phone || !phone.length || !regEx.phone.test(phone)) {
+			errors.push("phone");
+    }
+
+    const date = new Date();
+
+    var hour = date.getHours();
+    var minutes = date.getMinutes();
+
+    hour = (hour < 10) ? "0" + hour : hour;
+    minutes = (minutes < 10) ? minutes + "0" : minutes;
+
+    const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+    const cd = week[date.getDay()] + " às " + hour + ":" + minutes;
+    
+    // Searching for a product or some addition of each product that is unavailable
+    for(var product of products) {
+      if(!product.product.available){
+        errors.push("some added product is unavailable");
+        break;
+      }
+      for(var addition of product.additions) {
+        if(!addition.available){
+          errors.push("some added addition is unavailable");
+          break;
+        }
+      }
+    }
+
+    var company = null;
+    await companyData.findOne({}).then((companyInfo) => {
+			if(companyInfo) {
+        company = companyInfo;
+				if(companyInfo.manual && !companyInfo.systemOpenByAdm) {
+          errors.push("the company is closed");
+        }
+        else if(!companyInfo.manual && !systemOpen(companyInfo)) {
+          errors.push("the company is closed");
+        }
+			} else {
+				errors.push("no company data found");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+    });
+
+    //	Get freight price and add if deliver is true
 		var totalB = await companyData.findOne({}).exec();
 		totalB = (deliver) ? totalB.freight : 0.0;
 
@@ -110,65 +160,47 @@ module.exports = {
 						totalB += y.price;
 				}
 			}
-		}
+    }
+
+    //	Calculate order total price
+    var myMapTypesProducts = new Map();
+			
+    if(products){
+      for(x of products) {
+        if(x.size >= 0 && x.size < x.product.prices.length) {
+          myMapTypesProducts.set(x && x.product.type ? x.product.type : "", 
+            myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size]) : 
+              x.product.prices[x.size]);
+        }
+
+        if(x.additions && x.additions.length) {
+          for(y of x.additions) {
+            myMapTypesProducts.set(x && x.product.type ? x.product.type : "", 
+              myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + y.price) : 
+                y.price);
+          }
+        }
+      }
+    }
+
+    // Calculate discount
+    var d = 0;
+    
+    if(user && user.cards && company && company.cards){
+			user.cards.map((card,index) => {
+				card.completed && !card.status && myMapTypesProducts && myMapTypesProducts.get(card.cardFidelity) ?
+					d = parseInt(d) + parseInt((company.cards[index].discount < myMapTypesProducts.get(card.cardFidelity) ? 
+						company.cards[index].discount : myMapTypesProducts.get(card.cardFidelity)))
+					:
+					null;
+			});
+    }
+
+    totalB -= d;
 
 		if(total != totalB) {
 			errors.push("delivery total");
 		}
-
-		if((typePayment == 0) && (isNaN(change) || (change < total))) {
-			errors.push("delivery change");
-		}
-
-		if(address && address.length && !regEx.address.test(address)) {
-			errors.push("address");
-		}
-
-    if(phone && phone.length && !regEx.phone.test(phone)) {
-			errors.push("phone");
-    }
-
-    const date = new Date();
-
-    var hour = date.getHours();
-    var minutes = date.getMinutes();
-
-    hour = (hour < 10) ? "0" + hour : hour;
-    minutes = (minutes < 10) ? minutes + "0" : minutes;
-
-    const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-    const cd = week[date.getDay()] + " às " + hour + ":" + minutes;
-    
-    
-
-    // Searching for a product or some addition of each product that is unavailable
-    for(var product of products) {
-      if(!product.product.available){
-        errors.push("some added product is unavailable");
-        break;
-      }
-      for(var addition of product.additions) {
-        if(!addition.available){
-          errors.push("some added addition is unavailable");
-          break;
-        }
-      }
-    }
-
-    await companyData.findOne({}).then((companyInfo) => {
-			if(companyInfo) {
-				if(companyInfo.manual && !companyInfo.systemOpenByAdm) {
-          errors.push("the company is closed");
-        }
-        else if(!companyInfo.manual && !systemOpen(companyInfo)) {
-          errors.push("the company is closed");
-        }
-			} else {
-				errors.push("no company data found");
-			}
-		}).catch((error) => {
-			return res.status(500).send(error);
-    });
 
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");

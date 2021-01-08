@@ -112,14 +112,60 @@ module.exports = {
 
 		if(errors.length) {
 			if(images) {
-				for(const im of images)
-					fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
+				for(const im of images){
+          fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
+        }
 			}
 
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
-		}
+    }
+
+    var company;
+    await companyData.findOne({}, {
+		}).then((response) => {
+			if(response) {
+				company = response;
+			} else {
+        if(images) {
+          for(const im of images){
+            fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
+          }
+        }
+				return res.status(400).send("There is no company!");
+			}
+		}).catch((error) => {
+      if(images) {
+				for(const im of images){
+          fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
+        }
+			}
+			return res.status(500).send(error);
+    });
+
+    var data = [];
+    var exist = false;
+    
+    for(var type of typesP) {
+      exist = false;
+      for(var c of company.cards) {
+        if(type == c.type) {
+          data.push(c);
+          exist = true;
+          break;
+        }
+      }
+      if(!exist) {
+        var newCard = {
+          type: type,
+          available: false,
+          qtdMax: 10,
+          discount : 8
+        };
+        data.push(newCard);
+      }
+    }
 
 		await companyData.findOneAndUpdate({}, {
 			name,
@@ -138,17 +184,15 @@ module.exports = {
 			systemOpenByAdm: (systemOpenByAdm === "true"),
 			timeWithdrawal: tWithdrawal,
 			timeDeliveryI: tDeliveryI,
-      timeDeliveryF: tDeliveryF
+      timeDeliveryF: tDeliveryF,
+      cards: data
 		}).then((response) => {
 			if(response) {
 				try {
-					for(const im of response.carousel)
-						fs.unlinkSync(`${__dirname}/../../uploads/${im}`);
-				} catch(error) {
-					//
-				}
-				try {
-					fs.unlinkSync(`${__dirname}/../../uploads/${response.logo}`);
+          fs.unlinkSync(`${__dirname}/uploads/${response.logo}`);
+					for(const im of response.carousel) {
+            fs.unlinkSync(`${__dirname}/uploads/${im}`);
+          }
 				} catch(error) {
 					//
 				}
@@ -161,7 +205,7 @@ module.exports = {
 					phone,
 					address,
 					freight,
-					productTypes: productTypes.split(",").map(productType => productType.trim().toLowerCase()),
+					productTypes: typesP,
 					logo: images && images[0] ? images[0].filename : null,
 					carousel: [
 						images && images[1] ? images[1].filename : null,
@@ -169,14 +213,15 @@ module.exports = {
 						images && images[3] ? images[3].filename : null
 					],
 					manual: (manual === "true"),
-          systemOpenByAdm: (systemOpenByAdm === "true")
+          systemOpenByAdm: (systemOpenByAdm === "true"),
+          cards: data
 				}).then((company) => {
 					if(company) {
 						return res.status(201).json(company);
 					} else {
 						if(images) {
 							for(const im of images)
-								fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
+								fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
 						}
 
 						return res.status(400).send("We couldn't process your request, try again later!");
@@ -184,7 +229,7 @@ module.exports = {
 				}).catch((error) => {
 					if(images) {
 						for(const im of images)
-							fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
+							fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
 					}
 
 					return res.status(500).send(error);
@@ -193,7 +238,7 @@ module.exports = {
 		}).catch((error) => {
 			if(images) {
 				for(const im of images)
-					fs.unlinkSync(`${__dirname}/../../uploads/${im.filename}`);
+					fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
 			}
 
 			return res.status(500).send(error);
@@ -316,7 +361,7 @@ module.exports = {
 		});
   },
 
-  //	Update opening hours
+  //	Update cards
 	async updateCards(req, res) {
     const { productTypes, cards } = req.body;
     const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
@@ -350,12 +395,12 @@ module.exports = {
           break;
         }
 
-        if(isNaN(card.qtdMax) || card.qtdMax < 1) {
+        if(isNaN(card.qtdMax) || card.qtdMax < 10 || card.qtdMax > 20) {
           errors.push("card qtdMax");
           break;
         }
 
-        if(isNaN(card.discount) || card.discount < 1) {
+        if(isNaN(card.discount) || card.discount < 8 || card.discount > 20) {
           errors.push("card discount");
           break;
         }
