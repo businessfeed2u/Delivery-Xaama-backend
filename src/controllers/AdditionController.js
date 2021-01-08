@@ -56,8 +56,8 @@ module.exports = {
 
 		if(errors.length) {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
-			}
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+      }
 
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
@@ -74,14 +74,14 @@ module.exports = {
 				return res.status(201).send("Addition created successfully!");
 			} else {
 				if(filename) {
-					fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 				}
 
 				return res.status(400).send("We couldn't create a new addition, try again later!");
 			}
 		}).catch((error) => {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			return res.status(500).send(error);
@@ -117,7 +117,7 @@ module.exports = {
 
 		if(errors.length) {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
@@ -134,7 +134,7 @@ module.exports = {
 		}).then((response) => {
 			if(response) {
 				if(response.thumbnail) {
-					fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+					fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
 				}
 
 				return res.status(200).send("The addition has been updated!");
@@ -157,7 +157,7 @@ module.exports = {
 		await additions.findByIdAndDelete(additionId).then((response) => {
 			if(response) {
 				try {
-					fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+					fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
 
 					return res.status(200).send("The addition and its thumbnail have been deleted!");
 				} catch(e){
