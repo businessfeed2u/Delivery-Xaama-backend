@@ -64,7 +64,7 @@ module.exports = {
 
 		if(errors.length) {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
@@ -74,7 +74,7 @@ module.exports = {
 
 		if(sizes.split(",").length !== prices.split(",").length) {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			return res.status(400).send("Prices and sizes don't have the same length!");
@@ -92,14 +92,14 @@ module.exports = {
 				return res.status(201).send("Product created successfully!");
 			} else {
 				if(filename) {
-					fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 				}
 
 				return res.status(400).send("We couldn't create a new product, try again later!");
 			}
 		}).catch((error) => {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			return res.status(500).send(error);
@@ -143,7 +143,7 @@ module.exports = {
 
 		if(errors.length) {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
@@ -153,7 +153,7 @@ module.exports = {
 
 		if(sizes.split(",").length !== prices.split(",").length) {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			return res.status(400).send("Prices and sizes don't have the same length!");
@@ -170,7 +170,7 @@ module.exports = {
 		}).then((response) => {
 			if(response) {
 				try {
-					fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+					fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
 				} catch(error) {
 					//
 				}
@@ -180,6 +180,9 @@ module.exports = {
 				return res.status(404).send("Product not found!");
 			}
 		}).catch((error) => {
+      if(filename) {
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+			}
 			return res.status(500).send(error);
 		});
 	},
@@ -195,7 +198,7 @@ module.exports = {
 		await products.findByIdAndDelete(productId).then((response) => {
 			if(response) {
 				try {
-					fs.unlinkSync(`${__dirname}/../../uploads/${response.thumbnail}`);
+					fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
 
 					return res.status(200).send("The product and its thumbnail have been deleted!");
 				} catch(e){
