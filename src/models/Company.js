@@ -76,14 +76,14 @@ const companySchema = Schema({
 
 //	Creating route to get logo url
 companySchema.virtual("logo_url").get(function() {
-	return this.logo ? `http://localhost:4000/files/${this.logo}` : null;
+	return this.logo ? `files/${this.logo}` : null;
 });
 
 //	Creating route to get carousel urls
 companySchema.virtual("carousel_urls").get(function() {
 	var imNames = [];
 	for(const c of this.carousel) {
-		imNames.push(c ? `http://localhost:4000/files/${c}` : null);
+		imNames.push(c ? `files/${c}` : null);
 	}
 
 	return imNames.length ? imNames : null;
