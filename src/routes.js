@@ -27,7 +27,7 @@ routes.get("/", (req, res) => {
 });
 
 //	Session
-routes.get("/session", SessionController.index);
+routes.get("/session", authorization.verify, SessionController.index);
 routes.post("/session", SessionController.create);
 
 //	Company
@@ -40,12 +40,12 @@ routes.post("/company", authorization.admin, upload.array("images", 4), companyC
 routes.post("/company", authorization.admin, upload.single("logo"), companyController.manageCompanyData);
 
 //	User
-routes.get("/user/:id", UserController.index);
-routes.post("/user", upload.single("thumbnail"), UserController.create);
-routes.put("/user", upload.single("thumbnail"), UserController.update);
-routes.put("/user/:id", authorization.manager, UserController.updateCard);
+routes.get("/userData", authorization.verify, UserController.index);
+routes.post("/user", authorization.verify, upload.single("thumbnail"), UserController.create);
+routes.put("/user", authorization.verify, upload.single("thumbnail"), UserController.update);
+routes.put("/userUpdateCard", authorization.manager, UserController.updateCard);
 routes.put("/userCard", authorization.admin, UserController.updateAll);
-routes.delete("/user", UserController.delete);
+routes.delete("/user", authorization.verify, UserController.delete);
 routes.get("/user", authorization.admin, UserController.all);
 
 //	Product
@@ -63,11 +63,11 @@ routes.delete("/addition/:id", authorization.manager, AdditionController.delete)
 routes.get("/addition", AdditionController.all);
 
 //	Order
-routes.get("/order/:id", OrderController.index);
+routes.get("/order", authorization.verify, OrderController.index);
 routes.post("/order", OrderController.create);
 routes.put("/order/:id", OrderController.update);
 routes.delete("/order", authorization.manager, OrderController.delete);
-routes.get("/order", authorization.manager, OrderController.all);
+routes.get("/orderAll", authorization.manager, OrderController.all);
 
 //	Socket
 routes.delete("/socket", authorization.manager, SocketController.delete);

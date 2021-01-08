@@ -26,7 +26,7 @@ var __dirname = path.resolve();
 module.exports = {
 	//	Return an user on database given email
 	async index(req, res) {
-		const userId = req.params.id;
+		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			return res.status(400).send("Invalid id!");
@@ -48,8 +48,8 @@ module.exports = {
 		const { name, email, password, passwordC } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 		const sendSocketMessageTo = await findConnections();
-    var errors = [];
-    
+		var errors = [];
+
 
 		if(!name || !name.length) {
 			errors.push("name");
@@ -66,44 +66,44 @@ module.exports = {
 		if(!passwordC || !passwordC.length || !regEx.password.test(passwordC)) {
 			errors.push("password confirmation");
 		}
-    
-    var Company;
-    
-    await companyData.findOne({}).then((response) => {
-      if(response) {
-        Company = response;
-      } else {
-        errors.join("No company data found!");
-      }
-    }).catch(() => {
-      errors.join("Erro ao carregar informações da empresa");
-    });
-      
-    var cards = [];
+
+		var Company;
+
+		await companyData.findOne({}).then((response) => {
+			if(response) {
+			Company = response;
+			} else {
+			errors.join("No company data found!");
+			}
+		}).catch(() => {
+			errors.join("Erro ao carregar informações da empresa");
+		});
+
+		var cards = [];
 		var i = 0;
-		
+
 		for(var c of Company.cards) {
 			const data = {
 				cardFidelity: c.type,
 				qtdCurrent: 0,
-        completed: false,
-        status: false
+				completed: false,
+				status: false
 			};
 
 			cards[i] = data;
-			
+
 			i++;
 		}
-    
+
 		if(password !== passwordC) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			return res.status(400).send("The password confirmation don't match, try again!");
-    }
-    
-    if(errors.length) {
+	}
+
+	if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
@@ -111,7 +111,7 @@ module.exports = {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
-    }
+	}
 
 		await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
 			if(response) {
@@ -139,8 +139,8 @@ module.exports = {
 					email: email.trim().toLowerCase(),
 					userType: 0,
 					password: hash,
-          thumbnail: filename,
-          cards: cards,
+					thumbnail: filename,
+					cards: cards,
 				}).then((response) => {
 					if(response) {
 						sendMessage(sendSocketMessageTo, "new-user", response);
@@ -196,14 +196,14 @@ module.exports = {
 		if(!phone || !phone.length || !regEx.phone.test(phone)) {
 			errors.push("phone");
 		}
-    
+
 		if(!address || !address.length || !regEx.address.test(address)) {
 			errors.push("address");
-    }
-    
-    if(!status || !status.length) {
-      errors.push("vector of status");
-    }
+		}
+
+		if(!status || !status.length) {
+			errors.push("vector of status");
+		}
 
     if(!delImg || !delImg.length) {
       errors.push("vector of status");
@@ -342,128 +342,123 @@ module.exports = {
 
   //	Update current card of user on database
 	async updateCard(req, res) {
-    const userAdmId = req.headers.authorization;
-    const userId = req.params.id;
+		const userAdmId = req.headers.authorization;
+		const userId = req.headers["order-user-id"];
 		const { cardsNewQtd } = req.body;
-		
-    const sendSocketMessageTo = await findConnections();
-    
-    var errors = [];
+		const sendSocketMessageTo = await findConnections();
+		var errors = [];
 
 		if(!userAdmId || !userAdmId.length || !mongoose.Types.ObjectId.isValid(userAdmId)) {
 			errors.push("user Adm id");
-    }
+		}
 
-    if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push("user id");
-    }
-    
-    //	Validating cards fidelity
-    var Company = null;
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+				errors.push("user id");
+		}
 
-    if(!cardsNewQtd || !cardsNewQtd.length) {
-      errors.push("cardsNewQtd");
-    } else {
-      await companyData.findOne({}).then((response) => {
-        if(response) {
-          Company = response;
-        } else {
-          errors.push("No company data found!");
-        }
-      }).catch(() => {
-        errors.push("Erro ao carregar informações da empresa");
-      });
+		//	Validating cards fidelity
+		var Company = null;
 
-      if(cardsNewQtd.length != Company.cards.length) {
-        return res.status(400).send("Invalid cards lenght value");
-      }
-     
-    }
+		if(!cardsNewQtd || !cardsNewQtd.length) {
+			errors.push("cardsNewQtd");
+		} else {
+			await companyData.findOne({}).then((response) => {
+				if(response) {
+					Company = response;
+				} else {
+					errors.push("No company data found!");
+				}
+			}).catch(() => {
+				errors.push("Erro ao carregar informações da empresa");
+			});
+
+			if(cardsNewQtd.length != Company.cards.length) {
+				return res.status(400).send("Invalid cards lenght value");
+			}
+		}
 
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
 		}
-    
-    await users.findById(userId).then((user) => {
-      if(user) {
 
-        var data = [];
+		await users.findById(userId).then((user) => {
+			if(user) {
+				var data = [];
 
-        var i = 0;
-        for(const qtd of cardsNewQtd) {
-        
-          if(!user.cards || !user.cards[i] || 
-            (qtd.cardFidelity != user.cards[i].cardFidelity) ||
-            (qtd.qtdCurrent < 0)) {
-  
-              return res.status(400).send("Invalid card value");
-          }
+				var i = 0;
+				for(const qtd of cardsNewQtd) {
+					if(!user.cards || !user.cards[i] ||
+					(qtd.cardFidelity != user.cards[i].cardFidelity) ||
+					(qtd.qtdCurrent < 0)) {
 
-          var q = user.cards[i].qtdCurrent;
-          var complete = user.cards[i].completed;
-          var s = user.cards[i].status;
+						return res.status(400).send("Invalid card value");
+					}
 
-          if(Company.cards[i].available) {
-            if((!complete && s)) {
-              return res.status(400).send("Invalid completed and satus value");
-            }
+					var q = user.cards[i].qtdCurrent;
+					var complete = user.cards[i].completed;
+					var s = user.cards[i].status;
 
-            if(s) {
-              s = false;
-              complete = false;
-            }
+					if(Company.cards[i].available) {
+						if(!complete && s) {
+							return res.status(400).send("Invalid completed and satus value");
+						}
 
-            q = q + qtd.qtdCurrent;
-            
-            if(q >= Company.cards[i].qtdMax) {
-              q = q - Company.cards[i].qtdMax;
-              if(q >= Company.cards[i].qtdMax) {
-                q = Company.cards[i].qtdMax - 1;
-              }
-              complete = true;
-            }
-          }
-          
-          var newCard = {
-            cardFidelity: qtd.cardFidelity,
-            qtdCurrent: q,
-            completed: complete,
-            status: s
-          };
+						if(s) {
+							s = false;
+							complete = false;
+						}
 
-          data.push(newCard);
-          
-          i++;
-        }
-        
-        user.cards = data;
-        
-        user.save().then((response) => {
-          if(response) {
-            users.find().sort({
-              userType: "desc"
-            }).then((response) => {
-              sendMessage(sendSocketMessageTo, "update-user", response);
-            }).catch((error) => {
-              return res.status(500).send(error);
-            });
+						q = q + qtd.qtdCurrent;
 
-            return res.status(200).send("Successful on changing your data!");
-          } else {
-            return res.status(400).send("We couldn't save your changes, try again later!");
-          }
-        }).catch((error) => {
-          return res.status(500).send(error);
-        });
-      
-      } else {
-        return res.status(404).send("User not found!" );
-      }
-    }).catch((error) => {
-			return res.status(500).send(error);
-    });
+						if(q >= Company.cards[i].qtdMax) {
+							q = q - Company.cards[i].qtdMax;
+
+							if(q >= Company.cards[i].qtdMax) {
+								q = Company.cards[i].qtdMax - 1;
+							}
+							complete = true;
+						}
+					}
+
+					var newCard = {
+						cardFidelity: qtd.cardFidelity,
+						qtdCurrent: q,
+						completed: complete,
+						status: s
+					};
+
+					data.push(newCard);
+					i++;
+				}
+
+				user.cards = data;
+
+				user.save().then((response) => {
+					if(response) {
+						users.find().sort({
+							userType: "desc"
+						}).then((response) => {
+							sendMessage(sendSocketMessageTo, "update-user", response);
+						}).catch((error) => {
+							return res.status(500).send(error);
+						});
+
+						return res.status(200).send("Successful on changing your data!");
+					} else {
+						return res.status(400).send("We couldn't save your changes, try again later!");
+					}
+				}).catch((error) => {
+					return res.status(500).send(error);
+				});
+
+			} else {
+				return res.status(404).send("User not found!" );
+			}
+		}).catch((error) => {
+				return res.status(500).send(error);
+		});
   },
 
 	//	Remove current user from database
@@ -490,7 +485,7 @@ module.exports = {
 		await users.findById(userId).then((user) => {
 			if(user) {
 				if(user.userType === 2) {
-					return res.status(401).send("Admin account can't be deleted");
+					return res.status(403).send("Admin account can't be deleted");
 				} else {
 					bcrypt.compare(password, user.password).then((match) => {
 						if(match) {
@@ -531,28 +526,27 @@ module.exports = {
 			return res.status(500).send(error);
 		});
   },
-  
+
   //	Update current cards of users on database
 	async updateAll(req, res) {
-    const userId = req.headers.authorization;
+		const userId = req.headers.authorization;
+		var errors = [];
 
-    var errors = [];
+			if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+				errors.push("user id");
+		}
 
-		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push("user id");
-    }
+		var Company;
 
-    var Company;
-
-    await companyData.findOne({}).then((response) => {
-      if(response) {
-        Company = response;
-      } else {
-        errors.push("No company data found!");
-      }
-    }).catch(() => {
-      errors.push("Erro ao carregar informações da empresa");
-    });
+		await companyData.findOne({}).then((response) => {
+			if(response) {
+			Company = response;
+			} else {
+			errors.push("No company data found!");
+			}
+		}).catch(() => {
+			errors.push("Erro ao carregar informações da empresa");
+		});
 
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
@@ -562,71 +556,70 @@ module.exports = {
 
 		await users.findById(userId).then((user) => {
 			if(user) {
-        if(user.userType != 2) {
-          return res.status(404).send("User is not adm!" );
-        }
+				if(user.userType != 2) {
+					return res.status(404).send("User is not adm!");
+				}
+			} else {
+				return res.status(404).send("User not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+	});
+
+	var allUsers;
+
+	await users.find()
+	.then((response) => {
+			allUsers = response;
+	}).catch((error) => {
+		return res.status(500).send(error);
+	});
+
+	for(var u of allUsers) {
+		await users.findById(u._id).then((user) => {
+			if(user) {
+				var data = [];
+				var exist = false;
+
+				for(var type of Company.productTypes) {
+					exist = false;
+					for(var c of user.cards) {
+						if(type == c.cardFidelity) {
+						data.push(c);
+						exist = true;
+						break;
+						}
+					}
+					if(!exist) {
+						var newCard = {
+							cardFidelity: type,
+							qtdCurrent: 0,
+							completed: false,
+							status: false
+						};
+						data.push(newCard);
+					}
+				}
+				user.cards = data;
+
+				user.save().then((response) => {
+					if(response) {
+						return res;
+					} else {
+						return res.status(400).send("We couldn't save your changes, try again later!");
+					}
+				}).catch((error) => {
+					return res.status(500).send(error);
+				});
 			} else {
 				return res.status(404).send("User not found!" );
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
-    });
+		});
+	}
 
-    var allUsers;
-
-    await users.find()
-    .then((response) => {
-			allUsers = response;
-		}).catch((error) => {
-			return res.status(500).send(error);
-    });
-
-    for(var u of allUsers) {
-      await users.findById(u._id).then((user) => {
-        if(user) {
-          var data = [];
-          var exist = false;
-          
-          for(var type of Company.productTypes) {
-            exist = false;
-            for(var c of user.cards) {
-              if(type == c.cardFidelity) {
-                data.push(c);
-                exist = true;
-                break;
-              }
-            }
-            if(!exist) {
-              var newCard = {
-                cardFidelity: type,
-                qtdCurrent: 0,
-                completed: false,
-                status: false
-              };
-              data.push(newCard);
-            }
-          }
-
-          user.cards = data;
-          
-          user.save().then((response) => {
-            if(response) {
-              return res;
-            } else {
-              return res.status(400).send("We couldn't save your changes, try again later!");
-            }
-          }).catch((error) => {
-            return res.status(500).send(error);
-          });
-        } else {  
-          return res.status(404).send("User not found!" );
-        }
-      }).catch((error) => {
-        return res.status(500).send(error);
-      });
-    }
-
-    return res.status(200).send("All users cards have been update!");
+	return res.status(200).send("All users cards have been update!");
 
 	},
 

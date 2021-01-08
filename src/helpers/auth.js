@@ -1,52 +1,65 @@
-//  Loading database module
-const mongoose = require("mongoose");
-
-//	Loading User schema and Users collection from database
-require("../models/User");
-const users = mongoose.model("Users");
+//  Loading jwt and dotenv modules
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 module.exports = {
+	//	Verify if current user is admin
 	async admin(req, res, next) {
-		const userId = req.headers.authorization;
+		const token = req.headers["x-access-token"];
 
-		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send("Invalid id!");
-		}
-
-		await users.findById(userId).then((response) => {
-			if(response) {
-				if(response.userType != 2) {
-					return res.status(401).send("User not authorized!");
+		if(!token) {
+			return res.status(403).send("No token provided!");
+		} else {
+			jwt.verify(token, process.env.SECRET, (err, decoded) => {
+				if(err) {
+					return res.status(401).send("Invalid token!");
+				} else {
+					if(decoded.user.userType != 2) {
+						return res.status(403).send("User not authorized!");
+					} else {
+						req.headers.authorization = decoded.user.id;
+						return next();
+					}
 				}
-
-				return next();
-			} else {
-				return res.status(404).send("User not found!");
-			}
-		}).catch((error) => {
-			return res.status(500).send(error);
-		});
+			});
+		}
 	},
-
+	//	Verify if current user is a manager
 	async manager(req, res, next) {
-		const userId = req.headers.authorization;
+		const token = req.headers["x-access-token"];
 
-		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send("Invalid id!");
-		}
-
-		await users.findById(userId).then((response) => {
-			if(response) {
-				if(response.userType != 1 && response.userType != 2) {
-					return res.status(401).send("User not authorized!");
+		if(!token) {
+			return res.status(403).send("No token provided!");
+		} else {
+			jwt.verify(token, process.env.SECRET, (err, decoded) => {
+				if(err) {
+					return res.status(401).send("Invalid token!");
+				} else {
+					if(decoded.user.userType != 1 && decoded.user.userType != 2) {
+						return res.status(403).send("User not authorized!");
+					} else {
+						req.headers.authorization = decoded.user.id;
+						return next();
+					}
 				}
+			});
+		}
+	},
+	//	Vefify if current session is valid
+	async verify(req, res, next) {
+		const token = req.headers["x-access-token"];
 
-				return next();
-			} else {
-				return res.status(404).send("User not found!");
-			}
-		}).catch((error) => {
-			return res.status(500).send(error);
-		});
+		if(!token) {
+			return res.status(403).send("No token provided!");
+		} else {
+			jwt.verify(token, process.env.SECRET, (err, decoded) => {
+				if(err) {
+					return res.status(401).send("Invalid token!");
+				} else {
+					req.headers.authorization = decoded.user.id;
+					return next();
+				}
+			});
+		}
 	}
 };

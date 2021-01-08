@@ -110,7 +110,7 @@ module.exports = {
 		if(!price || !price.length || !regEx.price.test(price)) {
 			errors.push("price");
     }
-    
+
     if(!available || !available.length || (available != "false" && available != "true")) {
       errors.push("Available is wrong!");
 		}
