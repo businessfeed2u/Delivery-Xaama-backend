@@ -97,7 +97,7 @@ module.exports = {
     
 		if(password !== passwordC) {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			return res.status(400).send("The password confirmation don't match, try again!");
@@ -105,7 +105,7 @@ module.exports = {
     
     if(errors.length) {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
@@ -116,7 +116,7 @@ module.exports = {
 		await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
 			if(response) {
 				if(filename) {
-					fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 				}
 
 				return res.status(400).send("There is a user using this email, try another!");
@@ -128,7 +128,7 @@ module.exports = {
 					hash = bcrypt.hashSync(password, salt);
 				} catch(error) {
 					if(filename) {
-						fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 					}
 
 					return res.status(500).send(error.message);
@@ -147,14 +147,14 @@ module.exports = {
 						return res.status(201).json(response);
 					} else {
 						if(filename) {
-							fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 						}
 
 						return res.status(400).send("We couldn't process your request, try again later!");
 					}
 				}).catch((error) => {
 					if(filename) {
-						fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 					}
 
 					return res.status(500).send(error);
@@ -162,7 +162,7 @@ module.exports = {
 			}
 		}).catch((error) => {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			return res.status(500).send(error);
@@ -171,14 +171,14 @@ module.exports = {
 
 	//	Update current user on database
 	async update(req, res) {
-		const userId = req.headers.authorization;
-		const { name, email, passwordO, passwordN, address, phone, status } = req.body;
+    const userId = req.headers.authorization;
+		const { name, email, passwordO, passwordN, address, phone, status, delImg } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 		const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			return res.status(400).send("Invalid id!");
@@ -205,6 +205,11 @@ module.exports = {
       errors.push("vector of status");
     }
 
+    console.log(delImg + ": " +typeof(delImg));
+    if(!delImg || !delImg.length) {
+      errors.push("vector of status");
+    }
+
 		if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
@@ -222,7 +227,7 @@ module.exports = {
 				if(passwordN && passwordN.length) {
 					if(!regEx.password.test(passwordN)) {
 						if(filename) {
-							fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 						}
 
 						return res.status(400).send("Invalid new password!");
@@ -230,7 +235,7 @@ module.exports = {
 
 					if(!bcrypt.compareSync(passwordO, user.password)) {
 						if(filename) {
-							fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 						}
 
 						return res.status(400).send("Old password don't match, try again!");
@@ -241,7 +246,7 @@ module.exports = {
 						hash = bcrypt.hashSync(passwordN, salt);
 					} catch(error) {
 						if(filename) {
-							fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 						}
 
 						return res.status(500).send(error.message);
@@ -254,7 +259,7 @@ module.exports = {
         
         if(user.cards.length != s.length) {
           if(filename) {
-            fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
           }
 
           return res.status(400).send("vector length of status");
@@ -287,10 +292,16 @@ module.exports = {
           user.address = address && address.length ? address.split(",").map(a => a.trim()) : null;
         }
 
+        var deleteThumbnail = filename || (delImg === "true") ? user.thumbnail : null;
+        
         user.thumbnail = filename;
 
 				user.save().then((response) => {
 					if(response) {
+            if(deleteThumbnail && (deleteThumbnail != user.thumbnail) || (delImg === "true")) {
+							fs.unlinkSync(`${__dirname}/uploads/${deleteThumbnail}`);
+            }
+
 						users.find().sort({
 							userType: "desc"
 						}).then((response) => {
@@ -302,28 +313,28 @@ module.exports = {
 						return res.status(200).send("Successful on changing your data!");
 					} else {
 						if(filename) {
-							fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 						}
 
 						return res.status(400).send("We couldn't save your changes, try again later!");
 					}
 				}).catch((error) => {
 					if(filename) {
-						fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 					}
 
 					return res.status(500).send(error);
 				});
 			} else {
 				if(filename) {
-					fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 				}
 
 				return res.status(404).send("User not found!" );
 			}
 		}).catch((error) => {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
 			}
 
 			return res.status(500).send(error);
@@ -488,7 +499,7 @@ module.exports = {
 								if(uDeleted){
 									try {
 										if(uDeleted.thumbnail){
-											fs.unlinkSync(`${__dirname}/../../uploads/${uDeleted.thumbnail}`);
+											fs.unlinkSync(`${__dirname}/uploads/${uDeleted.thumbnail}`);
 										}
 
 										users.find().sort({
