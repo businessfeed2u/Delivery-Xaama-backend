@@ -205,7 +205,6 @@ module.exports = {
       errors.push("vector of status");
     }
 
-    console.log(delImg + ": " +typeof(delImg));
     if(!delImg || !delImg.length) {
       errors.push("vector of status");
     }
