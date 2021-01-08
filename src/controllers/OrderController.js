@@ -23,9 +23,9 @@ const { systemOpen } = require("../helpers/systemOpen");
 
 //	Exporting Order features
 module.exports = {
-	//	Return an order on database given id
+	//	Return user orders
 	async index(req, res) {
-		const userId = req.params.id;
+		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			return res.status(400).send("Invalid id!");
@@ -111,7 +111,7 @@ module.exports = {
 
     const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     const cd = week[date.getDay()] + " às " + hour + ":" + minutes;
-    
+
     // Searching for a product or some addition of each product that is unavailable
     for(var product of products) {
       if(!product.product.available){
@@ -164,19 +164,19 @@ module.exports = {
 
     //	Calculate order total price
     var myMapTypesProducts = new Map();
-			
+
     if(products){
       for(x of products) {
         if(x.size >= 0 && x.size < x.product.prices.length) {
-          myMapTypesProducts.set(x && x.product.type ? x.product.type : "", 
-            myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size]) : 
+          myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
+            myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size]) :
               x.product.prices[x.size]);
         }
 
         if(x.additions && x.additions.length) {
           for(y of x.additions) {
-            myMapTypesProducts.set(x && x.product.type ? x.product.type : "", 
-              myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + y.price) : 
+            myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
+              myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + y.price) :
                 y.price);
           }
         }
@@ -185,11 +185,11 @@ module.exports = {
 
     // Calculate discount
     var d = 0;
-    
+
     if(user && user.cards && company && company.cards){
 			user.cards.map((card,index) => {
 				card.completed && !card.status && myMapTypesProducts && myMapTypesProducts.get(card.cardFidelity) ?
-					d = parseInt(d) + parseInt((company.cards[index].discount < myMapTypesProducts.get(card.cardFidelity) ? 
+					d = parseInt(d) + parseInt((company.cards[index].discount < myMapTypesProducts.get(card.cardFidelity) ?
 						company.cards[index].discount : myMapTypesProducts.get(card.cardFidelity)))
 					:
 					null;
