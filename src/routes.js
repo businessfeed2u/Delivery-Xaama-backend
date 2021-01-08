@@ -27,7 +27,7 @@ routes.get("/", (req, res) => {
 });
 
 //	Session
-routes.get("/session", SessionController.index);
+routes.get("/session", authorization.verify, SessionController.index);
 routes.post("/session", SessionController.create);
 
 //	Company
@@ -40,11 +40,11 @@ routes.post("/company", authorization.admin, upload.array("images", 4), companyC
 routes.post("/company", authorization.admin, upload.single("logo"), companyController.manageCompanyData);
 
 //	User
-routes.get("/user/:id", UserController.index);
-routes.post("/user", upload.single("thumbnail"), UserController.create);
-routes.put("/user", upload.single("thumbnail"), UserController.update);
+routes.get("/userData", authorization.verify, UserController.index);
+routes.post("/user", authorization.verify, upload.single("thumbnail"), UserController.create);
+routes.put("/user", authorization.verify, upload.single("thumbnail"), UserController.update);
 routes.put("/user/:id", authorization.admin, UserController.updateCard);
-routes.delete("/user", UserController.delete);
+routes.delete("/user", authorization.verify, UserController.delete);
 routes.get("/user", authorization.admin, UserController.all);
 
 //	Product

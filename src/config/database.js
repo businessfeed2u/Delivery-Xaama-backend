@@ -1,6 +1,6 @@
 //	Loading mongoose and dotenv modules
 const mongoose = require("mongoose");
-const dotenv = require("dotenv").config();
+require("dotenv").config();
 
 //	Setting up mongoose
 mongoose.Promise = global.Promise;

@@ -26,7 +26,7 @@ var __dirname = path.resolve();
 module.exports = {
 	//	Return an user on database given email
 	async index(req, res) {
-		const userId = req.params.id;
+		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			return res.status(400).send("Invalid id!");
@@ -49,7 +49,7 @@ module.exports = {
 		const filename = (req.file) ? req.file.filename : null;
 		const sendSocketMessageTo = await findConnections();
     var errors = [];
-    
+
 
 		if(!name || !name.length) {
 			errors.push("name");
@@ -66,13 +66,13 @@ module.exports = {
 		if(!passwordC || !passwordC.length || !regEx.password.test(passwordC)) {
 			errors.push("password confirmation");
 		}
-    
+
     //	Validating cards fidelity
     if(!cards || !cards.length) {
       errors.push("cards");
     } else {
       var Company;
-      
+
       await companyData.findOne({}).then((response) => {
         if(response) {
           Company = response;
@@ -82,10 +82,10 @@ module.exports = {
       }).catch(() => {
         errors.join("Erro ao carregar informações da empresa");
       });
-      
+
       var i = 0;
       for(const card of cards) {
-        if(!Company.cards || !Company.cards[i] || 
+        if(!Company.cards || !Company.cards[i] ||
           (card.cardFidelity.type != Company.cards[i].type) ||
           (card.cardFidelity.available != Company.cards[i].available) ||
           (card.cardFidelity.qtdMax != Company.cards[i].qtdMax) ||
@@ -104,7 +104,7 @@ module.exports = {
         i++;
       }
     }
-    
+
 		if(password !== passwordC) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
@@ -112,7 +112,7 @@ module.exports = {
 
 			return res.status(400).send("The password confirmation don't match, try again!");
     }
-    
+
     if(errors.length) {
 			if(filename) {
 				fs.unlinkSync(`${__dirname}/../../uploads/${filename}`);
@@ -306,8 +306,8 @@ module.exports = {
 
   // vai ir para o frontend:
   // var myMapTypesProducts = new Map();
-  // myMapTypesProducts.set(product.product.type, 
-  //   myMapTypesProducts.get(product.product.type) ? 
+  // myMapTypesProducts.set(product.product.type,
+  //   myMapTypesProducts.get(product.product.type) ?
   //   myMapTypesProducts.get(product.product.type) + 1 : 1);
 
   // TODO:
@@ -321,9 +321,9 @@ module.exports = {
     const userAdmId = req.headers.authorization;
     const userId = req.params.id;
 		const { cards } = req.body;
-		
+
     const sendSocketMessageTo = await findConnections();
-    
+
     var errors = [];
 
 		if(!userAdmId || !userAdmId.length || !mongoose.Types.ObjectId.isValid(userAdmId)) {
@@ -333,13 +333,13 @@ module.exports = {
     if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			errors.push("user id");
     }
-    
+
     //	Validating cards fidelity
     if(!cards || !cards.length) {
       errors.push("cards");
     } else {
       var Company;
-  
+
       await companyData.findOne({}).then((response) => {
         if(response) {
           Company = response;
@@ -349,11 +349,11 @@ module.exports = {
       }).catch(() => {
         errors.push("Erro ao carregar informações da empresa");
       });
-     
+
       var i = 0;
       for(const card of cards) {
-      
-        if(!Company.cards || !Company.cards[i] || 
+
+        if(!Company.cards || !Company.cards[i] ||
           (card.cardFidelity.type != Company.cards[i].type) ||
           (card.cardFidelity.available != Company.cards[i].available) ||
           (card.cardFidelity.qtdMax != Company.cards[i].qtdMax) ||
@@ -363,7 +363,7 @@ module.exports = {
             errors.push("card");
             break;
         }
-      
+
         if(card.qtdCurrent >= card.cardFidelity.qtdMax) {
           card.qtdCurrent = card.qtdCurrent - card.cardFidelity.qtdMax;
           if(card.qtdCurrent >= card.cardFidelity.qtdMax) {
@@ -393,11 +393,11 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
     });
-    
+
     await users.findById(userId).then((user) => {
       if(user) {
         user.cards = cards;
-        
+
         user.save().then((response) => {
           if(response) {
             users.find().sort({
@@ -415,7 +415,7 @@ module.exports = {
         }).catch((error) => {
           return res.status(500).send(error);
         });
-      
+
       } else {
         return res.status(404).send("User not found!" );
       }
@@ -448,7 +448,7 @@ module.exports = {
 		await users.findById(userId).then((user) => {
 			if(user) {
 				if(user.userType === 2) {
-					return res.status(401).send("Admin account can't be deleted");
+					return res.status(403).send("Admin account can't be deleted");
 				} else {
 					bcrypt.compare(password, user.password).then((match) => {
 						if(match) {

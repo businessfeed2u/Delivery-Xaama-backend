@@ -32,11 +32,11 @@ const userSchema = Schema({
 	thumbnail: {
 		type: String,
 		default: null
-  },
-  cards: {
-    type: [cardFidelityUserSchema],
-    default: null
-  },
+	},
+	cards: {
+		type: [cardFidelityUserSchema],
+		default: null
+	},
 	creationDate: {
 		type: Date,
 		default: Date.now()
