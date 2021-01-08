@@ -136,6 +136,11 @@ module.exports = {
 				return res.status(400).send("There is no company!");
 			}
 		}).catch((error) => {
+      if(images) {
+				for(const im of images){
+          fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
+        }
+			}
 			return res.status(500).send(error);
     });
 
