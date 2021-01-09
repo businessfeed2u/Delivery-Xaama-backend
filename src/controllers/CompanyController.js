@@ -49,10 +49,10 @@ module.exports = {
 	},
 
 	//	Create or update company data
-	async manageCompanyData(req, res) {
+	async update(req, res) {
 		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm,
 						timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
-		const images = req.files;
+		
 		var errors = [];
 
 		if(!name || !name.length) {
@@ -70,12 +70,8 @@ module.exports = {
 		if(address && address.length && !regEx.address.test(address)) {
 			errors.push("address");
 		}
-
-		if(!freight || !freight.length) {
-			errors.push("freight empty");
-    }
     
-    if(parseInt(freight) < 1 || parseInt(freight) > 10) {
+    if(freight < 1 || freight > 10) {
       errors.push("freight wrong");
     }
 
@@ -85,42 +81,12 @@ module.exports = {
     
     const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
 
-		if(!manual || !manual.length || (manual != "false" && manual != "true")) {
-			errors.push("manual is wrong!");
-		}
-
-		if(!systemOpenByAdm || !systemOpenByAdm.length || (systemOpenByAdm != "false" && systemOpenByAdm != "true")) {
-			errors.push("systemOpenByAdm is wrong!");
-		}
-
-		if(!timeWithdrawal || !timeWithdrawal.length) {
-				errors.push("timeWithdrawal");
-		}
-
-		if(!timeDeliveryI || !timeDeliveryI.length) {
-				errors.push("timeDeliveryI");
-		}
-
-		if(!timeDeliveryF || !timeDeliveryF.length) {
-				errors.push("timeDeliveryF");
-		}
-
-		const tWithdrawal = parseInt(timeWithdrawal);
-		const tDeliveryI = parseInt(timeDeliveryI);
-		const tDeliveryF = parseInt(timeDeliveryF);
-
-		if(tWithdrawal < 10 || tDeliveryI < 10 || tDeliveryF < 10
-		|| tDeliveryI > tDeliveryF || tDeliveryI === tDeliveryF) {
+		if(timeWithdrawal < 10 || timeDeliveryI < 10 || timeDeliveryF < 10
+		|| timeDeliveryI > timeDeliveryF || timeDeliveryI === timeDeliveryF) {
 				errors.push("timeDelivery or timeWithdrawal");
     }
 
 		if(errors.length) {
-			if(images) {
-				for(const im of images){
-          fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
-        }
-			}
-
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
@@ -132,19 +98,9 @@ module.exports = {
 			if(response) {
 				company = response;
 			} else {
-        if(images) {
-          for(const im of images){
-            fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
-          }
-        }
 				return res.status(400).send("There is no company!");
 			}
 		}).catch((error) => {
-      if(images) {
-				for(const im of images){
-          fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
-        }
-			}
 			return res.status(500).send(error);
     });
 
@@ -176,31 +132,16 @@ module.exports = {
 			email,
 			phone,
 			address,
-			freight: parseInt(freight),
+			freight: freight,
 			productTypes: typesP,
-			logo: images && images[0] ? images[0].filename : null,
-			carousel: [
-				images && images[1] ? images[1].filename : null,
-				images && images[2] ? images[2].filename : null,
-				images && images[3] ? images[3].filename : null
-			],
-			manual: (manual === "true"),
-			systemOpenByAdm: (systemOpenByAdm === "true"),
-			timeWithdrawal: tWithdrawal,
-			timeDeliveryI: tDeliveryI,
-      timeDeliveryF: tDeliveryF,
+			manual,
+			systemOpenByAdm,
+			timeWithdrawal,
+			timeDeliveryI,
+      timeDeliveryF,
       cards: data
 		}).then((response) => {
 			if(response) {
-				try {
-          fs.unlinkSync(`${__dirname}/uploads/${response.logo}`);
-					for(const im of response.carousel) {
-            fs.unlinkSync(`${__dirname}/uploads/${im}`);
-          }
-				} catch(error) {
-					//
-				}
-
 				return res.status(200).send("The company data has been updated!");
 			} else {
 				companyData.create({
@@ -210,34 +151,67 @@ module.exports = {
 					address,
 					freight,
 					productTypes: typesP,
-					logo: images && images[0] ? images[0].filename : null,
-					carousel: [
-						images && images[1] ? images[1].filename : null,
-						images && images[2] ? images[2].filename : null,
-						images && images[3] ? images[3].filename : null
-					],
-					manual: (manual === "true"),
-          systemOpenByAdm: (systemOpenByAdm === "true"),
+					manual,
+          systemOpenByAdm,
           cards: data
 				}).then((company) => {
 					if(company) {
 						return res.status(201).json(company);
 					} else {
-						if(images) {
-							for(const im of images)
-								fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
-						}
-
 						return res.status(400).send("We couldn't process your request, try again later!");
 					}
 				}).catch((error) => {
-					if(images) {
-						for(const im of images)
-							fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
-					}
-
 					return res.status(500).send(error);
 				});
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
+  },
+
+  //	Update logo company
+	async updateLogo(req, res) {
+    const logo = (req.file) ? req.file.filename : null;
+
+		await companyData.findOneAndUpdate({}, {
+			logo: logo ? logo : null,
+			
+		}).then((response) => {
+			if(response) {
+        if(response.logo) {
+          fs.unlinkSync(`${__dirname}/uploads/${response.logo}`);
+        }
+				
+				return res.status(200).send("The company data has been updated!");
+			}
+		}).catch((error) => {
+			if(logo) {
+        fs.unlinkSync(`${__dirname}/uploads/${logo}`);
+      }
+
+			return res.status(500).send(error);
+		});
+  },
+
+  //	Update Carousel company
+	async updateCarousel(req, res) {
+		const images = req.files;
+
+		await companyData.findOneAndUpdate({}, {
+			carousel: [
+				images && images[0] ? images[0].filename : null,
+				images && images[1] ? images[1].filename : null,
+				images && images[2] ? images[2].filename : null
+			]
+		}).then((response) => {
+			if(response) {
+				if(response.carousel) {
+					for(const im of response.carousel) {
+            fs.unlinkSync(`${__dirname}/uploads/${im}`);
+          }
+				} 
+
+				return res.status(200).send("The company data has been updated!");
 			}
 		}).catch((error) => {
 			if(images) {
@@ -250,7 +224,7 @@ module.exports = {
   },
 
 	//	Update current user on database
-	async update(req, res) {
+	async updateUser(req, res) {
 		const userId = req.headers.authorization;
 		const { userUpdateId, type, password } = req.body;
 		var errors = [];
