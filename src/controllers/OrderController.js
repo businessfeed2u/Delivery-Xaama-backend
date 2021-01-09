@@ -107,7 +107,7 @@ module.exports = {
     var minutes = date.getMinutes();
 
     hour = (hour < 10) ? "0" + hour : hour;
-    minutes = (minutes < 10) ? minutes + "0" : minutes;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
 
     const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     const cd = week[date.getDay()] + " às " + hour + ":" + minutes;
