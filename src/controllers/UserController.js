@@ -210,7 +210,7 @@ module.exports = {
 		}
 
     if(!delImg || !delImg.length) {
-      errors.push("vector of status");
+      errors.push("img");
     }
 
 		if(errors.length) {
