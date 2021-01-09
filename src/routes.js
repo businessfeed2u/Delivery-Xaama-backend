@@ -41,7 +41,7 @@ routes.post("/company", authorization.admin, upload.single("logo"), companyContr
 
 //	User
 routes.get("/userData", authorization.verify, UserController.index);
-routes.post("/user", authorization.verify, upload.single("thumbnail"), UserController.create);
+routes.post("/user", upload.single("thumbnail"), UserController.create);
 routes.put("/user", authorization.verify, upload.single("thumbnail"), UserController.update);
 routes.put("/userUpdateCard", authorization.manager, UserController.updateCard);
 routes.put("/userCard", authorization.admin, UserController.updateAll);

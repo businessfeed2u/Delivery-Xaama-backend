@@ -1,6 +1,7 @@
 //  Loading database and bcryptjs modules
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 //	Loading User schema and Users collection from database
 require("../models/User");
@@ -141,10 +142,13 @@ module.exports = {
 					password: hash,
 					thumbnail: filename,
 					cards: cards,
-				}).then((response) => {
-					if(response) {
-						sendMessage(sendSocketMessageTo, "new-user", response);
-						return res.status(201).json(response);
+				}).then((user) => {
+					if(user) {
+            sendMessage(sendSocketMessageTo, "new-user", user);
+            const token = jwt.sign({ user }, process.env.SECRET, {
+							expiresIn: 86400
+						});
+						return res.status(200).json({ user, token });
 					} else {
 						if(filename) {
 							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
