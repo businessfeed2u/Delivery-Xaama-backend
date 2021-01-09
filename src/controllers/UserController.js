@@ -286,8 +286,13 @@ module.exports = {
         user.cards = data;
 				user.name = name;
 				user.email = email.trim().toLowerCase();
-				user.password = hash;
-        user.phone = phone && phone.length ? phone : null;
+        user.password = hash;
+        
+        if(phone == "99999999999") {
+          user.phone = null;
+        } else {
+          user.phone = phone && phone.length ? phone : null;
+        }
         
         if(address == "Rua, 1, Bairro, Casa") {
           user.address = null;
