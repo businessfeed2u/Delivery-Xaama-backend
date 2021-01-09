@@ -177,7 +177,7 @@ module.exports = {
 	async update(req, res) {
     const userId = req.headers.authorization;
 		const { name, email, passwordO, passwordN, address, phone, status } = req.body;
-		const sendSocketMessageTo = await findConnections();
+    const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			return res.status(400).send("Invalid id!");
@@ -232,10 +232,8 @@ module.exports = {
 				} else {
 					hash = user.password;
         }
-
-        var s = status.split(",");
         
-        if(user.cards.length != s.length) {
+        if(user.cards.length != status.length) {
           return res.status(400).send("vector length of status");
         }
 
@@ -247,7 +245,7 @@ module.exports = {
             cardFidelity: u.cardFidelity,
             qtdCurrent: u.qtdCurrent,
             completed: u.completed,
-            status: (s[i] === "true")
+            status: status[i]
           };
           
           data.push(newCard);
@@ -299,9 +297,9 @@ module.exports = {
   //	Update current user on database
 	async updateThumbnail(req, res) {
     const userId = req.headers.authorization;
-    const delImg = req.body;
+    const {delImg} = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-		const sendSocketMessageTo = await findConnections();
+    const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			if(filename) {
