@@ -72,8 +72,12 @@ module.exports = {
 		}
 
 		if(!freight || !freight.length) {
-			errors.push("freight");
-		}
+			errors.push("freight empty");
+    }
+    
+    if(parseInt(freight) < 1 || parseInt(freight) > 10) {
+      errors.push("freight wrong");
+    }
 
 		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
 			errors.push("product type(s)");
@@ -172,7 +176,7 @@ module.exports = {
 			email,
 			phone,
 			address,
-			freight,
+			freight: parseInt(freight),
 			productTypes: typesP,
 			logo: images && images[0] ? images[0].filename : null,
 			carousel: [
