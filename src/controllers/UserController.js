@@ -176,15 +176,10 @@ module.exports = {
 	//	Update current user on database
 	async update(req, res) {
     const userId = req.headers.authorization;
-		const { name, email, passwordO, passwordN, address, phone, status, delImg } = req.body;
-		const filename = (req.file) ? req.file.filename : null;
+		const { name, email, passwordO, passwordN, address, phone, status } = req.body;
 		const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
-
 			return res.status(400).send("Invalid id!");
 		}
 		var errors = [];
@@ -209,15 +204,7 @@ module.exports = {
 			errors.push("vector of status");
 		}
 
-    if(!delImg || !delImg.length) {
-      errors.push("img");
-    }
-
 		if(errors.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
-
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
@@ -229,18 +216,10 @@ module.exports = {
 
 				if(passwordN && passwordN.length) {
 					if(!regEx.password.test(passwordN)) {
-						if(filename) {
-							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-						}
-
 						return res.status(400).send("Invalid new password!");
 					}
 
 					if(!bcrypt.compareSync(passwordO, user.password)) {
-						if(filename) {
-							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-						}
-
 						return res.status(400).send("Old password don't match, try again!");
 					}
 
@@ -248,10 +227,6 @@ module.exports = {
 						const salt = bcrypt.genSaltSync(10);
 						hash = bcrypt.hashSync(passwordN, salt);
 					} catch(error) {
-						if(filename) {
-							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-						}
-
 						return res.status(500).send(error.message);
 					}
 				} else {
@@ -261,10 +236,6 @@ module.exports = {
         var s = status.split(",");
         
         if(user.cards.length != s.length) {
-          if(filename) {
-            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-          }
-
           return res.status(400).send("vector length of status");
         }
 
@@ -299,6 +270,57 @@ module.exports = {
         } else {
           user.address = address && address.length ? address.split(",").map(a => a.trim()) : null;
         }
+
+				user.save().then((response) => {
+					if(response) {
+						users.find().sort({
+							userType: "desc"
+						}).then((response) => {
+							sendMessage(sendSocketMessageTo, "update-user", response);
+						}).catch((error) => {
+							return res.status(500).send(error);
+						});
+
+						return res.status(200).send("Successful on changing your data!");
+					} else {
+						return res.status(400).send("We couldn't save your changes, try again later!");
+					}
+				}).catch((error) => {
+					return res.status(500).send(error);
+				});
+			} else {
+				return res.status(404).send("User not found!" );
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
+  },
+
+  //	Update current user on database
+	async updateThumbnail(req, res) {
+    const userId = req.headers.authorization;
+    const delImg = req.body;
+		const filename = (req.file) ? req.file.filename : null;
+		const sendSocketMessageTo = await findConnections();
+
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			if(filename) {
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+			}
+
+			return res.status(400).send("Invalid id!");
+    }
+    
+    if(!delImg || !delImg.length) {
+      if(filename) {
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+      }
+      
+      return res.status(400).send("Invalid delImg!");
+    }
+
+		await users.findById(userId).then((user) => {
+			if(user) {
 
         var deleteThumbnail = filename || (delImg === "true") ? user.thumbnail : null;
         
