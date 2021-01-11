@@ -52,7 +52,7 @@ module.exports = {
 	async update(req, res) {
 		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm,
 						timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
-		
+    
 		var errors = [];
 
 		if(!name || !name.length) {
@@ -195,19 +195,21 @@ module.exports = {
 
   //	Update Carousel company
 	async updateCarousel(req, res) {
-		const images = req.files;
+    const images = (req.files) ? req.files : null;
 
 		await companyData.findOneAndUpdate({}, {
 			carousel: [
-				images && images[0] ? images[0].filename : null,
-				images && images[1] ? images[1].filename : null,
-				images && images[2] ? images[2].filename : null
+				images && images[0].filename ? images[0].filename : null,
+				images && images[1].filename ? images[1].filename : null,
+				images && images[2].filename ? images[2].filename : null
 			]
 		}).then((response) => {
 			if(response) {
 				if(response.carousel) {
 					for(const im of response.carousel) {
-            fs.unlinkSync(`${__dirname}/uploads/${im}`);
+            if(im != null) {
+              fs.unlinkSync(`${__dirname}/uploads/${im}`);
+            }
           }
 				} 
 
@@ -215,8 +217,11 @@ module.exports = {
 			}
 		}).catch((error) => {
 			if(images) {
-				for(const im of images)
-					fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
+				for(const im of images) {
+          if(im != null) {
+            fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
+          }
+        }
 			}
 
 			return res.status(500).send(error);

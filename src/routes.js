@@ -34,11 +34,11 @@ routes.post("/session", SessionController.create);
 routes.get("/productTypes", companyController.productTypes);
 routes.get("/company", companyController.companyData);
 routes.put("/companyUser", authorization.admin, companyController.updateUser);
-routes.put("/companyUpdateCards", authorization.manager, companyController.updateCards);
+routes.put("/companyUpdateCards", authorization.admin, companyController.updateCards);
 routes.put("/companyUpdateTimetable", authorization.admin, companyController.updateOpeningHours);
 routes.put("/company", authorization.admin, companyController.update);
-routes.post("/companyLogo", authorization.admin, upload.array("images", 3), companyController.updateLogo);
-routes.post("/companyCarousel", authorization.admin, upload.single("logo"), companyController.updateCarousel);
+routes.put("/companyLogo", authorization.admin, upload.single("logo"), companyController.updateLogo);
+routes.put("/companyCarousel", authorization.admin, upload.array("images", 3), companyController.updateCarousel);
 
 //	User
 routes.get("/userData", authorization.verify, UserController.index);
