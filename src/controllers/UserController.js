@@ -97,30 +97,38 @@ module.exports = {
 		}
 
 		if(password !== passwordC) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
-
-			return res.status(400).send("The password confirmation don't match, try again!");
+      if(filename) {
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        } catch(error) {
+          return res.status(500).send(error);
+        }
+      }
+      return res.status(400).send("The password confirmation don't match, try again!");
 	}
 
 	if(errors.length) {
-			if(filename) {
+    if(filename) {
+      try {
 				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
-
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
-
-			return res.status(400).send(message);
+			} catch(error) {
+				return res.status(500).send(error);
+      }
+    }
+    const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+    return res.status(400).send(message);
 	}
 
 		await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
 			if(response) {
-				if(filename) {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				}
-
-				return res.status(400).send("There is a user using this email, try another!");
+        if(filename) {
+          try {
+            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+          } catch(error) {
+            return res.status(500).send(error);
+          }
+        }
+        return res.status(400).send("There is a user using this email, try another!");
 			} else {
 				var salt = 0, hash = "";
 
@@ -128,11 +136,14 @@ module.exports = {
 					salt = bcrypt.genSaltSync(10);
 					hash = bcrypt.hashSync(password, salt);
 				} catch(error) {
-					if(filename) {
-						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-					}
-
-					return res.status(500).send(error.message);
+          if(filename) {
+            try {
+              fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+            } catch(e) {
+              return res.status(500).send(e);
+            }
+          }
+          return res.status(500).send(error);
 				}
 
 				users.create({
@@ -150,26 +161,35 @@ module.exports = {
 						});
 						return res.status(200).json({ user, token });
 					} else {
-						if(filename) {
-							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-						}
-
-						return res.status(400).send("We couldn't process your request, try again later!");
+            if(filename) {
+              try {
+                fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+              } catch(e) {
+                return res.status(500).send(e);
+              }
+            }
+            return res.status(400).send("We couldn't process your request, try again later!");
 					}
 				}).catch((error) => {
-					if(filename) {
-						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-					}
-
-					return res.status(500).send(error);
+          if(filename) {
+            try {
+              fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+            } catch(e) {
+              return res.status(500).send(e);
+            }
+          }
+          return res.status(500).send(error);
 				});
 			}
 		}).catch((error) => {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
-
-			return res.status(500).send(error);
+      if(filename) {
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        } catch(e) {
+          return res.status(500).send(e);
+        }
+      }
+      return res.status(500).send(error);
 		});
 	},
 
@@ -302,18 +322,24 @@ module.exports = {
     const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
-
-			return res.status(400).send("Invalid id!");
+      if(filename) {
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        } catch(e) {
+          return res.status(500).send(e);
+        }
+      }
+      return res.status(400).send("Invalid id!");
     }
     
     if(!delImg || !delImg.length) {
       if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        } catch(e) {
+          return res.status(500).send(e);
+        }
       }
-      
       return res.status(400).send("Invalid delImg!");
     }
 
@@ -327,7 +353,11 @@ module.exports = {
 				user.save().then((response) => {
 					if(response) {
             if(deleteThumbnail && (deleteThumbnail != user.thumbnail) || (delImg === "true")) {
-							fs.unlinkSync(`${__dirname}/uploads/${deleteThumbnail}`);
+							try {
+                fs.unlinkSync(`${__dirname}/uploads/${deleteThumbnail}`);
+              } catch(e) {
+                //
+              }	
             }
 
 						users.find().sort({
@@ -340,30 +370,46 @@ module.exports = {
 
 						return res.status(200).send("Successful on changing your data!");
 					} else {
-						if(filename) {
-							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-						}
-
+            if(filename) {
+              try {
+                fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+              } catch(e) {
+                return res.status(500).send(e);
+              }
+            }
+          
 						return res.status(400).send("We couldn't save your changes, try again later!");
 					}
 				}).catch((error) => {
 					if(filename) {
-						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-					}
+            try {
+              fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+            } catch(e) {
+              return res.status(500).send(e);
+            }
+          }
 
 					return res.status(500).send(error);
 				});
 			} else {
 				if(filename) {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				}
+          try {
+            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+          } catch(e) {
+            return res.status(500).send(e);
+          }
+        }
 
 				return res.status(404).send("User not found!" );
 			}
 		}).catch((error) => {
 			if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        } catch(e) {
+          return res.status(500).send(e);
+        }
+      }
 
 			return res.status(500).send(error);
 		});
@@ -523,8 +569,8 @@ module.exports = {
 									try {
 										if(uDeleted.thumbnail){
 											fs.unlinkSync(`${__dirname}/uploads/${uDeleted.thumbnail}`);
-										}
-
+                    }
+                    
 										users.find().sort({
 											userType: "desc"
 										}).then((response) => {
