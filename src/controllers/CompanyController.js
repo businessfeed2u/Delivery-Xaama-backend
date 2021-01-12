@@ -169,60 +169,110 @@ module.exports = {
 		});
   },
 
-  //	Update logo company
-	async updateLogo(req, res) {
-    const logo = (req.file) ? req.file.filename : null;
+  //	Update images for company
+	async updateImages(req, res) {
+    const { op } = req.body;
+    const image = (req.file) ? req.file.filename : null;
 
-		await companyData.findOneAndUpdate({}, {
-			logo: logo ? logo : null,
-			
-		}).then((response) => {
-			if(response) {
-        if(response.logo) {
-          fs.unlinkSync(`${__dirname}/uploads/${response.logo}`);
-        }
-				
-				return res.status(200).send("The company data has been updated!");
-			}
-		}).catch((error) => {
-			if(logo) {
-        fs.unlinkSync(`${__dirname}/uploads/${logo}`);
+    if(!op || !op.length) {
+      if(image) {
+        fs.unlinkSync(`${__dirname}/uploads/${image}`);
       }
 
-			return res.status(500).send(error);
-		});
-  },
-
-  //	Update Carousel company
-	async updateCarousel(req, res) {
-    const images = (req.files) ? req.files : null;
-
-		await companyData.findOneAndUpdate({}, {
-			carousel: [
-				images && images[0].filename ? images[0].filename : null,
-				images && images[1].filename ? images[1].filename : null,
-				images && images[2].filename ? images[2].filename : null
-			]
-		}).then((response) => {
-			if(response) {
-				if(response.carousel) {
-					for(const im of response.carousel) {
-            if(im != null) {
-              fs.unlinkSync(`${__dirname}/uploads/${im}`);
+      return res.status(400).send("Invalid op value!");
+    }
+    
+    var im = null;
+    var data = [];
+    var i = 0;
+    
+    await companyData.findOne({}).then((company) => {
+			if(company) {
+        if(op === "logo") {
+          im = company.logo;
+          company.logo = image ? image : company.logo;
+        } else if(op === "c1") {
+          im = company.carousel[0] ? company.carousel[0] : null;
+          
+          data = [];
+          i = 0;
+          
+          for(let c of company.carousel) {
+            if(i == 0) {
+              data.push(image);
+            } else {
+              data.push(c);
             }
+            i++;
           }
-				} 
 
-				return res.status(200).send("The company data has been updated!");
+          company.carousel = data;
+        } else if(op === "c2") {
+          im = company.carousel[1] ? company.carousel[1] : null;
+          
+          data = [];
+          i = 0;
+          
+          for(let c of company.carousel) {
+            if(i == 1) {
+              data.push(image);
+            } else {
+              data.push(c);
+            }
+            i++;
+          }
+
+          company.carousel = data;
+        } else if(op === "c3") {
+          im = company.carousel[2] ? company.carousel[2] : null;
+          
+          data = [];
+          i = 0;
+          
+          for(let c of company.carousel) {
+            if(i == 2) {
+              data.push(image);
+            } else {
+              data.push(c);
+            }
+            i++;
+          }
+
+          company.carousel = data;
+        } else {
+          if(image) {
+            fs.unlinkSync(`${__dirname}/uploads/${image}`);
+          }
+
+          return res.status(400).send("Invalid op value!");
+        }
+        
+        company.save().then((response) => {
+					if(response) {
+            if(im && (im != company.thumbnail)) {
+							fs.unlinkSync(`${__dirname}/uploads/${im}`);
+            }
+
+						return res.status(200).send("The company data has been updated!");
+					} else {
+						if(im) {
+							fs.unlinkSync(`${__dirname}/uploads/${im}`);
+						}
+
+						return res.status(400).send("We couldn't save your changes, try again later!");
+					}
+				}).catch((error) => {
+					if(im) {
+						fs.unlinkSync(`${__dirname}/uploads/${im}`);
+					}
+
+					return res.status(500).send(error);
+				});
 			}
 		}).catch((error) => {
-			if(images) {
-				for(const im of images) {
-          if(im != null) {
-            fs.unlinkSync(`${__dirname}/uploads/${im.filename}`);
-          }
-        }
-			}
+			if(image) {
+        fs.unlinkSync(`${__dirname}/uploads/${image}`);
+      }
 
 			return res.status(500).send(error);
 		});

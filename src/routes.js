@@ -37,8 +37,7 @@ routes.put("/companyUser", authorization.admin, companyController.updateUser);
 routes.put("/companyUpdateCards", authorization.admin, companyController.updateCards);
 routes.put("/companyUpdateTimetable", authorization.admin, companyController.updateOpeningHours);
 routes.put("/company", authorization.admin, companyController.update);
-routes.put("/companyLogo", authorization.admin, upload.single("logo"), companyController.updateLogo);
-routes.put("/companyCarousel", authorization.admin, upload.array("images", 3), companyController.updateCarousel);
+routes.put("/companyImages", authorization.admin, upload.single("image"), companyController.updateImages);
 
 //	User
 routes.get("/userData", authorization.verify, UserController.index);
