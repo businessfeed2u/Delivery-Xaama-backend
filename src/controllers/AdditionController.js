@@ -55,13 +55,13 @@ module.exports = {
 		}
 
 		if(errors.length) {
-			if(filename) {
+			try {
 				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-      }
-
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
-
-			return res.status(400).send(message);
+				const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+				return res.status(400).send(message);
+			} catch(error) {
+				return res.status(500).send(error);
+			}
 		}
 
 		await additions.create({
@@ -73,18 +73,20 @@ module.exports = {
 			if(response) {
 				return res.status(201).send("Addition created successfully!");
 			} else {
-				if(filename) {
+				try {
 					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					return res.status(400).send("We couldn't create a new addition, try again later!");
+				} catch(error) {
+					return res.status(500).send(error);
 				}
-
-				return res.status(400).send("We couldn't create a new addition, try again later!");
 			}
 		}).catch((error) => {
-			if(filename) {
+			try {
 				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
-
-			return res.status(500).send(error);
+				return res.status(500).send(error);
+			} catch(e) {
+				return res.status(500).send(e);
+			}			
 		});
 	},
 
@@ -109,7 +111,7 @@ module.exports = {
 
 		if(!regEx.price.test(price)) {
 			errors.push("price");
-    }
+		}
 
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
@@ -121,7 +123,7 @@ module.exports = {
 			name,
 			type: type.split(",").map(t => t.trim().toLowerCase()),
 			price,
-      available: available
+			available: available
 		}).then((response) => {
 			if(response) {
 				return res.status(200).send("The addition has been updated!");
@@ -131,43 +133,48 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-  },
-  
-  //	Update a specific addition
+	},
+	
+	//	Update a specific addition
 	async updateThumbnail(req, res) {
 		const additionId = req.params.id;
 		const filename = (req.file) ? req.file.filename : null;
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-      if(filename) {
-        fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-      }
-
-      return res.status(400).send("Invalid additionId value!");
+			try {
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				return res.status(400).send("Invalid additionId value!");
+			} catch(error) {
+				return res.status(500).send(error);
+			}
 		}
 
 		await additions.findByIdAndUpdate(additionId, {
-      thumbnail: filename
+			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-				if(response.thumbnail) {
+				try {
 					fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
+					return res.status(200).send("The addition has been updated!");
+				} catch(error) {
+					return res.status(200).send("The addition has been updated, but thumbnail is not find!");
 				}
 
-				return res.status(200).send("The addition has been updated!");
 			} else {
-        if(filename) {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        }
-
-				return res.status(404).send("Addition not found!");
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					return res.status(404).send("Addition not found!");
+				} catch(error) {
+					return res.status(500).send(error);
+				}
 			}
 		}).catch((error) => {
-      if(filename) {
-        fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-      }
-
-			return res.status(500).send(error);
+			try {
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				return res.status(500).send(error);
+			} catch(e) {
+				return res.status(500).send(e);
+			}
 		});
 	},
 
@@ -199,8 +206,8 @@ module.exports = {
 	//	Return all additions additions
 	async all(req, res) {
 		await additions.find().sort({
-      type: "asc",
-      available: "desc",
+			type: "asc",
+			available: "desc",
 			name: "asc",
 			price: "asc",
 			creationDate: "asc"
