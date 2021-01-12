@@ -63,21 +63,22 @@ module.exports = {
 		}
 
 		if(errors.length) {
-			if(filename) {
+			try {
 				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+				return res.status(400).send(message);
+			} catch(error) {
+				return res.status(500).send(error);
 			}
-
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
-
-			return res.status(400).send(message);
 		}
 
 		if(sizes.split(",").length !== prices.split(",").length) {
-			if(filename) {
+			try {
 				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				return res.status(400).send("Prices and sizes don't have the same length!");
+			} catch(error) {
+				return res.status(500).send(error);
 			}
-
-			return res.status(400).send("Prices and sizes don't have the same length!");
 		}
 
 		await products.create({
@@ -91,18 +92,20 @@ module.exports = {
 			if(response) {
 				return res.status(201).send("Product created successfully!");
 			} else {
-				if(filename) {
+				try {
 					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					return res.status(400).send("We couldn't create a new product, try again later!");
+				} catch(error) {
+					return res.status(500).send(error);
 				}
-
-				return res.status(400).send("We couldn't create a new product, try again later!");
 			}
 		}).catch((error) => {
-			if(filename) {
+			try {
 				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				return res.status(500).send(error);
+			} catch(e) {
+				return res.status(500).send(e);
 			}
-
-			return res.status(500).send(error);
 		});
 	},
 
@@ -110,9 +113,9 @@ module.exports = {
 	async update(req, res) {
 		const productId = req.params.id;
 		const { name, ingredients, type, prices, sizes, available } = req.body;
-		const filename = (req.file) ? req.file.filename : null;
-    var errors = [];
-  
+		
+		var errors = [];
+	
 		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
 			errors.push("id");
 		}
@@ -135,29 +138,17 @@ module.exports = {
 
 		if(!sizes || !sizes.length || !regEx.seq.test(sizes)) {
 			errors.push("size(s)");
-    }
-    
-    if(!available || !available.length || (available != "false" && available != "true")) {
-      errors.push("Available is wrong!");
 		}
 
 		if(errors.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
-
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
 		}
 
 		if(sizes.split(",").length !== prices.split(",").length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
-
 			return res.status(400).send("Prices and sizes don't have the same length!");
-    }
+		}
 
 		await products.findByIdAndUpdate(productId, {
 			name,
@@ -165,25 +156,52 @@ module.exports = {
 			sizes: sizes.split(",").map(s => s.trim().toLowerCase()),
 			type: type.trim().toLowerCase(),
 			prices: prices.split(",").map(p => parseFloat(p.trim())),
-      thumbnail: filename,
-      available: (available === "true")
+			available: available
 		}).then((response) => {
 			if(response) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
-				} catch(error) {
-					//
-				}
-
 				return res.status(200).send("The product has been updated!");
 			} else {
 				return res.status(404).send("Product not found!");
 			}
 		}).catch((error) => {
-      if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
 			return res.status(500).send(error);
+		});
+	},
+	
+	//	Update a specific product
+	async updateThumbnail(req, res) {
+		const productId = req.params.id;
+		const filename = (req.file) ? req.file.filename : null;
+	
+		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
+			return res.status(400).send("Invalid productId value");
+		}
+
+		await products.findByIdAndUpdate(productId, {
+			thumbnail: filename
+		}).then((response) => {
+			if(response) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
+					return res.status(200).send("The product has been updated!");
+				} catch(error) {
+					return res.status(200).send("The product has been updated, but thumbnail old is not find!");
+				}
+			} else {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					return res.status(404).send("Product not found!");
+				} catch(error) {
+					return res.status(404).send("Product and thumbnail not found!");
+				}
+			}
+		}).catch((error) => {
+			try {
+				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				return res.status(500).send(error);
+			} catch(e) {
+				return res.status(500).send(e);
+			}
 		});
 	},
 
@@ -215,8 +233,8 @@ module.exports = {
 	//	Return all products
 	async all(req, res) {
 		await products.find().sort({
-      type: "asc",
-      available: "desc",
+			type: "asc",
+			available: "desc",
 			name: "asc",
 			creationDate: "asc"
 		}).then((response) => {

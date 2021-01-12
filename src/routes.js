@@ -52,7 +52,8 @@ routes.get("/user", authorization.admin, UserController.all);
 //	Product
 routes.get("/product/:id", ProductController.index);
 routes.post("/product", authorization.manager, upload.single("thumbnail"), ProductController.create);
-routes.put("/product/:id", authorization.manager, upload.single("thumbnail"), ProductController.update);
+routes.put("/product/:id", authorization.manager, ProductController.update);
+routes.put("/productThumbnail/:id", authorization.manager, upload.single("thumbnail"), ProductController.updateThumbnail);
 routes.delete("/product/:id", authorization.manager, ProductController.delete);
 routes.get("/product", ProductController.all);
 
