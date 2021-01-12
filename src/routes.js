@@ -59,7 +59,8 @@ routes.get("/product", ProductController.all);
 //	Product addition
 routes.get("/addition/:id", AdditionController.index);
 routes.post("/addition", authorization.manager, upload.single("thumbnail"), AdditionController.create);
-routes.put("/addition/:id", authorization.manager, upload.single("thumbnail"), AdditionController.update);
+routes.put("/addition/:id", authorization.manager, AdditionController.update);
+routes.put("/additionThumbnail/:id", authorization.manager, upload.single("thumbnail"), AdditionController.updateThumbnail);
 routes.delete("/addition/:id", authorization.manager, AdditionController.delete);
 routes.get("/addition", AdditionController.all);
 

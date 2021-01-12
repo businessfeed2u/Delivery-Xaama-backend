@@ -92,7 +92,7 @@ module.exports = {
 	async update(req, res) {
 		const additionId = req.params.id;
 		const { name, type, price, available } = req.body;
-		const filename = (req.file) ? req.file.filename : null;
+		
 		var errors = [];
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
@@ -107,19 +107,11 @@ module.exports = {
 			errors.push("type");
 		}
 
-		if(!price || !price.length || !regEx.price.test(price)) {
+		if(!regEx.price.test(price)) {
 			errors.push("price");
     }
 
-    if(!available || !available.length || (available != "false" && available != "true")) {
-      errors.push("Available is wrong!");
-		}
-
 		if(errors.length) {
-			if(filename) {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			}
-
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
@@ -129,8 +121,33 @@ module.exports = {
 			name,
 			type: type.split(",").map(t => t.trim().toLowerCase()),
 			price,
-      thumbnail: filename,
-      available: (available === "true")
+      available: available
+		}).then((response) => {
+			if(response) {
+				return res.status(200).send("The addition has been updated!");
+			} else {
+				return res.status(404).send("Addition not found!");
+			}
+		}).catch((error) => {
+			return res.status(500).send(error);
+		});
+  },
+  
+  //	Update a specific addition
+	async updateThumbnail(req, res) {
+		const additionId = req.params.id;
+		const filename = (req.file) ? req.file.filename : null;
+
+		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+      }
+
+      return res.status(400).send("Invalid additionId value!");
+		}
+
+		await additions.findByIdAndUpdate(additionId, {
+      thumbnail: filename
 		}).then((response) => {
 			if(response) {
 				if(response.thumbnail) {
@@ -139,9 +156,17 @@ module.exports = {
 
 				return res.status(200).send("The addition has been updated!");
 			} else {
+        if(filename) {
+          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        }
+
 				return res.status(404).send("Addition not found!");
 			}
 		}).catch((error) => {
+      if(filename) {
+        fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+      }
+
 			return res.status(500).send(error);
 		});
 	},
