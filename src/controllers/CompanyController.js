@@ -175,12 +175,14 @@ module.exports = {
     const image = (req.file) ? req.file.filename : null;
 
     if(!op || !op.length) {
-      try {
-				fs.unlinkSync(`${__dirname}/uploads/${image}`);
-				return res.status(400).send("Invalid op value!");
-			} catch(error) {
-				return res.status(500).send(error);
-			}
+      if(image) {
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${image}`);
+        } catch(error) {
+          return res.status(500).send(error);
+        }
+      }
+      return res.status(400).send("Invalid op value!");
     }
     
     var im = null;
@@ -241,12 +243,14 @@ module.exports = {
 
           company.carousel = data;
         } else {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${image}`);
-            return res.status(400).send("Invalid op value!");
-          } catch(error) {
-            return res.status(500).send(error);
+          if(image) {
+            try {
+              fs.unlinkSync(`${__dirname}/uploads/${image}`);
+            } catch(error) {
+              return res.status(500).send(error);
+            }
           }
+          return res.status(400).send("Invalid op value!");
         }
         
         company.save().then((response) => {
@@ -254,35 +258,41 @@ module.exports = {
             if(im && (im != company.thumbnail)) {
               try {
                 fs.unlinkSync(`${__dirname}/uploads/${im}`);
-                return res.status(200).send("The company data has been updated!");
               } catch(error) {
                 return res.status(200).send("The company data has been updated, but thumbnail old is not find!");
               }
-            }						
-					} else {
-            try {
-              fs.unlinkSync(`${__dirname}/uploads/${im}`);
-              return res.status(400).send("We couldn't save your changes, try again later!");
-            } catch(error) {
-              return res.status(500).send(error);
             }
+            return res.status(200).send("The company data has been updated!");						
+					} else {
+            if(im) {
+              try {
+                fs.unlinkSync(`${__dirname}/uploads/${im}`);
+              } catch(error) {
+                return res.status(500).send(error);
+              }
+            }
+            return res.status(400).send("We couldn't save your changes, try again later!");
 					}
 				}).catch((error) => {
-					try {
-            fs.unlinkSync(`${__dirname}/uploads/${im}`);
-            return res.status(500).send(error);
-          } catch(e) {
-            return res.status(500).send(e);
+          if(im) {
+            try {
+              fs.unlinkSync(`${__dirname}/uploads/${im}`);
+            } catch(e) {
+              return res.status(500).send(e);
+            }
           }
+          return res.status(500).send(error);
 				});
 			}
 		}).catch((error) => {
-			try {
-        fs.unlinkSync(`${__dirname}/uploads/${im}`);
-        return res.status(500).send(error);
-      } catch(e) {
-        return res.status(500).send(e);
+      if(im) {
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${im}`);
+        } catch(e) {
+          return res.status(500).send(e);
+        }
       }
+      return res.status(500).send(error);
 		});
   },
 
