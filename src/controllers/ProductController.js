@@ -63,22 +63,28 @@ module.exports = {
 		}
 
 		if(errors.length) {
-			try {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
-				return res.status(400).send(message);
-			} catch(error) {
-				return res.status(500).send(error);
-			}
+      if(filename) {
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        } catch(error) {
+          return res.status(500).send(error);
+        }
+      }
+      
+      const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+      return res.status(400).send(message);
 		}
 
 		if(sizes.split(",").length !== prices.split(",").length) {
-			try {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				return res.status(400).send("Prices and sizes don't have the same length!");
-			} catch(error) {
-				return res.status(500).send(error);
-			}
+      if(filename) {
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        } catch(error) {
+          return res.status(500).send(error);
+        }
+      }
+
+      return res.status(400).send("Prices and sizes don't have the same length!");
 		}
 
 		await products.create({
@@ -92,20 +98,24 @@ module.exports = {
 			if(response) {
 				return res.status(201).send("Product created successfully!");
 			} else {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-					return res.status(400).send("We couldn't create a new product, try again later!");
-				} catch(error) {
-					return res.status(500).send(error);
-				}
+        if(filename) {
+          try {
+            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+          } catch(error) {
+            return res.status(500).send(error);
+          }
+        }
+        return res.status(400).send("We couldn't create a new product, try again later!");
 			}
 		}).catch((error) => {
-			try {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				return res.status(500).send(error);
-			} catch(e) {
-				return res.status(500).send(e);
-			}
+      if(filename) {
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        } catch(e) {
+          return res.status(500).send(e);
+        }
+      }
+      return res.status(500).send(error);
 		});
 	},
 
@@ -181,27 +191,33 @@ module.exports = {
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
-					return res.status(200).send("The product has been updated!");
-				} catch(error) {
-					return res.status(200).send("The product has been updated, but thumbnail old is not find!");
-				}
+        if(response.thumbnail) {
+          try {
+            fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
+          } catch(error) {
+            return res.status(200).send("The product has been updated, but thumbnail old is not find!");
+          }
+        }
+        return res.status(200).send("The product has been updated!");
 			} else {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-					return res.status(404).send("Product not found!");
-				} catch(error) {
-					return res.status(404).send("Product and thumbnail not found!");
-				}
+        if(filename) {
+          try {
+            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+          } catch(error) {
+            return res.status(404).send("Product and thumbnail not found!");
+          }
+        }
+        return res.status(404).send("Product not found!");
 			}
 		}).catch((error) => {
-			try {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				return res.status(500).send(error);
-			} catch(e) {
-				return res.status(500).send(e);
-			}
+      if(filename) {
+        try {
+          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+        } catch(e) {
+          return res.status(500).send(e);
+        }
+      }
+      return res.status(500).send(error);
 		});
 	},
 
@@ -215,13 +231,14 @@ module.exports = {
 
 		await products.findByIdAndDelete(productId).then((response) => {
 			if(response) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
-
-					return res.status(200).send("The product and its thumbnail have been deleted!");
-				} catch(e){
-					return res.status(200).send("The product was deleted, but the thumbnail was not found");
-				}
+        if(response.thumbnail) {
+          try {
+            fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
+          } catch(e){
+            return res.status(200).send("The product was deleted, but the thumbnail was not found");
+          }
+        }
+        return res.status(200).send("The product and its thumbnail have been deleted!");
 			} else {
 				return res.status(404).send("Product not found!");
 			}
