@@ -126,6 +126,8 @@ module.exports = {
       
       if(hour >= 21) {
         cd = week[date.getDay()-1] + " às " + (hour - 3) + ":" + minutes;
+      } else {
+        cd = week[date.getDay()] + " às " + (hour - 3) + ":" + minutes;
       }
       console.log("hora: " + hour);
       hour -= 3;
