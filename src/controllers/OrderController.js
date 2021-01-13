@@ -102,19 +102,17 @@ module.exports = {
     }
 
     const date = new Date();
-    console.log(date);
-    console.log(date.toString());
-    console.log(date.toGMTString());
+    var GMT = date.toString().split(" ");
+    console.log(GMT[GMT.length-1]);
 
-    var d = new Date(1542471749270);
-    var d2 = new Date(d.valueOf() - d.getTimezoneOffset() * 60000);
-    console.log("Aqui");
-    console.log(d.toISOString());  // 2018-11-17T16:22:29.270Z
-    console.log(d2.toISOString()); // 2018-11-17T14:22:29.270Z
-    console.log(d.getTime());  // 1542471749270
-    console.log(d2.getTime()); // 1542464549270
+    var hour = 0;
+    
+    if(GMT != "(GMT-03:00)") {
+      hour = date.getHours() - 3;
+    } else {
+      hour = date.getHours();
+    }
 
-    var hour = date.getHours();
     var minutes = date.getMinutes();
 
     hour = (hour < 10) ? "0" + hour : hour;
