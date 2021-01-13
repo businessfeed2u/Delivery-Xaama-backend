@@ -40,14 +40,14 @@ routes.put("/company", authorization.admin, companyController.update);
 routes.put("/companyImages", authorization.admin, upload.single("image"), companyController.updateImages);
 
 //	User
-routes.get("/userData", authorization.verify, UserController.index);
+routes.get("/user", authorization.verify, UserController.index);
 routes.post("/user", upload.single("thumbnail"), UserController.create);
 routes.put("/user", authorization.verify, UserController.update);
 routes.put("/userThumbnail", authorization.verify, upload.single("thumbnail"), UserController.updateThumbnail);
 routes.put("/userUpdateCard", authorization.manager, UserController.updateCard);
 routes.put("/userCard", authorization.admin, UserController.updateAll);
 routes.delete("/user", authorization.verify, UserController.delete);
-routes.get("/user", authorization.admin, UserController.all);
+routes.get("/userAll", authorization.admin, UserController.all);
 
 //	Product
 routes.get("/product/:id", ProductController.index);
