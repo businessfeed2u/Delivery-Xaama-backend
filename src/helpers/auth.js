@@ -57,7 +57,7 @@ module.exports = {
 					return res.status(401).send("Invalid token!");
 				} else {
 					req.headers.authorization = decoded.user.id;
-					req.body = decoded.user;
+					req.body.user = decoded.user;
 					return next();
 				}
 			});

@@ -105,7 +105,7 @@ module.exports = {
     var GMT = new Date().toString().split(" ");
     var zone = false;
     var hour = date.getHours();
-    
+
     for(var g of GMT) {
       if(g === "(GMT-03:00)") {
         hour = (hour < 10) ? "0" + hour : hour;
@@ -119,7 +119,7 @@ module.exports = {
 
     const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     var cd = week[date.getDay()] + " às " + hour + ":" + minutes;
-    
+
     if(!zone) {
       if(hour == 0 || hour == 1 || hour == 2) {
         if(hour == 0) {
