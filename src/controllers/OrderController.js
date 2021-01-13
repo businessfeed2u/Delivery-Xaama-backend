@@ -106,6 +106,14 @@ module.exports = {
     console.log(date.toString());
     console.log(date.toGMTString());
 
+    let d = new Date(1542471749270);
+    let d2 = new Date(d.valueOf() - d.getTimezoneOffset() * 60000);
+    console.log("Aqui");
+    console.log(d.toISOString());  // 2018-11-17T16:22:29.270Z
+    console.log(d2.toISOString()); // 2018-11-17T14:22:29.270Z
+    console.log(d.getTime());  // 1542471749270
+    console.log(d2.getTime()); // 1542464549270
+
     var hour = date.getHours();
     var minutes = date.getMinutes();
 
