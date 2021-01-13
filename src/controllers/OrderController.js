@@ -102,12 +102,12 @@ module.exports = {
     }
 
     const date = new Date();
-    var GMT = new Date().toString().split(" ");
+		var GMT = new Date().toString().split(" ");
     var zone = false;
     var hour = date.getHours();
 
     for(var g of GMT) {
-      if(g === "(GMT-03:00)") {
+      if(g === "(GMT-03:00)" || g === "GMT-0300") {
         hour = (hour < 10) ? "0" + hour : hour;
         zone = true;
         break;
