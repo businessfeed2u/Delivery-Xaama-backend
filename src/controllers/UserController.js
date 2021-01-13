@@ -293,7 +293,7 @@ module.exports = {
 							expiresIn: 86400
 						});
 
-						return res.status(200).send(token);
+						return res.status(200).json({ token });
 					} else {
 						return res.status(400).send("We couldn't save your changes, try again later!");
 					}
