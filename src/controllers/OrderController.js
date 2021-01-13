@@ -102,7 +102,7 @@ module.exports = {
     }
 
     const date = new Date();
-    var GMT = date.toString().split(" ");
+    var GMT = new Date().toString().split(" ");
     var zone = false;
     var hour = 0;
     
