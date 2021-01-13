@@ -104,11 +104,10 @@ module.exports = {
     const date = new Date();
     var GMT = new Date().toString().split(" ");
     var zone = false;
-    var hour = 0;
+    var hour = date.getHours();
     
     for(var g of GMT) {
       if(g === "(GMT-03:00)") {
-        hour = date.getHours();
         hour = (hour < 10) ? "0" + hour : hour;
         zone = true;
         break;
@@ -129,7 +128,7 @@ module.exports = {
         cd = week[date.getDay()-1] + " às " + (hour - 3) + ":" + minutes;
       }
       console.log("hora: " + hour);
-      hour = date.getHours() - 3;
+      hour -= 3;
       hour = (hour < 10) ? "0" + hour : hour;
     }
 
