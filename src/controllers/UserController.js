@@ -362,7 +362,11 @@ module.exports = {
 							return res.status(500).send(error);
 						});
 
-						return res.status(200).send("Successful on changing your data!");
+            const token = jwt.sign({ user }, process.env.SECRET, {
+							expiresIn: 86400
+						});
+
+						return res.status(200).json({ token, user });
 					} else {
             if(filename) {
               try {
