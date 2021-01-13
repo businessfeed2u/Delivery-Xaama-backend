@@ -41,5 +41,5 @@ const CouponSchema = Schema({
 	}
 });
 
-//	Creating collection Coupon on database
-mongoose.model("Coupon", CouponSchema);
+//	Creating collection Coupons on database
+mongoose.model("Coupons", CouponSchema);
