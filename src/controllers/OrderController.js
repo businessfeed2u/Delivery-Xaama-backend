@@ -117,6 +117,9 @@ module.exports = {
     console.log(GMT);
     console.log(GMT[GMT.length-1]);
 
+    var minutes = date.getMinutes();
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+
     const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     var cd = week[date.getDay()] + " às " + hour + ":" + minutes;
   
@@ -133,10 +136,6 @@ module.exports = {
       hour -= 3;
       hour = (hour < 10) ? "0" + hour : hour;
     }
-
-    var minutes = date.getMinutes();
-
-    minutes = (minutes < 10) ? "0" + minutes : minutes;
 
 
     // Searching for a product or some addition of each product that is unavailable
