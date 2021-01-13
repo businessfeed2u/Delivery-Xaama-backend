@@ -103,25 +103,39 @@ module.exports = {
 
     const date = new Date();
     var GMT = date.toString().split(" ");
+    var zone = false;
+    var hour = 0;
+    
+    for(var g of GMT) {
+      if(g === "(GMT-03:00)") {
+        hour = date.getHours();
+        zone = true;
+        break;
+      }
+    }
     console.log("AQUI");
     console.log(GMT);
     console.log(GMT[GMT.length-1]);
 
-    var hour = 0;
+    hour = (hour < 10) ? "0" + hour : hour;
+    const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+    var cd = week[date.getDay()] + " às " + hour + ":" + minutes;
+  
     
-    if(GMT != "(GMT-03:00)") {
+    if(!zone) {
+      console.log("Entrei zone");
+      
+      if(hour >= 21) {
+        cd = week[date.getDay()-1] + " às " + (hour - 3) + ":" + minutes;
+      }
       hour = date.getHours() - 3;
-    } else {
-      hour = date.getHours();
+      hour = (hour < 10) ? "0" + hour : hour;
     }
 
     var minutes = date.getMinutes();
 
-    hour = (hour < 10) ? "0" + hour : hour;
     minutes = (minutes < 10) ? "0" + minutes : minutes;
 
-    const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-    const cd = week[date.getDay()] + " às " + hour + ":" + minutes;
 
     // Searching for a product or some addition of each product that is unavailable
     for(var product of products) {
