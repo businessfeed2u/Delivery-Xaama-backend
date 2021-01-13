@@ -113,9 +113,6 @@ module.exports = {
         break;
       }
     }
-    console.log("AQUI");
-    console.log(GMT);
-    console.log(GMT[GMT.length-1]);
 
     var minutes = date.getMinutes();
     minutes = (minutes < 10) ? "0" + minutes : minutes;
@@ -124,8 +121,6 @@ module.exports = {
     var cd = week[date.getDay()] + " às " + hour + ":" + minutes;
     
     if(!zone) {
-      console.log("Entrei zone");
-      
       if(hour == 0 || hour == 1 || hour == 2) {
         if(hour == 0) {
           hour = 21;
@@ -142,7 +137,6 @@ module.exports = {
         cd = week[date.getDay()] + " às " + hour + ":" + minutes;
       }
     }
-
 
     // Searching for a product or some addition of each product that is unavailable
     for(var product of products) {
