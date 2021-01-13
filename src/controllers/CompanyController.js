@@ -52,7 +52,7 @@ module.exports = {
 	async update(req, res) {
 		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm,
 						timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
-    
+
 		var errors = [];
 
 		if(!name || !name.length) {
@@ -70,7 +70,7 @@ module.exports = {
 		if(address && address.length && !regEx.address.test(address)) {
 			errors.push("address");
 		}
-    
+
     if(freight < 1 || freight > 10) {
       errors.push("freight wrong");
     }
@@ -78,7 +78,7 @@ module.exports = {
 		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
 			errors.push("product type(s)");
     }
-    
+
     const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
 
 		if(timeWithdrawal < 10 || timeDeliveryI < 10 || timeDeliveryF < 10
@@ -106,7 +106,7 @@ module.exports = {
 
     var data = [];
     var exist = false;
-    
+
     for(var type of typesP) {
       exist = false;
       for(var c of company.cards) {
@@ -142,7 +142,7 @@ module.exports = {
       cards: data
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send("The company data has been updated!");
+				return res.status(200).json({ company : response });
 			} else {
 				companyData.create({
 					name,
@@ -184,11 +184,11 @@ module.exports = {
       }
       return res.status(400).send("Invalid op value!");
     }
-    
+
     var im = null;
     var data = [];
     var i = 0;
-    
+
     await companyData.findOne({}).then((company) => {
 			if(company) {
         if(op === "logo") {
@@ -196,10 +196,10 @@ module.exports = {
           company.logo = image ? image : company.logo;
         } else if(op === "c1") {
           im = company.carousel[0] ? company.carousel[0] : null;
-          
+
           data = [];
           i = 0;
-          
+
           for(let c of company.carousel) {
             if(i == 0) {
               data.push(image);
@@ -212,10 +212,10 @@ module.exports = {
           company.carousel = data;
         } else if(op === "c2") {
           im = company.carousel[1] ? company.carousel[1] : null;
-          
+
           data = [];
           i = 0;
-          
+
           for(let c of company.carousel) {
             if(i == 1) {
               data.push(image);
@@ -228,10 +228,10 @@ module.exports = {
           company.carousel = data;
         } else if(op === "c3") {
           im = company.carousel[2] ? company.carousel[2] : null;
-          
+
           data = [];
           i = 0;
-          
+
           for(let c of company.carousel) {
             if(i == 2) {
               data.push(image);
@@ -252,7 +252,7 @@ module.exports = {
           }
           return res.status(400).send("Invalid op value!");
         }
-        
+
         company.save().then((response) => {
 					if(response) {
             if(im && (im != company.thumbnail)) {
@@ -262,7 +262,7 @@ module.exports = {
                 return res.status(200).send("The company data has been updated, but thumbnail old is not find!");
               }
             }
-            return res.status(200).send("The company data has been updated!");						
+            return res.status(200).send("The company data has been updated!");
 					} else {
             if(im) {
               try {
@@ -427,7 +427,7 @@ module.exports = {
           errors.push("cards type");
           break;
         }
-        
+
         var invalid = true;
         for(const type of typesP) {
           if(type == card.type) {
@@ -458,7 +458,7 @@ module.exports = {
 
 			}
 		}
-    
+
 		if(errors.length) {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
