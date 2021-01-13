@@ -212,11 +212,11 @@ module.exports = {
 			errors.push("email");
 		}
 
-		if(!phone || !phone.length || !regEx.phone.test(phone)) {
+		if(phone && phone.length && !regEx.phone.test(phone)) {
 			errors.push("phone");
 		}
 
-		if(!address || !address.length || !regEx.address.test(address)) {
+		if(address && address.length && !regEx.address.test(address)) {
 			errors.push("address");
 		}
 
@@ -252,14 +252,14 @@ module.exports = {
 				} else {
 					hash = user.password;
         }
-        
+
         if(user.cards.length != status.length) {
           return res.status(400).send("vector length of status");
         }
 
         var data = [];
         var i = 0;
-        
+
         for(var u of user.cards) {
           var newCard = {
             cardFidelity: u.cardFidelity,
@@ -267,27 +267,17 @@ module.exports = {
             completed: u.completed,
             status: status[i]
           };
-          
+
           data.push(newCard);
-          i ++; 
+          i ++;
         }
 
         user.cards = data;
 				user.name = name;
 				user.email = email.trim().toLowerCase();
         user.password = hash;
-        
-        if(phone == "99999999999") {
-          user.phone = null;
-        } else {
-          user.phone = phone && phone.length ? phone : null;
-        }
-        
-        if(address == "Rua, 1, Bairro, Casa") {
-          user.address = null;
-        } else {
-          user.address = address && address.length ? address.split(",").map(a => a.trim()) : null;
-        }
+        user.phone = phone ? phone : null;
+        user.address = address && address.length ? address.split(",").map(a => a.trim()) : null;
 
 				user.save().then((response) => {
 					if(response) {
@@ -299,7 +289,11 @@ module.exports = {
 							return res.status(500).send(error);
 						});
 
-						return res.status(200).send("Successful on changing your data!");
+            const token = jwt.sign({ user }, process.env.SECRET, {
+							expiresIn: 86400
+						});
+
+						return res.status(200).send(token);
 					} else {
 						return res.status(400).send("We couldn't save your changes, try again later!");
 					}
@@ -331,7 +325,7 @@ module.exports = {
       }
       return res.status(400).send("Invalid id!");
     }
-    
+
     if(!delImg || !delImg.length) {
       if(filename) {
         try {
@@ -347,7 +341,7 @@ module.exports = {
 			if(user) {
 
         var deleteThumbnail = filename || (delImg === "true") ? user.thumbnail : null;
-        
+
         user.thumbnail = filename;
 
 				user.save().then((response) => {
@@ -357,7 +351,7 @@ module.exports = {
                 fs.unlinkSync(`${__dirname}/uploads/${deleteThumbnail}`);
               } catch(e) {
                 //
-              }	
+              }
             }
 
 						users.find().sort({
@@ -377,7 +371,7 @@ module.exports = {
                 return res.status(500).send(e);
               }
             }
-          
+
 						return res.status(400).send("We couldn't save your changes, try again later!");
 					}
 				}).catch((error) => {
@@ -417,18 +411,13 @@ module.exports = {
 
   //	Update current card of user on database
 	async updateCard(req, res) {
-		const userAdmId = req.headers.authorization;
 		const userId = req.headers["order-user-id"];
 		const { cardsNewQtd } = req.body;
 		const sendSocketMessageTo = await findConnections();
 		var errors = [];
 
-		if(!userAdmId || !userAdmId.length || !mongoose.Types.ObjectId.isValid(userAdmId)) {
-			errors.push("user Adm id");
-		}
-
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-				errors.push("user id");
+			errors.push("user id");
 		}
 
 		//	Validating cards fidelity
@@ -570,7 +559,7 @@ module.exports = {
 										if(uDeleted.thumbnail){
 											fs.unlinkSync(`${__dirname}/uploads/${uDeleted.thumbnail}`);
                     }
-                    
+
 										users.find().sort({
 											userType: "desc"
 										}).then((response) => {
@@ -607,17 +596,17 @@ module.exports = {
 		const userId = req.headers.authorization;
 		var errors = [];
 
-			if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-				errors.push("user id");
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			errors.push("user id");
 		}
 
 		var Company;
 
 		await companyData.findOne({}).then((response) => {
 			if(response) {
-			Company = response;
+				Company = response;
 			} else {
-			errors.push("No company data found!");
+				errors.push("No company data found!");
 			}
 		}).catch(() => {
 			errors.push("Erro ao carregar informações da empresa");
@@ -643,9 +632,8 @@ module.exports = {
 
 	var allUsers;
 
-	await users.find()
-	.then((response) => {
-			allUsers = response;
+	await users.find().then((response) => {
+		allUsers = response;
 	}).catch((error) => {
 		return res.status(500).send(error);
 	});
