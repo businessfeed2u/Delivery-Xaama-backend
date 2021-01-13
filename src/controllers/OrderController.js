@@ -122,19 +122,25 @@ module.exports = {
 
     const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     var cd = week[date.getDay()] + " às " + hour + ":" + minutes;
-  
     
     if(!zone) {
       console.log("Entrei zone");
       
-      if(hour >= 21) {
-        cd = week[date.getDay()-1] + " às " + (hour - 3) + ":" + minutes;
+      if(hour == 0 || hour == 1 || hour == 2) {
+        if(hour == 0) {
+          hour = 21;
+        } else if(hour == 1) {
+          hour = 22;
+        } else if(hour == 2) {
+          hour = 23;
+        }
+
+        cd = week[date.getDay()-1] + " às " + hour + ":" + minutes;
       } else {
-        cd = week[date.getDay()] + " às " + (hour - 3) + ":" + minutes;
+        hour -= 3;
+        hour = (hour < 10) ? "0" + hour : hour;
+        cd = week[date.getDay()] + " às " + hour + ":" + minutes;
       }
-      console.log("hora: " + hour);
-      hour -= 3;
-      hour = (hour < 10) ? "0" + hour : hour;
     }
 
 
