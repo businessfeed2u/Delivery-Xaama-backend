@@ -109,6 +109,7 @@ module.exports = {
     for(var g of GMT) {
       if(g === "(GMT-03:00)") {
         hour = date.getHours();
+        hour = (hour < 10) ? "0" + hour : hour;
         zone = true;
         break;
       }
@@ -117,7 +118,6 @@ module.exports = {
     console.log(GMT);
     console.log(GMT[GMT.length-1]);
 
-    hour = (hour < 10) ? "0" + hour : hour;
     const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     var cd = week[date.getDay()] + " às " + hour + ":" + minutes;
   
