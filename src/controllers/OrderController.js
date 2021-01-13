@@ -104,6 +104,7 @@ module.exports = {
     const date = new Date();
     var GMT = date.toString().split(" ");
     console.log("AQUI");
+    console.log(GMT);
     console.log(GMT[GMT.length-1]);
 
     var hour = 0;
