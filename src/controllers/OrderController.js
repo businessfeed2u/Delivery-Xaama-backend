@@ -102,6 +102,9 @@ module.exports = {
     }
 
     const date = new Date();
+    console.log(date);
+    console.log(date.toString());
+    console.log(date.toGMTString());
 
     var hour = date.getHours();
     var minutes = date.getMinutes();
