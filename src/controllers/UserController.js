@@ -311,7 +311,7 @@ module.exports = {
   //	Update current user on database
 	async updateThumbnail(req, res) {
     const userId = req.headers.authorization;
-    const {delImg} = req.body;
+    const { delImg } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
     const sendSocketMessageTo = await findConnections();
 
