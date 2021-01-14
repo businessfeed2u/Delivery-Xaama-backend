@@ -228,83 +228,91 @@ module.exports = {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
-		}
-
-		await users.findById(userId).then((user) => {
-			if(user) {
-				var hash = "";
-
-				if(passwordN && passwordN.length) {
-					if(!regEx.password.test(passwordN)) {
-						return res.status(400).send("Invalid new password!");
-					}
-
-					if(!bcrypt.compareSync(passwordO, user.password)) {
-						return res.status(400).send("Old password don't match, try again!");
-					}
-
-					try {
-						const salt = bcrypt.genSaltSync(10);
-						hash = bcrypt.hashSync(passwordN, salt);
-					} catch(error) {
-						return res.status(500).send(error.message);
-					}
-				} else {
-					hash = user.password;
-        }
-
-        if(user.cards.length != status.length) {
-          return res.status(400).send("vector length of status");
-        }
-
-        var data = [];
-        var i = 0;
-
-        for(var u of user.cards) {
-          var newCard = {
-            cardFidelity: u.cardFidelity,
-            qtdCurrent: u.qtdCurrent,
-            completed: u.completed,
-            status: status[i]
-          };
-
-          data.push(newCard);
-          i ++;
-        }
-
-        user.cards = data;
-				user.name = name;
-				user.email = email.trim().toLowerCase();
-        user.password = hash;
-        user.phone = phone ? phone : null;
-        user.address = address && address.length ? address.split(",").map(a => a.trim()) : null;
-
-				user.save().then((response) => {
-					if(response) {
-						users.find().sort({
-							userType: "desc"
-						}).then((response) => {
-							sendMessage(sendSocketMessageTo, "update-user", response);
-						}).catch((error) => {
-							return res.status(500).send(error);
-						});
-
-            const token = jwt.sign({ user }, process.env.SECRET, {
-							expiresIn: 86400
-						});
-
-						return res.status(200).json({ token, user });
-					} else {
-						return res.status(400).send("We couldn't save your changes, try again later!");
-					}
-				}).catch((error) => {
-					return res.status(500).send(error);
-				});
+    }
+    
+    await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
+      if(response && (response._id != userId)) {
+        return res.status(400).send("There is a user using this email, try another!");
 			} else {
-				return res.status(404).send("User not found!" );
-			}
+        users.findById(userId).then((user) => {
+          if(user) {
+            var hash = "";
+    
+            if(passwordN && passwordN.length) {
+              if(!regEx.password.test(passwordN)) {
+                return res.status(400).send("Invalid new password!");
+              }
+    
+              if(!bcrypt.compareSync(passwordO, user.password)) {
+                return res.status(400).send("Old password don't match, try again!");
+              }
+    
+              try {
+                const salt = bcrypt.genSaltSync(10);
+                hash = bcrypt.hashSync(passwordN, salt);
+              } catch(error) {
+                return res.status(500).send(error.message);
+              }
+            } else {
+              hash = user.password;
+            }
+    
+            if(user.cards.length != status.length) {
+              return res.status(400).send("vector length of status");
+            }
+    
+            var data = [];
+            var i = 0;
+    
+            for(var u of user.cards) {
+              var newCard = {
+                cardFidelity: u.cardFidelity,
+                qtdCurrent: u.qtdCurrent,
+                completed: u.completed,
+                status: status[i]
+              };
+    
+              data.push(newCard);
+              i ++;
+            }
+    
+            user.cards = data;
+            user.name = name;
+            user.email = email.trim().toLowerCase();
+            user.password = hash;
+            user.phone = phone ? phone : null;
+            user.address = address && address.length ? address.split(",").map(a => a.trim()) : null;
+    
+            user.save().then((response) => {
+              if(response) {
+                users.find().sort({
+                  userType: "desc"
+                }).then((response) => {
+                  sendMessage(sendSocketMessageTo, "update-user", response);
+                }).catch((error) => {
+                  return res.status(500).send(error);
+                });
+    
+                const token = jwt.sign({ user }, process.env.SECRET, {
+                  expiresIn: 86400
+                });
+    
+                return res.status(200).json({ token, user });
+              } else {
+                return res.status(400).send("We couldn't save your changes, try again later!");
+              }
+            }).catch((error) => {
+              return res.status(500).send(error);
+            });
+          } else {
+            return res.status(404).send("User not found!" );
+          }
+        }).catch((error) => {
+          return res.status(500).send(error);
+        });
+      }
 		}).catch((error) => {
-			return res.status(500).send(error);
+      return res.status(500).send(error);
 		});
   },
 
