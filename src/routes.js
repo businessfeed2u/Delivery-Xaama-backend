@@ -33,7 +33,7 @@ routes.post("/session", SessionController.create);
 //	Company
 routes.get("/productTypes", companyController.productTypes);
 routes.get("/company", companyController.companyData);
-routes.put("/companyUser", authorization.admin, companyController.updateUser);
+routes.put("/companyUpdateUser", authorization.admin, companyController.updateUser);
 routes.put("/companyUpdateCards", authorization.admin, companyController.updateCards);
 routes.put("/companyUpdateTimetable", authorization.admin, companyController.updateOpeningHours);
 routes.put("/company", authorization.admin, companyController.update);
