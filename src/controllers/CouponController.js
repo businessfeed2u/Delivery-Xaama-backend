@@ -39,59 +39,59 @@ module.exports = {
     await coupons.findOne({ name: name.trim() }).then((response) => {
 			if(response) {
         return res.status(400).send("There is a coupon using this name, try another!");
+      } else {
+        if(!type || !type.length || (type != "qtd" && 
+          type != "private" && type != "value" && type != "freigth")) {
+          errors.push("type");
+        }
+
+        if(type === "private") {
+          for(var id of userId) {
+            if(!id || !id.length || !mongoose.Types.ObjectId.isValid(id)) {
+              errors.push("userId");
+              break;
+            }
+          }
+        }
+
+        if(qtd < 0) {
+          errors.push("qtd");
+        }
+
+        if(!method || !method.length || (method != "cash" && method != "percentage")) {
+          errors.push("method");
+        }
+
+        if(discount < 0) {
+          errors.push("discount");
+        }
+
+        if(errors.length) {
+          const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+          return res.status(400).send(message);
+        }
+        
+        coupons.create({
+          name,
+          type,
+          qtd,
+          method,
+          discount,
+          available: true,
+          userId: (type === "private") ? userId : []
+        }).then((response) => {
+          if(response) {
+            return res.status(201).send("Coupon created successfully!");
+          } else {
+            return res.status(400).send("We couldn't create a new coupon, try again later!");
+          }
+        }).catch((error) => {
+          return res.status(500).send(error);	
+        });
       }
     }).catch((error) => {
       return res.status(500).send(error);
-		});
-
-    if(!type || !type.length || (type != "qtd" && 
-      type != "private" && type != "value" && type != "freigth")) {
-			errors.push("type");
-    }
-
-    if(type === "private") {
-      for(var id of userId) {
-        if(!id || !id.length || !mongoose.Types.ObjectId.isValid(id)) {
-          errors.push("userId");
-          break;
-        }
-      }
-		}
-
-    if(qtd < 0) {
-			errors.push("qtd");
-    }
-
-    if(!method || !method.length || (method != "cash" && method != "percentage")) {
-			errors.push("method");
-    }
-
-    if(discount < 0) {
-			errors.push("discount");
-    }
-
-    if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
-
-			return res.status(400).send(message);
-    }
-    
-    await coupons.create({
-			name,
-			type,
-      qtd,
-      method,
-      discount,
-      available: true,
-      userId: (type === "private") ? userId : null
-		}).then((response) => {
-			if(response) {
-				return res.status(201).send("Coupon created successfully!");
-			} else {
-        return res.status(400).send("We couldn't create a new coupon, try again later!");
-			}
-		}).catch((error) => {
-      return res.status(500).send(error);	
 		});
   },
   

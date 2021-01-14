@@ -10,8 +10,8 @@ const CouponSchema = Schema({
 		type: String,
 		required: true
 	},
-	user: {
-		type: String,
+	userId: {
+		type: [String],
     required: true
   },
   type: {
