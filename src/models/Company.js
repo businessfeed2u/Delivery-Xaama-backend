@@ -67,7 +67,7 @@ const companySchema = Schema({
   cards: {
     type: [cardFidelitySchema],
     default: null
-  },
+  }
 }, {
 	toJSON: {
 		virtuals: true,
