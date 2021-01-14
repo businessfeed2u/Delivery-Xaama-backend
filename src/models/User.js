@@ -37,10 +37,6 @@ const userSchema = Schema({
 		type: [cardFidelityUserSchema],
 		default: null
   },
-  coupons: {
-    type: [String],
-    default: null
-	},
 	creationDate: {
 		type: Date,
 		default: Date.now()

@@ -83,8 +83,6 @@ module.exports = {
 
           return res.status(400).send(message);
         }
-
-        //TODO: mandar cupons para o cliente ou empresa na hora de criar
         
         coupons.create({
           name,
