@@ -74,10 +74,10 @@ routes.delete("/order", authorization.manager, OrderController.delete);
 routes.get("/orderAll", authorization.manager, OrderController.all);
 
 //	Coupon
-routes.get("/coupon", authorization.verify, CouponController.index);
+routes.get("/coupon/:id", authorization.verify, CouponController.index);
 routes.post("/coupon", authorization.admin, CouponController.create);
 routes.put("/coupon/:id", authorization.admin, CouponController.update);
-routes.delete("/coupon", authorization.admin, CouponController.delete);
+routes.delete("/coupon/:id", authorization.admin, CouponController.delete);
 routes.get("/couponAll", authorization.verify, CouponController.all);
 
 //	Socket
