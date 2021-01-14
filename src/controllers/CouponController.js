@@ -49,9 +49,13 @@ module.exports = {
 			errors.push("type");
     }
 
-    // TODO: testar cada id no vetor
-    if(type === "private" && (!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId))) {
-			errors.push("userId");
+    if(type === "private") {
+      for(var id of userId) {
+        if(!id || !id.length || !mongoose.Types.ObjectId.isValid(id)) {
+          errors.push("userId");
+          break;
+        }
+      }
 		}
 
     if(qtd < 0) {
@@ -96,6 +100,10 @@ module.exports = {
     const couponId = req.params.id;
     const { name, type, qtd, method, discount, available, userId } = req.body;
 
+    if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
+			return res.status(400).send("Invalid id!");
+		}
+
     var errors = [];
 
 		if(!name || !name.length) {
@@ -115,8 +123,13 @@ module.exports = {
 			errors.push("type");
     }
 
-    if(type === "private" && (!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId))) {
-			errors.push("couponId");
+    if(type === "private") {
+      for(var id of userId) {
+        if(!id || !id.length || !mongoose.Types.ObjectId.isValid(id)) {
+          errors.push("userId");
+          break;
+        }
+      }
 		}
 
     if(qtd < 0) {
@@ -139,9 +152,15 @@ module.exports = {
 
     await coupons.findById(couponId).then((coupon) => {
 			if(coupon) {
-        // TODO
-        // fazer alterações
-				coupon.save().then((response) => {
+        coupon.name = name;
+        coupon.type = type;
+        coupon.qtd = qtd;
+        coupon.method = method;
+        coupon.discount = discount;
+        coupon.available = available;
+        coupon.userId = (type === "private") ? userId : null;
+        
+        coupon.save().then((response) => {
 					if(response) {
 
 						return res.status(200).send("Successful on changing your data!");
