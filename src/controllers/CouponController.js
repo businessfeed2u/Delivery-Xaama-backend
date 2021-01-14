@@ -40,7 +40,7 @@ module.exports = {
     }
 
     if(!type || !type.length || (type != "qty" && 
-      type != "private" && type != "value" && type != "freigth")) {
+      type != "private" && type != "value" && type != "freight")) {
       errors.push("type");
     }
 
@@ -60,7 +60,7 @@ module.exports = {
           break;
         }
       }
-    } else if(type === "freigth" && method != "cash") {
+    } else if(type === "freight" && method != "cash") {
         errors.push("type and method wrongs");
     }
 
@@ -125,7 +125,7 @@ module.exports = {
     }
 
     if(!type || !type.length || (type != "qty" && 
-      type != "private" && type != "value" && type != "freigth")) {
+      type != "private" && type != "value" && type != "freight")) {
       errors.push("type");
     }
     
@@ -146,7 +146,7 @@ module.exports = {
           break;
         }
       }
-    } else if(type === "freigth" && method != "cash") {
+    } else if(type === "freight" && method != "cash") {
       errors.push("type and method wrongs");
     }
 

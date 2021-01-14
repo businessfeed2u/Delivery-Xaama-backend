@@ -50,7 +50,11 @@ module.exports = {
 		//	Validantig order user
 		if(!user || !Object.keys(user).length || !(await users.findById(user._id).exec())) {
 			errors.push("user");
-		}
+    }
+    
+    if(!(await users.findById(user._id).exec())) {
+      errors.push("user is not found");
+    }
 
 		//	Validating order products and their additions
 		if(!products || !products.length) {
