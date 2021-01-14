@@ -31,7 +31,7 @@ module.exports = {
   
   //	Create a new coupon
   async create(req, res) {
-    const { name, type, qtd, method, discount, userId } = req.body;
+    const { name, type, qty, method, discount, userId } = req.body;
 
     var errors = [];
 
@@ -39,7 +39,7 @@ module.exports = {
 			errors.push("name");
     }
 
-    if(!type || !type.length || (type != "qtd" && 
+    if(!type || !type.length || (type != "qty" && 
       type != "private" && type != "value" && type != "freigth")) {
       errors.push("type");
     }
@@ -60,14 +60,16 @@ module.exports = {
           break;
         }
       }
+    } else if(type === "freigth" && method != "cash") {
+        errors.push("type and method wrongs");
     }
 
     await coupons.findOne({ name: name.trim() }).then((response) => {
 			if(response) {
         return res.status(400).send("There is a coupon using this name, try another!");
       } else {
-        if(qtd < 0) {
-          errors.push("qtd");
+        if(qty < 0) {
+          errors.push("qty");
         }
 
         if(!method || !method.length || (method != "cash" && method != "percentage")) {
@@ -87,7 +89,7 @@ module.exports = {
         coupons.create({
           name,
           type,
-          qtd,
+          qty,
           method,
           discount,
           available: true,
@@ -110,7 +112,7 @@ module.exports = {
   //	Update a specific coupon
   async update(req, res) {
     const couponId = req.params.id;
-    const { name, type, qtd, method, discount, available, userId } = req.body;
+    const { name, type, qty, method, discount, available, userId } = req.body;
 
     if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
 			return res.status(400).send("Invalid id!");
@@ -122,7 +124,7 @@ module.exports = {
 			errors.push("name");
     }
 
-    if(!type || !type.length || (type != "qtd" && 
+    if(!type || !type.length || (type != "qty" && 
       type != "private" && type != "value" && type != "freigth")) {
       errors.push("type");
     }
@@ -144,14 +146,16 @@ module.exports = {
           break;
         }
       }
+    } else if(type === "freigth" && method != "cash") {
+      errors.push("type and method wrongs");
     }
 
     await coupons.findOne({ name: name.trim() }).then((response) => {
-			if(response) {
+			if(response && (response._id != couponId)) {
         return res.status(400).send("There is a coupon using this name, try another!");
       } else {
-        if(qtd < 0) {
-          errors.push("qtd");
+        if(qty < 0) {
+          errors.push("qty");
         }
 
         if(!method || !method.length || (method != "cash" && method != "percentage")) {
@@ -172,15 +176,14 @@ module.exports = {
           if(coupon) {
             coupon.name = name;
             coupon.type = type;
-            coupon.qtd = qtd;
+            coupon.qty = qty;
             coupon.method = method;
             coupon.discount = discount;
             coupon.available = available;
-            coupon.userId = (type === "private") ? userId : null;
+            coupon.userId = (type === "private") ? userId : [];
             
             coupon.save().then((response) => {
               if(response) {
-
                 return res.status(200).send("Successful on changing your data!");
               } else {
                 return res.status(400).send("We couldn't save your changes, try again later!");
@@ -236,5 +239,4 @@ module.exports = {
 			return res.status(500).send(error);
 		});
   }
-	
 };
