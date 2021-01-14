@@ -1,9 +1,12 @@
 //  Loading database module
 const mongoose = require("mongoose");
 
-//	Loading Coupon schema and Coupons collection from database
+//	Loading Coupon and User collections from database
 require("../models/Coupon");
+require("../models/User");
+
 const coupons = mongoose.model("Coupons");
+const users = mongoose.model("Users");
 
 //	Exporting Coupon features
 module.exports = {
@@ -36,24 +39,33 @@ module.exports = {
 			errors.push("name");
     }
 
+    if(!type || !type.length || (type != "qtd" && 
+      type != "private" && type != "value" && type != "freigth")) {
+      errors.push("type");
+    }
+
+    if(type === "private") {
+      if(!userId || !userId.length) {
+        errors.push("userId");
+      }
+
+      for(var id of userId) {
+        if(!id || !id.length || !mongoose.Types.ObjectId.isValid(id)) {
+          errors.push("userId");
+          break;
+        }
+
+        if(!(await users.findById(id).exec())) {
+          errors.push("userId is not found");
+          break;
+        }
+      }
+    }
+
     await coupons.findOne({ name: name.trim() }).then((response) => {
 			if(response) {
         return res.status(400).send("There is a coupon using this name, try another!");
       } else {
-        if(!type || !type.length || (type != "qtd" && 
-          type != "private" && type != "value" && type != "freigth")) {
-          errors.push("type");
-        }
-
-        if(type === "private") {
-          for(var id of userId) {
-            if(!id || !id.length || !mongoose.Types.ObjectId.isValid(id)) {
-              errors.push("userId");
-              break;
-            }
-          }
-        }
-
         if(qtd < 0) {
           errors.push("qtd");
         }
@@ -71,6 +83,8 @@ module.exports = {
 
           return res.status(400).send(message);
         }
+
+        //TODO: mandar cupons para o cliente ou empresa na hora de criar
         
         coupons.create({
           name,
@@ -110,73 +124,82 @@ module.exports = {
 			errors.push("name");
     }
 
-    await coupons.findOne({ name: name.trim() }).then((response) => {
-			if(response) {
-        return res.status(400).send("There is a coupon using this name, try another!");
-      }
-    }).catch((error) => {
-      return res.status(500).send(error);
-		});
-
     if(!type || !type.length || (type != "qtd" && 
       type != "private" && type != "value" && type != "freigth")) {
-			errors.push("type");
+      errors.push("type");
     }
-
+    
     if(type === "private") {
+      
+      if(!userId || !userId.length) {
+        errors.push("userId");
+      }
+
       for(var id of userId) {
         if(!id || !id.length || !mongoose.Types.ObjectId.isValid(id)) {
           errors.push("userId");
           break;
         }
+
+        if(!(await users.findById(id).exec())) {
+          errors.push("userId is not found");
+          break;
+        }
       }
-		}
-
-    if(qtd < 0) {
-			errors.push("qtd");
     }
 
-    if(!method || !method.length || (method != "cash" && method != "percentage")) {
-			errors.push("method");
-    }
+    await coupons.findOne({ name: name.trim() }).then((response) => {
+			if(response) {
+        return res.status(400).send("There is a coupon using this name, try another!");
+      } else {
+        if(qtd < 0) {
+          errors.push("qtd");
+        }
 
-    if(discount < 0) {
-			errors.push("discount");
-    }
+        if(!method || !method.length || (method != "cash" && method != "percentage")) {
+          errors.push("method");
+        }
 
-    if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+        if(discount < 0) {
+          errors.push("discount");
+        }
 
-			return res.status(400).send(message);
-    }
+        if(errors.length) {
+          const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
-    await coupons.findById(couponId).then((coupon) => {
-			if(coupon) {
-        coupon.name = name;
-        coupon.type = type;
-        coupon.qtd = qtd;
-        coupon.method = method;
-        coupon.discount = discount;
-        coupon.available = available;
-        coupon.userId = (type === "private") ? userId : null;
-        
-        coupon.save().then((response) => {
-					if(response) {
+          return res.status(400).send(message);
+        }
 
-						return res.status(200).send("Successful on changing your data!");
-					} else {
-						return res.status(400).send("We couldn't save your changes, try again later!");
-					}
-				}).catch((error) => {
-					return res.status(500).send(error);
-				});
-			} else {
-				return res.status(404).send("Coupon not found!" );
-			}
-		}).catch((error) => {
-			return res.status(500).send(error);
+        coupons.findById(couponId).then((coupon) => {
+          if(coupon) {
+            coupon.name = name;
+            coupon.type = type;
+            coupon.qtd = qtd;
+            coupon.method = method;
+            coupon.discount = discount;
+            coupon.available = available;
+            coupon.userId = (type === "private") ? userId : null;
+            
+            coupon.save().then((response) => {
+              if(response) {
+
+                return res.status(200).send("Successful on changing your data!");
+              } else {
+                return res.status(400).send("We couldn't save your changes, try again later!");
+              }
+            }).catch((error) => {
+              return res.status(500).send(error);
+            });
+          } else {
+            return res.status(404).send("Coupon not found!" );
+          }
+        }).catch((error) => {
+          return res.status(500).send(error);
+        });
+      }
+    }).catch((error) => {
+      return res.status(500).send(error);
 		});
-
   },
   
   //	Delete a specific coupon
