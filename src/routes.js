@@ -32,13 +32,13 @@ routes.get("/session", authorization.verify, SessionController.index);
 routes.post("/session", SessionController.create);
 
 //	Company
-routes.get("/productTypes", companyController.productTypes);
 routes.get("/company", companyController.companyData);
-routes.put("/companyUser", authorization.admin, companyController.updateUser);
-routes.put("/companyUpdateCards", authorization.admin, companyController.updateCards);
-routes.put("/companyUpdateTimetable", authorization.admin, companyController.updateOpeningHours);
 routes.put("/company", authorization.admin, companyController.update);
 routes.put("/companyImages", authorization.admin, upload.single("image"), companyController.updateImages);
+routes.put("/companyUpdateUser", authorization.admin, companyController.updateUser);
+routes.put("/companyUpdateCards", authorization.admin, companyController.updateCards);
+routes.put("/companyUpdateTimetable", authorization.admin, companyController.updateOpeningHours);
+routes.get("/productTypes", companyController.productTypes);
 
 //	User
 routes.get("/user", authorization.verify, UserController.index);
