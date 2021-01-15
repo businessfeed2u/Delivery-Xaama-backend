@@ -49,6 +49,10 @@ module.exports = {
         errors.push("userId");
       }
 
+      if(userId.length != qty) {
+        errors.push("userId and qty wrongs");
+      }
+
       for(var id of userId) {
         if(!id || !id.length || !mongoose.Types.ObjectId.isValid(id)) {
           errors.push("userId");
@@ -135,6 +139,10 @@ module.exports = {
         errors.push("userId");
       }
 
+      if(userId.length != qty) {
+        errors.push("userId and qty wrongs");
+      }
+
       for(var id of userId) {
         if(!id || !id.length || !mongoose.Types.ObjectId.isValid(id)) {
           errors.push("userId");
@@ -201,6 +209,64 @@ module.exports = {
     }).catch((error) => {
       return res.status(500).send(error);
 		});
+  },
+
+  //	Update a specific coupon of user
+  async updateUser(req, res) {
+    const couponId = req.params.id;
+    const userId = req.headers.authorization;
+    const { private } = req.body;
+
+    if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
+			return res.status(400).send("Invalid id!");
+		}
+
+    if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			return res.status(400).send("Invalid userId!");
+    }
+
+    coupons.findById(couponId).then((coupon) => {
+      if(coupon) {
+        if(!coupon.available) {
+          return res.status(400).send("Coupon is not available!");
+        }
+
+        if((coupon.type == "privado") && !private) {
+          return res.status(400).send("Coupon invalid!");
+        } else if((coupon.type != "privado") && private) {
+          return res.status(400).send("Coupon invalid!");
+        }
+
+        coupon.qty = (coupon.qty > 0) ? (coupon.qty - 1) : 0;
+        coupon.available = (coupon.qty === 0) ? false : true;
+        
+        var data = [];
+        
+        if(private) { 
+          for(var c of coupon.userId) {
+            if(c != userId ) {
+              data.push(c);
+            }
+          }
+
+          coupon.userId = data;
+        }
+        
+        coupon.save().then((response) => {
+          if(response) {
+            return res.status(200).send("Successful on changing your data!");
+          } else {
+            return res.status(400).send("We couldn't save your changes, try again later!");
+          }
+        }).catch((error) => {
+          return res.status(500).send(error);
+        });
+      } else {
+        return res.status(404).send("Coupon not found!" );
+      }
+    }).catch((error) => {
+      return res.status(500).send(error);
+    });
   },
   
   //	Delete a specific coupon

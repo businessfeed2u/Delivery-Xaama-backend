@@ -77,8 +77,9 @@ routes.get("/orderAll", authorization.manager, OrderController.all);
 routes.get("/coupon/:id", authorization.verify, CouponController.index);
 routes.post("/coupon", authorization.admin, CouponController.create);
 routes.put("/coupon/:id", authorization.admin, CouponController.update);
+routes.put("/couponUser/:id", authorization.verify, CouponController.updateUser);
 routes.delete("/coupon/:id", authorization.admin, CouponController.delete);
-routes.get("/couponAll", authorization.verify, CouponController.all);
+routes.get("/couponAll", authorization.admin, CouponController.all);
 
 //	Socket
 routes.delete("/socket", authorization.manager, SocketController.delete);
