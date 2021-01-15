@@ -10,19 +10,29 @@ const users = mongoose.model("Users");
 
 //	Exporting Coupon features
 module.exports = {
-  //	Return an coupon on database given id
+  //	Return all coupons available for user on database given id user
   async index(req, res) {
-    const couponId = req.params.id;
+    const userId = req.headers.authorization;
 
-		if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			return res.status(400).send("Invalid id!");
-		}
-
-		await coupons.findById(couponId).then((coupon) => {
-			if(coupon) {
-				return res.status(200).json(coupon);
+    }
+    
+    if(!(await users.findById(userId).exec())) {
+      return res.status(400).send("User is not found!");
+    }
+    
+    await coupons.find({ userId: "/"+userId+"/", private: false })
+    .sort({
+			type: "asc",
+			available: "desc",
+			name: "asc",
+			creationDate: "asc"
+		}).then((response) => {
+			if(response && response.length) {
+				return res.status(200).json(response);
 			} else {
-				return res.status(404).send("Coupon not found!");
+				return res.status(404).send("Coupons not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -31,73 +41,74 @@ module.exports = {
   
   //	Create a new coupon
   async create(req, res) {
-    const { name, type, qty, method, discount, userId } = req.body;
+    const { name, type, private, qty, method, discount, minValue, userId } = req.body;
 
     var errors = [];
+
+    if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+      errors.push("userId");
+    }
+
+    if(!(await users.findById(userId).exec())) {
+      errors.push("userId is not found");
+    }
 
 		if(!name || !name.length) {
 			errors.push("name");
     }
 
     if(!type || !type.length || (type != "quantidade" && 
-      type != "privado" && type != "valor" && type != "frete")) {
+       type != "valor" && type != "frete")) {
       errors.push("type");
     }
 
-    if(type === "privado") {
-      if(!userId || !userId.length) {
-        errors.push("userId");
-      }
-
-      if(userId.length != qty) {
-        errors.push("userId and qty wrongs");
-      }
-
-      for(var id of userId) {
-        if(!id || !id.length || !mongoose.Types.ObjectId.isValid(id)) {
-          errors.push("userId");
-          break;
-        }
-
-        if(!(await users.findById(id).exec())) {
-          errors.push("userId is not found");
-          break;
-        }
-      }
-    } else if(type === "frete" && method != "dinheiro") {
+    if(type === "frete" && method != "dinheiro") {
         errors.push("type and method wrongs");
+    }
+
+    if(private && (!userId || !userId.length)) {
+      errors.push("private and userId worngs");
+    }
+
+    if(minValue < 0) {
+      errors.push("minValue");
+    }
+
+    if((type === "valor") && (minValue < 1)) {
+      errors.push("type and minValue worngs");
+    }
+
+    if(qty < 0) {
+      errors.push("qty");
+    }
+
+    if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
+      errors.push("method");
+    }
+
+    if(discount < 0) {
+      errors.push("discount");
+    }
+
+    if(errors.length) {
+      const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+      return res.status(400).send(message);
     }
 
     await coupons.findOne({ name: name.trim() }).then((response) => {
 			if(response) {
         return res.status(400).send("There is a coupon using this name, try another!");
       } else {
-        if(qty < 0) {
-          errors.push("quantidade");
-        }
-
-        if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
-          errors.push("method");
-        }
-
-        if(discount < 0) {
-          errors.push("discount");
-        }
-
-        if(errors.length) {
-          const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
-
-          return res.status(400).send(message);
-        }
-        
         coupons.create({
           name,
           type,
+          private,
           qty,
           method,
           discount,
-          available: true,
-          userId: (type === "privado") ? userId : []
+          minValue : (type === "valor") ? minValue : 0,
+          userId: userId ? userId : []
         }).then((response) => {
           if(response) {
             return res.status(201).send("Coupon created successfully!");
