@@ -39,12 +39,12 @@ module.exports = {
 			errors.push("name");
     }
 
-    if(!type || !type.length || (type != "qty" && 
-      type != "private" && type != "value" && type != "freight")) {
+    if(!type || !type.length || (type != "quantidade" && 
+      type != "privado" && type != "valor" && type != "frete")) {
       errors.push("type");
     }
 
-    if(type === "private") {
+    if(type === "privado") {
       if(!userId || !userId.length) {
         errors.push("userId");
       }
@@ -60,7 +60,7 @@ module.exports = {
           break;
         }
       }
-    } else if(type === "freight" && method != "cash") {
+    } else if(type === "frete" && method != "dinheiro") {
         errors.push("type and method wrongs");
     }
 
@@ -69,10 +69,10 @@ module.exports = {
         return res.status(400).send("There is a coupon using this name, try another!");
       } else {
         if(qty < 0) {
-          errors.push("qty");
+          errors.push("quantidade");
         }
 
-        if(!method || !method.length || (method != "cash" && method != "percentage")) {
+        if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
           errors.push("method");
         }
 
@@ -93,7 +93,7 @@ module.exports = {
           method,
           discount,
           available: true,
-          userId: (type === "private") ? userId : []
+          userId: (type === "privado") ? userId : []
         }).then((response) => {
           if(response) {
             return res.status(201).send("Coupon created successfully!");
@@ -124,12 +124,12 @@ module.exports = {
 			errors.push("name");
     }
 
-    if(!type || !type.length || (type != "qty" && 
-      type != "private" && type != "value" && type != "freight")) {
+    if(!type || !type.length || (type != "quantidade" && 
+      type != "privado" && type != "valor" && type != "frete")) {
       errors.push("type");
     }
     
-    if(type === "private") {
+    if(type === "privado") {
       
       if(!userId || !userId.length) {
         errors.push("userId");
@@ -146,7 +146,7 @@ module.exports = {
           break;
         }
       }
-    } else if(type === "freight" && method != "cash") {
+    } else if(type === "frete" && method != "dinheiro") {
       errors.push("type and method wrongs");
     }
 
@@ -158,7 +158,7 @@ module.exports = {
           errors.push("qty");
         }
 
-        if(!method || !method.length || (method != "cash" && method != "percentage")) {
+        if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
           errors.push("method");
         }
 
@@ -180,7 +180,7 @@ module.exports = {
             coupon.method = method;
             coupon.discount = discount;
             coupon.available = available;
-            coupon.userId = (type === "private") ? userId : [];
+            coupon.userId = (type === "privado") ? userId : [];
             
             coupon.save().then((response) => {
               if(response) {
