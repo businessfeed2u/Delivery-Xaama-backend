@@ -58,7 +58,7 @@ module.exports = {
 		}
 
 		if(!type || !type.length || (type != "quantidade" && 
-			 type != "valor" && type != "frete")) {
+			type != "valor" && type != "frete")) {
 			errors.push("type");
 		}
 
@@ -317,7 +317,7 @@ module.exports = {
 				} else {
 					coupon.qty = (coupon.qty > 0) ? (coupon.qty - 1) : 0;
 					coupon.available = (coupon.qty === 0) ? false : true;
-					coupon.whoUsed = coupon.whoUsed.push(userId);
+					coupon.whoUsed.push(userId);
 				}
 				
 				coupon.save().then((response) => {
