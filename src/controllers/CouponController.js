@@ -24,8 +24,13 @@ module.exports = {
     if(!(await users.findById(userId).exec())) {
       return res.status(400).send("User is not found!");
     }
+
+    const keysSearch = [
+      {"$and": [ {"private": true}, {"userId": userId}, {"available": true} ]},
+      {"$and": [ {"private": false}, {"available": true} ]},
+    ];
     
-    await coupons.find({ userId: "/"+userId+"/", private: false })
+    await coupons.find({ "$or" : keysSearch })
     .sort({
 			type: "asc",
 			available: "desc",
