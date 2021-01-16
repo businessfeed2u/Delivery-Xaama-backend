@@ -2,18 +2,20 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-//	Loading User, Orders and Company collections from database
+//	Loading User, Orders, Company, ProductMenu, Addition and Coupon  collections from database
 require("../models/Order");
 require("../models/Company");
 require("../models/User");
 require("../models/ProductMenu");
 require("../models/Addition");
+require("../models/Coupon");
 
 const orders = mongoose.model("Orders");
 const users = mongoose.model("Users");
 const productsMenu = mongoose.model("ProductsMenu");
 const additions = mongoose.model("Additions");
 const companyData = mongoose.model("Company");
+const coupons = mongoose.model("Coupons");
 
 // Loading helpers
 const regEx = require("../helpers/regEx");
@@ -43,18 +45,18 @@ module.exports = {
 
 	//	Create a new order
 	async create(req, res) {
-		const { user, products, deliver, address, typePayment, change, total, phone } = req.body;
+		const { user, products, deliver, address, typePayment, change, total, phone, couponId } = req.body;
 		const sendSocketMessageTo = await findConnections();
 		var errors = [];
 
 		//	Validantig order user
 		if(!user || !Object.keys(user).length || !(await users.findById(user._id).exec())) {
 			errors.push("user");
-    }
-    
-    if(!(await users.findById(user._id).exec())) {
-      errors.push("user is not found");
-    }
+		}
+		
+		if(!(await users.findById(user._id).exec())) {
+			errors.push("user is not found");
+		}
 
 		//	Validating order products and their additions
 		if(!products || !products.length) {
@@ -101,79 +103,79 @@ module.exports = {
 			errors.push("address");
 		}
 
-    if(!phone || !phone.length || !regEx.phone.test(phone)) {
+		if(!phone || !phone.length || !regEx.phone.test(phone)) {
 			errors.push("phone");
-    }
+		}
 
-    const date = new Date();
+		const date = new Date();
 		var GMT = new Date().toString().split(" ");
-    var zone = false;
-    var hour = date.getHours();
+		var zone = false;
+		var hour = date.getHours();
 
-    for(var g of GMT) {
-      if(g === "(GMT-03:00)" || g === "GMT-0300") {
-        hour = (hour < 10) ? "0" + hour : hour;
-        zone = true;
-        break;
-      }
-    }
+		for(var g of GMT) {
+			if(g === "(GMT-03:00)" || g === "GMT-0300") {
+				hour = (hour < 10) ? "0" + hour : hour;
+				zone = true;
+				break;
+			}
+		}
 
-    var minutes = date.getMinutes();
-    minutes = (minutes < 10) ? "0" + minutes : minutes;
+		var minutes = date.getMinutes();
+		minutes = (minutes < 10) ? "0" + minutes : minutes;
 
-    const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-    var cd = week[date.getDay()] + " às " + hour + ":" + minutes;
+		const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+		var cd = week[date.getDay()] + " às " + hour + ":" + minutes;
 
-    if(!zone) {
-      if(hour == 0 || hour == 1 || hour == 2) {
-        if(hour == 0) {
-          hour = 21;
-        } else if(hour == 1) {
-          hour = 22;
-        } else if(hour == 2) {
-          hour = 23;
-        }
+		if(!zone) {
+			if(hour == 0 || hour == 1 || hour == 2) {
+				if(hour == 0) {
+					hour = 21;
+				} else if(hour == 1) {
+					hour = 22;
+				} else if(hour == 2) {
+					hour = 23;
+				}
 
-        cd = week[date.getDay()-1] + " às " + hour + ":" + minutes;
-      } else {
-        hour -= 3;
-        hour = (hour < 10) ? "0" + hour : hour;
-        cd = week[date.getDay()] + " às " + hour + ":" + minutes;
-      }
-    }
+				cd = week[date.getDay()-1] + " às " + hour + ":" + minutes;
+			} else {
+				hour -= 3;
+				hour = (hour < 10) ? "0" + hour : hour;
+				cd = week[date.getDay()] + " às " + hour + ":" + minutes;
+			}
+		}
 
-    // Searching for a product or some addition of each product that is unavailable
-    for(var product of products) {
-      if(!product.product.available){
-        errors.push("some added product is unavailable");
-        break;
-      }
-      for(var addition of product.additions) {
-        if(!addition.available){
-          errors.push("some added addition is unavailable");
-          break;
-        }
-      }
-    }
+		// Searching for a product or some addition of each product that is unavailable
+		for(var product of products) {
+			if(!product.product.available){
+				errors.push("some added product is unavailable");
+				break;
+			}
+			for(var addition of product.additions) {
+				if(!addition.available){
+					errors.push("some added addition is unavailable");
+					break;
+				}
+			}
+		}
 
-    var company = null;
-    await companyData.findOne({}).then((companyInfo) => {
+		var company = null;
+		await companyData.findOne({}).then((companyInfo) => {
 			if(companyInfo) {
-        company = companyInfo;
+				company = companyInfo;
 				if(companyInfo.manual && !companyInfo.systemOpenByAdm) {
-          errors.push("the company is closed");
-        }
-        else if(!companyInfo.manual && !systemOpen(companyInfo)) {
-          errors.push("the company is closed");
-        }
+					errors.push("the company is closed");
+				}
+				else if(!companyInfo.manual && !systemOpen(companyInfo)) {
+					errors.push("the company is closed");
+				}
 			} else {
 				errors.push("no company data found");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
-    });
+		});
 
-    //	Get freight price and add if deliver is true
+		//	Get freight price and add if deliver is true
 		var totalB = await companyData.findOne({}).exec();
 		totalB = (deliver) ? totalB.freight : 0.0;
 
@@ -190,33 +192,33 @@ module.exports = {
 						totalB += y.price;
 				}
 			}
-    }
+		}
 
-    //	Calculate order total price
-    var myMapTypesProducts = new Map();
+		//	Calculate order total price
+		var myMapTypesProducts = new Map();
 
-    if(products){
-      for(x of products) {
-        if(x.size >= 0 && x.size < x.product.prices.length) {
-          myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
-            myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size]) :
-              x.product.prices[x.size]);
-        }
+		if(products){
+			for(x of products) {
+				if(x.size >= 0 && x.size < x.product.prices.length) {
+					myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
+						myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size]) :
+							x.product.prices[x.size]);
+				}
 
-        if(x.additions && x.additions.length) {
-          for(y of x.additions) {
-            myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
-              myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + y.price) :
-                y.price);
-          }
-        }
-      }
-    }
+				if(x.additions && x.additions.length) {
+					for(y of x.additions) {
+						myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
+							myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + y.price) :
+								y.price);
+					}
+				}
+			}
+		}
 
-    // Calculate discount
-    var d = 0;
+		// Calculate discount
+		var d = 0;
 
-    if(user && user.cards && company && company.cards){
+		if(user && user.cards && company && company.cards){
 			user.cards.map((card,index) => {
 				card.completed && !card.status && myMapTypesProducts && myMapTypesProducts.get(card.cardFidelity) ?
 					d = parseInt(d) + parseInt((company.cards[index].discount < myMapTypesProducts.get(card.cardFidelity) ?
@@ -224,10 +226,41 @@ module.exports = {
 					:
 					null;
 			});
-    }
+		}
 
-    totalB -= d;
+		//  Validating coupon if it exists and assigning the discount
+		var discountCoupon = 0;
+		var coupon = null;
 
+		if(couponId && couponId.length) {
+			if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
+				return res.status(400).send("Invalid coupon id!");
+			}
+			
+			coupon = await coupons.findById(couponId).exec();
+		
+			if(coupon) {
+				if(coupon.private && (coupon.userId != user._id)) {
+					errors.push("UserId wrong");
+				}
+
+				if(!coupon.private) {
+					for(var c of coupon.whoUsed) {
+						if(c === user._id ) {
+							errors.push("You already used this coupon");
+						}
+					}
+				}
+
+				discountCoupon = coupon.discount;
+
+			} else {
+				errors.push("Coupon");
+			}
+		}
+		
+		totalB = totalB - d - discountCoupon;
+		
 		if(total != totalB) {
 			errors.push("delivery total");
 		}
@@ -236,7 +269,7 @@ module.exports = {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
-    }
+		}
 
 		await orders.create({
 			user,
@@ -250,7 +283,7 @@ module.exports = {
 			creationDate: cd
 		}).then((response) => {
 			if(response) {
-        sendMessage(sendSocketMessageTo, "new-order", [response]);
+				sendMessage(sendSocketMessageTo, "new-order", [response]);
 				return res.status(201).json(response);
 			} else {
 				return res.status(400).send("We couldn't create a new order, try again later!");
@@ -307,17 +340,17 @@ module.exports = {
 
 	//	Delete all orders
 	async delete(req, res) {
-    const { password } = req.headers;
-    const userId = req.headers.authorization;
+		const { password } = req.headers;
+		const userId = req.headers.authorization;
 
-    const sendSocketMessageTo = await findConnections();
-    var errors = [];
+		const sendSocketMessageTo = await findConnections();
+		var errors = [];
 
-    if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			errors.push("id");
 		}
 
-    if(!password || !password.length) {
+		if(!password || !password.length) {
 			errors.push("password");
 		}
 
@@ -325,30 +358,30 @@ module.exports = {
 			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
 
 			return res.status(400).send(message);
-    }
+		}
 
-    async function deleteOrders() {
-      await orders.deleteMany().then((response) => {
-        if(response.n) {
-          sendMessage(sendSocketMessageTo, "delete-order", []);
-          return res.status(200).send("All orders have been deleted!");
-        } else {
-          return res.status(404).send("Orders not found!");
-        }
-      }).catch((error) => {
-        return res.status(500).send(error);
-      });
-    }
+		async function deleteOrders() {
+			await orders.deleteMany().then((response) => {
+				if(response.n) {
+					sendMessage(sendSocketMessageTo, "delete-order", []);
+					return res.status(200).send("All orders have been deleted!");
+				} else {
+					return res.status(404).send("Orders not found!");
+				}
+			}).catch((error) => {
+				return res.status(500).send(error);
+			});
+		}
 
-    await users.findById(userId).then((user) => {
+		await users.findById(userId).then((user) => {
 			if(user) {
-        bcrypt.compare(password, user.password).then((match) => {
-          if(match) {
-            deleteOrders();
-          } else {
-            return res.status(400).send("Wrong password, try again!");
-          }
-        });
+				bcrypt.compare(password, user.password).then((match) => {
+					if(match) {
+						deleteOrders();
+					} else {
+						return res.status(400).send("Wrong password, try again!");
+					}
+				});
 			} else {
 				return res.status(404).send("UserId not found!");
 			}
