@@ -290,6 +290,10 @@ module.exports = {
 			return res.status(400).send("Invalid userId!");
 		}
 
+		if(!(await users.findById(userId).exec())) {
+			return res.status(400).send("UserId is not found!");
+		}
+
 		coupons.findById(couponId).then((coupon) => {
 			if(coupon) {
 				if(!coupon.available) {
@@ -300,25 +304,20 @@ module.exports = {
 					return res.status(400).send("UserId wrong!");
 				}
 
-				if(coupon.private) {
-					//
-				} else {
-					coupon.qty = (coupon.qty > 0) ? (coupon.qty - 1) : 0;
-				}
-				
-				
-				coupon.available = (coupon.qty === 0) ? false : true;
-				
-				var data = [];
-				
-				if(private) { 
-					for(var c of coupon.userId) {
-						if(c != userId ) {
-							data.push(c);
+				if(!coupon.private) {
+					for(var c of coupon.whoUsed) {
+						if(c === userId ) {
+							return res.status(400).send("You already used this coupon!");
 						}
 					}
+				}
 
-					coupon.userId = data;
+				if(coupon.private) {
+					coupon.available = false;
+				} else {
+					coupon.qty = (coupon.qty > 0) ? (coupon.qty - 1) : 0;
+					coupon.available = (coupon.qty === 0) ? false : true;
+					coupon.whoUsed = coupon.whoUsed.push(userId);
 				}
 				
 				coupon.save().then((response) => {
