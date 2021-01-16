@@ -244,14 +244,6 @@ module.exports = {
 					errors.push("UserId wrong");
 				}
 
-				if(!coupon.private) {
-					for(var c of coupon.whoUsed) {
-						if(c === user._id ) {
-							errors.push("You already used this coupon");
-						}
-					}
-				}
-
 				discountCoupon = coupon.discount;
 
 			} else {
@@ -283,8 +275,21 @@ module.exports = {
 			creationDate: cd
 		}).then((response) => {
 			if(response) {
-				sendMessage(sendSocketMessageTo, "new-order", [response]);
-				return res.status(201).json(response);
+				if(coupon && coupon.private) {
+					coupons.findByIdAndDelete(couponId).then((r) => {
+						if(r) {
+							sendMessage(sendSocketMessageTo, "new-order", [response]);
+							return res.status(201).json(response);
+						} else {
+							return res.status(404).send("Coupon not found!");
+						}
+					}).catch((error) => {
+						return res.status(500).send(error);
+					});
+				} else {
+					sendMessage(sendSocketMessageTo, "new-order", [response]);
+					return res.status(201).json(response);
+				}
 			} else {
 				return res.status(400).send("We couldn't create a new order, try again later!");
 			}
