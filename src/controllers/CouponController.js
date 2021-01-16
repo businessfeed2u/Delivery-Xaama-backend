@@ -137,7 +137,7 @@ module.exports = {
           name,
           type,
           private,
-          qty : (type != "privado") ? qty : 0,
+          qty : !private ? qty : 0,
           method,
           discount,
           minValue : (type === "valor") ? minValue : 0,
