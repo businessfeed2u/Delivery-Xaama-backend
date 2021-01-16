@@ -74,6 +74,10 @@ module.exports = {
       errors.push("type and private wrongs");
     }
 
+    if(private == null || private == undefined) {
+      errors.push("private is not defined");
+    }
+
     if(!private && userId && userId.length) {
       errors.push("private and userId wrongs");
     }
@@ -133,7 +137,7 @@ module.exports = {
           name,
           type,
           private,
-          qty : (method != "privado") ? qty : 0,
+          qty : (type != "privado") ? qty : 0,
           method,
           discount,
           minValue : (type === "valor") ? minValue : 0,
