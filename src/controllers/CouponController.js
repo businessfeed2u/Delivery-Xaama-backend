@@ -26,8 +26,8 @@ module.exports = {
     }
 
     const keysSearch = [
-      {"$and": [ {"private": true}, {"userId": userId}, {"available": true} ]},
-      {"$and": [ {"private": false}, {"available": true} ]},
+      {"$and": [ {"private": true}, {"userId": userId}, {"available": true} ] },
+      {"$and": [ {"private": false}, {"available": true} ] },
     ];
     
     await coupons.find({ "$or" : keysSearch })
