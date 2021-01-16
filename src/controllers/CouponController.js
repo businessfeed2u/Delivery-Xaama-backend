@@ -1,12 +1,15 @@
 //  Loading database module
 const mongoose = require("mongoose");
 
-//	Loading Coupon and User collections from database
+//	Loading Coupon, User and Company collections from database
 require("../models/Coupon");
 require("../models/User");
+require("../models/Company");
 
 const coupons = mongoose.model("Coupons");
 const users = mongoose.model("Users");
+const companyData = mongoose.model("Company");
+
 
 //	Exporting Coupon features
 module.exports = {
@@ -43,15 +46,16 @@ module.exports = {
   async create(req, res) {
     const { name, type, private, qty, method, discount, minValue, userId } = req.body;
 
+    // console.log("name: " + name);
+    // console.log("type: " + type);
+    // console.log("private: " + private);
+    // console.log("qty: " + qty);
+    // console.log("method: " + method);
+    // console.log("discount: " + discount);
+    // console.log("minValue: " + minValue);
+    // console.log("userId: " + userId);
+
     var errors = [];
-
-    if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-      errors.push("userId");
-    }
-
-    if(!(await users.findById(userId).exec())) {
-      errors.push("userId is not found");
-    }
 
 		if(!name || !name.length) {
 			errors.push("name");
@@ -66,20 +70,45 @@ module.exports = {
         errors.push("type and method wrongs");
     }
 
-    if(private && (!userId || !userId.length)) {
-      errors.push("private and userId worngs");
+    if((type === "quantidade") && private) {
+      errors.push("type and private wrongs");
     }
 
-    if(minValue < 0) {
-      errors.push("minValue");
+    if(!private && userId && userId.length) {
+      errors.push("private and userId wrongs");
+    }
+
+    if(!private && (qty < 1)) {
+      errors.push("qty");
+    }
+
+    if(type === "frete") {
+      await companyData.findOne({}, {
+      }).then((response) => {
+        if(response) {
+          if(response.freight != discount) {
+            errors.push("freight different from company");
+          }
+        } else {
+          return res.status(400).send("There is no company!");
+        }
+      }).catch((error) => {
+        return res.status(500).send(error);
+      });
+    }
+
+    if(private) {
+      if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).send("userId is not found");
+      }
+  
+      if(!(await users.findById(userId).exec())) {
+        errors.push("userId is not found");
+      }
     }
 
     if((type === "valor") && (minValue < 1)) {
       errors.push("type and minValue worngs");
-    }
-
-    if(qty < 0) {
-      errors.push("qty");
     }
 
     if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
@@ -104,11 +133,11 @@ module.exports = {
           name,
           type,
           private,
-          qty,
+          qty : (method != "privado") ? qty : 0,
           method,
           discount,
           minValue : (type === "valor") ? minValue : 0,
-          userId: userId ? userId : []
+          userId: private && userId && userId.length ? userId : "",
         }).then((response) => {
           if(response) {
             return res.status(201).send("Coupon created successfully!");
@@ -116,6 +145,7 @@ module.exports = {
             return res.status(400).send("We couldn't create a new coupon, try again later!");
           }
         }).catch((error) => {
+          console.log(error);
           return res.status(500).send(error);	
         });
       }

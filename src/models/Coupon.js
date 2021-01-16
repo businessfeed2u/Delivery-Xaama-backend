@@ -12,8 +12,7 @@ const CouponSchema = Schema({
 	},
 	userId: {
     type: String,
-    default: null,
-    required: true
+    default: "",
   },
   type: {
 		type: String,
@@ -26,7 +25,6 @@ const CouponSchema = Schema({
   qty: {
 		type: Number,
     default: 0,
-    required: true
   },
   method: {
 		type: String,
@@ -34,7 +32,7 @@ const CouponSchema = Schema({
   },
   discount: {
 		type: Number,
-    default: 10,
+    default: 0,
     required: true
   },
   available: {
@@ -45,12 +43,10 @@ const CouponSchema = Schema({
   minValue: {
 		type: Number,
     default: 0,
-    required: true
   },
   whoUsed: {
     type: [String],
     default: [],
-    required: true
   },
 	creationDate: {
 		type: Date,
