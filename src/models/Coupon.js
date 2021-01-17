@@ -45,7 +45,7 @@ const CouponSchema = Schema({
     default: 0,
   },
   whoUsed: {
-    type: [String],
+    type: Array,
     default: [],
   },
 	creationDate: {

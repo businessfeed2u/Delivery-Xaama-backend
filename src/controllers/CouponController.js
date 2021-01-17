@@ -254,7 +254,8 @@ module.exports = {
 						coupon.minValue = (type === "valor") ? minValue : 0,
 						coupon.available = available;
 						coupon.userId = private && userId && userId.length ? userId : "";
-						coupon.private = private;
+            coupon.private = private;
+            coupon.whoUsed = [];
 						
 						coupon.save().then((response) => {
 							if(response) {
@@ -304,21 +305,26 @@ module.exports = {
 					return res.status(400).send("UserId wrong!");
 				}
 
-				if(!coupon.private) {
-					for(var c of coupon.whoUsed) {
-						if(c === userId ) {
-							return res.status(400).send("You already used this coupon!");
-						}
-					}
-				}
+        for(var c of coupon.whoUsed) {
+          if(c.userId === userId) {
+            return res.status(400).send("You already used this coupon!");
+          }
+        }
+        
+        var data = {
+          userId: userId,
+          validated: true,
+          status: false
+        };
 
 				if(coupon.private) {
 					coupon.available = false;
 				} else {
 					coupon.qty = (coupon.qty > 0) ? (coupon.qty - 1) : 0;
 					coupon.available = (coupon.qty === 0) ? false : true;
-					coupon.whoUsed.push(userId);
-				}
+        }
+        
+        coupon.whoUsed.push(data);
 				
 				coupon.save().then((response) => {
 					if(response) {

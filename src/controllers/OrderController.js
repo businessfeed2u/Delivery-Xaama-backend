@@ -242,9 +242,23 @@ module.exports = {
 			if(coupon) {
 				if(coupon.private && (coupon.userId != user._id)) {
 					errors.push("UserId wrong");
-				}
+        }
 
-				discountCoupon = coupon.discount;
+        var applyDiscount = false;
+        
+        for(var c of coupon.whoUsed) {
+          if((c.userId === user._id)){
+            if((c.validated) && (!c.status)) {
+              applyDiscount = true;
+            }
+          }
+        }
+
+        if(applyDiscount) {
+          discountCoupon = coupon.discount;
+        } else {
+          errors.push("apply discount");
+        }
 
 			} else {
 				errors.push("Coupon");
@@ -253,7 +267,7 @@ module.exports = {
 		
 		totalB = totalB - d - discountCoupon;
 		
-		if(total != totalB) {
+		if((total != totalB) || totalB < 0) {
 			errors.push("delivery total");
 		}
 
@@ -287,8 +301,40 @@ module.exports = {
 						return res.status(500).send(error);
 					});
 				} else {
-					sendMessage(sendSocketMessageTo, "new-order", [response]);
-					return res.status(201).json(response);
+          coupons.findById(couponId).then((coupon) => {
+            if(coupon) {
+              var d = [];
+
+              for(var c of coupon.whoUsed) {
+                if((c.userId === user._id)){
+                  d.push({
+                    userId: user._id,
+                    validated: true,
+                    status: true
+                  });
+                } else {
+                  d.push(c);
+                }
+              }
+              
+              coupon.whoUsed = d;
+              
+              coupon.save().then((response) => {
+                if(response) {
+                  sendMessage(sendSocketMessageTo, "new-order", [response]);
+                  return res.status(201).json(response);
+                } else {
+                  return res.status(400).send("We couldn't save your changes, try again later!");
+                }
+              }).catch((error) => {
+                return res.status(500).send(error);
+              });
+            } else {
+              return res.status(404).send("Coupon not found!" );
+            }
+          }).catch((error) => {
+            return res.status(500).send(error);
+          });
 				}
 			} else {
 				return res.status(400).send("We couldn't create a new order, try again later!");
