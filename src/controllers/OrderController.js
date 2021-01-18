@@ -257,7 +257,7 @@ module.exports = {
         var applyDiscount = false;
         
         for(var c of coupon.whoUsed) {
-          if((c.userId === user._id)){
+          if((c.userId == user._id)){
             if((c.validated) && (!c.status)) {
               applyDiscount = true;
             }
