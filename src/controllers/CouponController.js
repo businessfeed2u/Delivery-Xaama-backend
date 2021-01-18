@@ -303,19 +303,23 @@ module.exports = {
 
 				if(coupon.private && (coupon.userId != userId)) {
 					return res.status(400).send("UserId wrong!");
-				}
-
-        for(var c of coupon.whoUsed) {
-          if(c.userId === userId) {
-            return res.status(400).send("You already used this coupon!");
-          }
         }
         
-        var data = {
+        var data = [];
+
+        for(var c of coupon.whoUsed) {
+          if((c.userId === userId) && c.status) {
+            return res.status(400).send("You already used this coupon!");
+          } else if(c.userId != userId) {
+            data.push(c);
+          }
+        }
+
+        data.push({
           userId: userId,
           validated: true,
           status: false
-        };
+        });
 
 				if(coupon.private) {
 					coupon.available = false;
@@ -324,7 +328,7 @@ module.exports = {
 					coupon.available = (coupon.qty === 0) ? false : true;
         }
         
-        coupon.whoUsed.push(data);
+        coupon.whoUsed = data;
 				
 				coupon.save().then((response) => {
 					if(response) {
