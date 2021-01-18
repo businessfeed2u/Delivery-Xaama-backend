@@ -195,7 +195,7 @@ module.exports = {
 		}
 
 		//	Calculate order total price
-		var myMapTypesProducts = new Map();
+    var myMapTypesProducts = new Map();
 
 		if(products){
 			for(x of products) {
@@ -203,17 +203,17 @@ module.exports = {
 					myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
 						myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size]) :
 							x.product.prices[x.size]);
-				}
-
+        }
+        
 				if(x.additions && x.additions.length) {
 					for(y of x.additions) {
 						myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
 							myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + y.price) :
 								y.price);
-					}
-				}
+          }
+        }
 			}
-		}
+    }
 
 		// Calculate discount
 		var d = 0;
@@ -248,7 +248,9 @@ module.exports = {
           errors.push("freight coupon used without asking to deliver the order");
         }
 
-        if((coupon.type === "valor") && (total < coupon.minValue)) {
+        var priceProducts = deliver ? totalB - company.freight : totalB;
+
+        if((coupon.type === "valor") && ( priceProducts < coupon.minValue)) {
           errors.push("coupon used without reaching the minimum value");
         }
 
@@ -264,11 +266,7 @@ module.exports = {
 
         if(applyDiscount) {
           if(coupon.method === "porcentagem") {
-            if(deliver) {
-              discountCoupon = ((totalB - company.freight) * (100 - coupon.discount)) / 100;
-            } else {
-              discountCoupon = (totalB * (100 - coupon.discount)) / 100;
-            }
+            discountCoupon = (priceProducts * (100 - coupon.discount)) / 100;
           } else {
             discountCoupon = coupon.discount;
           }
