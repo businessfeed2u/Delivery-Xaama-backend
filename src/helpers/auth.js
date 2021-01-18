@@ -1,8 +1,14 @@
 //  Loading jwt and dotenv modules
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
+//	Loading User schema and Users collection from database
+require("../models/User");
+const users = mongoose.model("Users");
+
 module.exports = {
+	
 	//	Verify if current user is admin
 	async admin(req, res, next) {
 		const token = req.headers["x-access-token"];
@@ -57,8 +63,17 @@ module.exports = {
 					return res.status(401).send("Invalid token!");
 				} else {
 					req.headers.authorization = decoded.user.id;
-					req.body.user = decoded.user;
-					return next();
+					
+					users.findById(decoded.user.id).then((user) => {
+						if(user) {
+							req.body.user = user;
+							return next();
+						} else {
+							return res.status(400).send("No user found!");
+						}
+					}).catch((error) => {
+						return res.status(500).send(error);
+					});
 				}
 			});
 		}

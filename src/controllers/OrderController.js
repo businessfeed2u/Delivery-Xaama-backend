@@ -216,14 +216,14 @@ module.exports = {
     }
 
 		// Calculate discount
-		var d = 0;
+    var d = 0;
 
 		if(user && user.cards && company && company.cards){
 			user.cards.map((card,index) => {
 				card.completed && !card.status && myMapTypesProducts && myMapTypesProducts.get(card.cardFidelity) ?
 					d = parseInt(d) + parseInt((company.cards[index].discount < myMapTypesProducts.get(card.cardFidelity) ?
 						company.cards[index].discount : myMapTypesProducts.get(card.cardFidelity)))
-					:
+            :
 					null;
 			});
 		}
@@ -279,8 +279,8 @@ module.exports = {
 			}
 		}
 		
-		totalB = (totalB - d - discountCoupon) > 0 ? (totalB - d - discountCoupon) : 0 ;
-		
+    totalB = (totalB - d - discountCoupon) > 0 ? (totalB - d - discountCoupon) : 0 ;
+    
 		if((total != totalB)) {
 			errors.push("delivery total");
 		}
