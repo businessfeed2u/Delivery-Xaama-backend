@@ -281,9 +281,9 @@ module.exports = {
 			}
 		}
 		
-		totalB = totalB - d - discountCoupon;
+		totalB = (totalB - d - discountCoupon) > 0 ? (totalB - d - discountCoupon) : 0 ;
 		
-		if((total != totalB) || totalB < 0) {
+		if((total != totalB)) {
 			errors.push("delivery total");
 		}
 
