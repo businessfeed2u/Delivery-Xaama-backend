@@ -245,11 +245,11 @@ module.exports = {
         }
 
         if(coupon.type === "frete" && !deliver) {
-          errors.push("Freight coupon used without asking to deliver the order");
+          errors.push("freight coupon used without asking to deliver the order");
         }
 
         if((coupon.type === "valor") && (total < coupon.minValue)) {
-          errors.push("Value coupon used without reaching the minimum value");
+          errors.push("coupon used without reaching the minimum value");
         }
 
         var applyDiscount = false;
