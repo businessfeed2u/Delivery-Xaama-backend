@@ -264,7 +264,11 @@ module.exports = {
 
         if(applyDiscount) {
           if(coupon.method === "porcentagem") {
-            discountCoupon = (total * (100 - coupon.discount)) / 100;
+            if(deliver) {
+              discountCoupon = ((totalB - company.freight) * (100 - coupon.discount)) / 100;
+            } else {
+              discountCoupon = (totalB * (100 - coupon.discount)) / 100;
+            }
           } else {
             discountCoupon = coupon.discount;
           }
