@@ -306,12 +306,15 @@ module.exports = {
         }
         
         var data = [];
+        var v = false;
 
         for(var c of coupon.whoUsed) {
           if((c.userId === userId) && c.status) {
             return res.status(400).send("You already used this coupon!");
           } else if(c.userId != userId) {
             data.push(c);
+          } else {
+            v = true;
           }
         }
 
@@ -321,11 +324,12 @@ module.exports = {
           status: false
         });
 
-				if(coupon.private) {
-					coupon.available = false;
-				} else {
-					coupon.qty = (coupon.qty > 0) ? (coupon.qty - 1) : 0;
-					coupon.available = (coupon.qty === 0) ? false : true;
+				if(!coupon.private) {
+          if(!v) {
+            coupon.qty = (coupon.qty > 0) ? (coupon.qty - 1) : 0;
+          }
+
+          coupon.available = (coupon.qty === 0) ? false : true;
         }
         
         coupon.whoUsed = data;
