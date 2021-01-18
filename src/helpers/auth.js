@@ -62,18 +62,20 @@ module.exports = {
 				if(err) {
 					return res.status(401).send("Invalid token!");
 				} else {
-					req.headers.authorization = decoded.user.id;
+          req.headers.authorization = decoded.user.id;
+          req.body.user = decoded.user;
+          return next();
 					
-					users.findById(decoded.user.id).then((user) => {
-						if(user) {
-							req.body.user = user;
-							return next();
-						} else {
-							return res.status(400).send("No user found!");
-						}
-					}).catch((error) => {
-						return res.status(500).send(error);
-					});
+					// users.findById(decoded.user.id).then((user) => {
+					// 	if(user) {
+					// 		req.body.user = user;
+					// 		return next();
+					// 	} else {
+					// 		return res.status(400).send("No user found!");
+					// 	}
+					// }).catch((error) => {
+					// 	return res.status(500).send(error);
+					// });
 				}
 			});
 		}
