@@ -115,7 +115,7 @@ module.exports = {
 			errors.push("method");
 		}
 
-		if(discount < 0) {
+		if((discount < 0) || discount > 100) {
 			errors.push("discount");
 		}
 
@@ -230,7 +230,7 @@ module.exports = {
 			errors.push("method");
 		}
 
-		if(discount < 0) {
+    if((discount < 0) || discount > 100) {
 			errors.push("discount");
 		}
 
