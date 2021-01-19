@@ -266,7 +266,7 @@ module.exports = {
 
         if(applyDiscount) {
           if(coupon.method === "porcentagem") {
-            discountCoupon = (priceProducts * (100 - coupon.discount)) / 100;
+            discountCoupon = (priceProducts * coupon.discount) / 100;
           } else {
             discountCoupon = coupon.discount;
           }
@@ -280,7 +280,7 @@ module.exports = {
 		}
 		
     totalB = (totalB - d - discountCoupon) > 0 ? (totalB - d - discountCoupon) : 0 ;
-    
+
 		if((total != totalB)) {
 			errors.push("delivery total");
 		}
