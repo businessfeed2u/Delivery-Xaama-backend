@@ -23,14 +23,24 @@ module.exports = {
 		
 		if(!(await users.findById(userId).exec())) {
 			return res.status(400).send("User is not found!");
-		}
+    }
 
 		const keysSearch = [
 			{"$and": [ {"private": true}, {"userId": userId}, {"available": true} ] },
-			{"$and": [ {"private": false}, {"available": true} ] },
-		];
+      {"$and": [ {"private": false}, {"available": true} ] },
+    ];
+
+    const keysSearch2 = [
+			{"$and": [ {"whoUsed.userId": userId}, {"whoUsed.status": false} ] },
+      {"$and": [ {"whoUsed": []} ] },
+    ];
+    
+    const keysSearch3 = [
+      { "$or" : keysSearch },
+      { "$or" : keysSearch2 },
+    ];
 		
-		await coupons.find({ "$or" : keysSearch })
+		await coupons.find({ "$and" : keysSearch3 })
 		.sort({
 			type: "asc",
 			available: "desc",
