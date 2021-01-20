@@ -22,6 +22,10 @@ const ratingSchema = Schema({
     type: Number,
 		default: 0
   },
+  approved: {
+		type: Boolean,
+		default: false
+  },
   creationDate: {
 		type: Date,
 		default: Date.now()
