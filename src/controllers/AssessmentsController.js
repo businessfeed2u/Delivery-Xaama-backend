@@ -1,18 +1,20 @@
 //  Loading database and bcryptjs modules
 const mongoose = require("mongoose");
 
-//	Loading Assessments collection from database
+//	Loading Assessments, Order and User collections from database
 require("../models/Assessments");
 require("../models/User");
+require("../models/Order");
 
 const assessments = mongoose.model("Assessments");
 const users = mongoose.model("Users");
+const orders = mongoose.model("Orders");
 
 //	Exporting Assessments features
 module.exports = {
   //	Return all assessments
   async create(req, res) {
-    const { userId, feedback, stars } = req.body;
+    const { userId, orderId, feedback, stars } = req.body;
     var errors = [];
 
     if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
@@ -22,6 +24,10 @@ module.exports = {
     if(!(await users.findById(userId).exec())) {
       errors.push("userId");
     }
+
+    if(!orderId || !orderId.length || !mongoose.Types.ObjectId.isValid(orderId)) {
+			return res.status(400).send("Invalid orderId id!");
+		}
 
     if(!feedback || !feedback.length) {
       errors.push("feedback");
@@ -36,21 +42,32 @@ module.exports = {
 
 			return res.status(400).send(message);
     }
-    
-    await assessments.create({
-      userId,
-      feedback,
-      stars
-    }).then((response) => {
+
+    await orders.findById(orderId).then((response) => {
       if(response) {
-        return res.status(201).json(response);
+        if(response.user._id == userId ) {
+          assessments.create({
+            userId,
+            feedback,
+            stars
+          }).then((response) => {
+            if(response) {
+              return res.status(201).json(response);
+            } else {
+              return res.status(400).send("We couldn't create a new assessments, try again later!");
+            }
+          }).catch((error) => {
+            return res.status(500).send(error);
+          });
+        } else {
+          return res.status(400).send("user not authorized!");
+        }
       } else {
-        return res.status(400).send("We couldn't create a new assessments, try again later!");
+        return res.status(400).send("Order is not found!");
       }
     }).catch((error) => {
       return res.status(500).send(error);
     });
-
   },
 
   //	Return all assessments
