@@ -47,11 +47,7 @@ module.exports = {
 			name: "asc",
 			creationDate: "asc"
 		}).then((response) => {
-			if(response && response.length) {
-				return res.status(200).json(response);
-			} else {
-				return res.status(404).send("Coupons not found!");
-			}
+			return res.status(200).json(response);
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
