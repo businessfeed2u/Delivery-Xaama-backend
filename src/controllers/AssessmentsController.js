@@ -46,17 +46,15 @@ module.exports = {
 			return res.status(400).send(message);
     }
 
-    const keysSearch = [
-			{"$and": [ {"userId": userId}, {"orderId": orderId} ] },
-    ];
+    const keysSearch = {"$and": [ {"userId": userId}, {"orderId": orderId} ] };
 
     await orders.findById(orderId).then((response) => {
       if(response) {
         if(response.user._id == userId ) {
-          assessments.findOne( keysSearch )
+          assessments.find( keysSearch )
           .then((response) => {
-            if(response) {
-              return res.status(500).send("Have you already submitted this request!");
+            if(response && response.length) {
+              return res.status(400).send("Have you already submitted this request!");
             } else {
               assessments.create({
                 userId,
