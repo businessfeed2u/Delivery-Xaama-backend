@@ -18,9 +18,9 @@ const assessmentsSchema = Schema({
     type: Number,
 		default: 0
   },
-	creationDate: {
-		type: String,
-		default: ""
+  creationDate: {
+		type: Date,
+		default: Date.now()
 	}
 });
 
