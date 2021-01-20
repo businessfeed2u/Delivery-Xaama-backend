@@ -9,6 +9,10 @@ const assessmentsSchema = Schema({
 	userId: {
 		type: String,
 		required: true,
+  },
+  orderId: {
+		type: String,
+		required: true,
 	},
 	feedback: {
 		type: String,

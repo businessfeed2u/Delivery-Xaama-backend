@@ -14,7 +14,10 @@ const orders = mongoose.model("Orders");
 module.exports = {
   //	Return all assessments
   async create(req, res) {
-    const { userId, orderId, feedback, stars } = req.body;
+
+    const { orderId, feedback, stars } = req.body;
+    const userId = req.headers.authorization;
+    
     var errors = [];
 
     if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
@@ -43,18 +46,32 @@ module.exports = {
 			return res.status(400).send(message);
     }
 
+    const keysSearch = [
+			{"$and": [ {"userId": userId}, {"orderId": orderId} ] },
+    ];
+
     await orders.findById(orderId).then((response) => {
       if(response) {
         if(response.user._id == userId ) {
-          assessments.create({
-            userId,
-            feedback,
-            stars
-          }).then((response) => {
+          assessments.findOne( keysSearch )
+          .then((response) => {
             if(response) {
-              return res.status(201).json(response);
+              return res.status(500).send("Have you already submitted this request!");
             } else {
-              return res.status(400).send("We couldn't create a new assessments, try again later!");
+              assessments.create({
+                userId,
+                orderId,
+                feedback,
+                stars
+              }).then((response) => {
+                if(response) {
+                  return res.status(201).json(response);
+                } else {
+                  return res.status(400).send("We couldn't create a new assessments, try again later!");
+                }
+              }).catch((error) => {
+                return res.status(500).send(error);
+              });
             }
           }).catch((error) => {
             return res.status(500).send(error);
