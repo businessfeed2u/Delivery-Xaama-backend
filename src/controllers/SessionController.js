@@ -10,6 +10,9 @@ const users = mongoose.model("Users");
 
 // Loading helpers
 const regEx = require("../helpers/regEx");
+const translation = require("../helpers/translation");
+
+const lang = "ptBR";
 
 //	Exporting Session features
 module.exports = {
@@ -59,13 +62,13 @@ module.exports = {
 						});
 						return res.status(200).json({ user, token });
 					} else {
-						return res.status(400).send("Wrong password!");
+						return res.status(400).send(translation[lang][1]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error.message);
 				});
 			} else {
-				return res.status(404).send("User not found!");
+				return res.status(404).send(translation[lang][0]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
