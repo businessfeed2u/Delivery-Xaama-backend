@@ -1,18 +1,18 @@
 //  Loading database and bcryptjs modules
 const mongoose = require("mongoose");
 
-//	Loading Assessments, Order and User collections from database
-require("../models/Assessments");
+//	Loading rating, Order and User collections from database
+require("../models/Rating");
 require("../models/User");
 require("../models/Order");
 
-const assessments = mongoose.model("Assessments");
+const rating = mongoose.model("Rating");
 const users = mongoose.model("Users");
 const orders = mongoose.model("Orders");
 
-//	Exporting Assessments features
+//	Exporting rating features
 module.exports = {
-  //	Return all assessments
+  //	Return all rating
   async create(req, res) {
 
     const { orderId, feedback, stars } = req.body;
@@ -51,12 +51,12 @@ module.exports = {
     await orders.findById(orderId).then((order) => {
       if(order) {
         if(order.user._id == userId ) {
-          assessments.find( keysSearch )
+          rating.find( keysSearch )
           .then((response) => {
             if(response && response.length) {
               return res.status(400).send("Have you already submitted this request!");
             } else {
-              assessments.create({
+              rating.create({
                 userId,
                 orderId,
                 feedback,
@@ -68,13 +68,13 @@ module.exports = {
                     if(response) {
                       return res.status(201).json(response);
                     } else {
-                      return res.status(400).send("Created a new assessment, but did not update the feedback!");
+                      return res.status(400).send("Created a new rating, but did not update the feedback!");
                     }
                   }).catch((error) => {
                     return res.status(500).send(error);
                   });
                 } else {
-                  return res.status(400).send("We couldn't create a new assessments, try again later!");
+                  return res.status(400).send("We couldn't create a new rating, try again later!");
                 }
               }).catch((error) => {
                 return res.status(500).send(error);
@@ -94,28 +94,28 @@ module.exports = {
     });
   },
 
-  //	Return all assessments
+  //	Return all rating
   async delete(req, res) {
-    const assessmentsId = req.params.id;
+    const ratingId = req.params.id;
 
-		if(!assessmentsId || !assessmentsId.length || !mongoose.Types.ObjectId.isValid(assessmentsId)) {
-			return res.status(400).send("Invalid assessments id!");
+		if(!ratingId || !ratingId.length || !mongoose.Types.ObjectId.isValid(ratingId)) {
+			return res.status(400).send("Invalid rating id!");
 		}
 
-		await assessments.findByIdAndDelete(assessmentsId).then((response) => {
+		await rating.findByIdAndDelete(ratingId).then((response) => {
 			if(response) {
-        return res.status(200).send("The assessments have been deleted!");
+        return res.status(200).send("The rating have been deleted!");
 			} else {
-				return res.status(404).send("Assessments not found!");
+				return res.status(404).send("rating not found!");
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
   },
 
-	//	Return all assessments
+	//	Return all rating
   async all(req, res) {
-    await assessments.find().sort({
+    await rating.find().sort({
 			stars: "desc",
 			creationDate: "asc"
 		}).then((response) => {

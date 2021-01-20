@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 //	Defining Order schema
-const assessmentsSchema = Schema({
+const ratingSchema = Schema({
 	userId: {
 		type: String,
 		required: true,
@@ -28,5 +28,5 @@ const assessmentsSchema = Schema({
 	}
 });
 
-//	Creating collection Assessments on database
-mongoose.model("Assessments", assessmentsSchema);
+//	Creating collection rating on database
+mongoose.model("Rating", ratingSchema);
