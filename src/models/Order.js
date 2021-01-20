@@ -36,10 +36,6 @@ const orderSchema = Schema({
 		type: Boolean,
 		default: false
 	},
-	feedback: {
-		type: String,
-		default: null
-	},
 	typePayment: {
 		type: Number,
 		reqired: true

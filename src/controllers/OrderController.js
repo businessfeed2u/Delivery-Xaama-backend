@@ -366,7 +366,7 @@ module.exports = {
 	//	Update current order status
 	async update(req, res) {
 		const orderId = req.params.id;
-		const { status, feedback } = req.body;
+		const { status } = req.body;
 		const sendSocketMessageTo = await findConnections();
 
 		if(!orderId || !orderId.length || !mongoose.Types.ObjectId.isValid(orderId)) {
@@ -380,7 +380,6 @@ module.exports = {
 		await orders.findById(orderId).then((order) => {
 			if(order) {
 				order.status = status;
-				order.feedback = feedback ? feedback.trim() : null ;
 
 				order.save().then((response) => {
 					if(response) {

@@ -18,6 +18,7 @@ const AdditionController = require("./controllers/AdditionController");
 const OrderController = require("./controllers/OrderController");
 const SocketController = require("./controllers/SocketController");
 const CouponController = require("./controllers/CouponController");
+const AssessmentsController = require("./controllers/AssessmentsController");
 
 //  Setting up routes
 const routes = express.Router();
@@ -69,7 +70,7 @@ routes.get("/addition", AdditionController.all);
 //	Order
 routes.get("/order", authorization.verify, OrderController.index);
 routes.post("/order", authorization.verify, OrderController.create);
-routes.put("/order/:id", OrderController.update);
+routes.put("/order/:id", authorization.admin, OrderController.update);
 routes.delete("/order", authorization.manager, OrderController.delete);
 routes.get("/orderAll", authorization.manager, OrderController.all);
 
@@ -84,5 +85,10 @@ routes.get("/couponAll", authorization.admin, CouponController.all);
 //	Socket
 routes.delete("/socket", authorization.manager, SocketController.delete);
 routes.delete("/sockets", authorization.manager, SocketController.deleteAll);
+
+// Assessments
+routes.post("/assessments", authorization.verify, AssessmentsController.create);
+routes.delete("/assessments/:id", authorization.manager, AssessmentsController.delete);
+routes.get("/assessmentsAll", authorization.verify, AssessmentsController.all);
 
 module.exports = routes;
