@@ -48,9 +48,9 @@ module.exports = {
 
     const keysSearch = {"$and": [ {"userId": userId}, {"orderId": orderId} ] };
 
-    await orders.findById(orderId).then((response) => {
-      if(response) {
-        if(response.user._id == userId ) {
+    await orders.findById(orderId).then((order) => {
+      if(order) {
+        if(order.user._id == userId ) {
           assessments.find( keysSearch )
           .then((response) => {
             if(response && response.length) {
@@ -63,7 +63,16 @@ module.exports = {
                 stars
               }).then((response) => {
                 if(response) {
-                  return res.status(201).json(response);
+                  order.feedback = true;
+                  order.save().then((response) => {
+                    if(response) {
+                      return res.status(201).json(response);
+                    } else {
+                      return res.status(400).send("Created a new assessment, but did not update the feedback!");
+                    }
+                  }).catch((error) => {
+                    return res.status(500).send(error);
+                  });
                 } else {
                   return res.status(400).send("We couldn't create a new assessments, try again later!");
                 }
