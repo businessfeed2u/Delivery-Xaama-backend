@@ -116,7 +116,7 @@ module.exports = {
 	//	Return all assessments
   async all(req, res) {
     await assessments.find().sort({
-			stars: "asc",
+			stars: "desc",
 			creationDate: "asc"
 		}).then((response) => {
 			return res.status(200).json(response);
