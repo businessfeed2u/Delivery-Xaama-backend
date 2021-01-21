@@ -10,6 +10,14 @@ const ratingSchema = Schema({
 		type: String,
 		required: true,
   },
+  name: {
+		type: String,
+		required: true
+  },
+  thumbnail: {
+		type: String,
+		default: null
+	},
   orderId: {
 		type: String,
 		required: true,
@@ -30,6 +38,15 @@ const ratingSchema = Schema({
 		type: Date,
 		default: Date.now()
 	}
+}, {
+	toJSON: {
+		virtuals: true,
+	},
+});
+
+//	Creating route to get thumbnail url
+ratingSchema.virtual("thumbnail_url").get(function() {
+	return this.thumbnail ? `files/${this.thumbnail}` : null;
 });
 
 //	Creating collection rating on database
