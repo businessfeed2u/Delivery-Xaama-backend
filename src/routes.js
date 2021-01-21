@@ -86,9 +86,9 @@ routes.get("/couponAll", authorization.admin, CouponController.all);
 routes.delete("/socket", authorization.manager, SocketController.delete);
 routes.delete("/sockets", authorization.manager, SocketController.deleteAll);
 
-// Assessments
+// Rating
 routes.post("/rating", authorization.verify, RatingController.create);
 routes.delete("/rating/:id", authorization.manager, RatingController.delete);
-routes.get("/ratingAll", authorization.verify, RatingController.all);
+routes.get("/ratingAll", RatingController.all);
 
 module.exports = routes;

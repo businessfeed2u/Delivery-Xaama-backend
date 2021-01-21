@@ -61,12 +61,12 @@ module.exports = {
                 orderId,
                 feedback,
                 stars
-              }).then((response) => {
-                if(response) {
+              }).then((ratingCreate) => {
+                if(ratingCreate) {
                   order.feedback = true;
                   order.save().then((response) => {
                     if(response) {
-                      return res.status(201).json(response);
+                      return res.status(201).json(ratingCreate);
                     } else {
                       return res.status(400).send("Created a new rating, but did not update the feedback!");
                     }
