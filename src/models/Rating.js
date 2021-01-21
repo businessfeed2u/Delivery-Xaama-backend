@@ -38,6 +38,10 @@ const ratingSchema = Schema({
 		type: Date,
 		default: Date.now()
 	}
+}, {
+	toJSON: {
+		virtuals: true,
+	},
 });
 
 //	Creating route to get thumbnail url

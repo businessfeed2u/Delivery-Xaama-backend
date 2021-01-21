@@ -61,8 +61,8 @@ module.exports = {
                 orderId,
                 feedback,
                 stars,
-                name: order.user.name,
-                thumbnail: order.user.thumbnail
+                name: order.user.name ? order.user.name : "",
+                thumbnail: order.user.thumbnail ? order.user.thumbnail : null
               }).then((ratingCreate) => {
                 if(ratingCreate) {
                   order.feedback = true;
