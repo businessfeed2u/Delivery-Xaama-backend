@@ -10,6 +10,10 @@ const fs = require("fs");
 
 // Loading helpers
 const regEx = require("../helpers/regEx");
+const lang = require("../helpers/lang");
+
+//	Chosen language
+const cLang = "ptBR";
 
 // Loading dirname
 const path = require("path");
@@ -22,20 +26,19 @@ module.exports = {
 		const additionId = req.params.id;
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			return res.status(400).send("Invalid id!");
+			return res.status(400).send(lang[cLang]["invAdditionId"]);
 		}
 
 		await additions.findById(additionId).then((addition) => {
 			if(addition) {
 				return res.status(200).json(addition);
 			} else {
-				return res.status(404).send("Addition not found!");
+				return res.status(404).send(lang[cLang]["nFAddition"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Create a new addition
 	async create(req, res) {
 		const { name, type, price } = req.body;
@@ -43,15 +46,15 @@ module.exports = {
 		var errors = [];
 
 		if(!name || !name.length) {
-			errors.push("name");
+			errors.push(lang[cLang]["invAdditionName"]);
 		}
 
 		if(!type || !type.length || !regEx.seq.test(type)) {
-			errors.push("type");
+			errors.push(lang[cLang]["invAdditionType"]);
 		}
 
 		if(!price || !price.length || !regEx.price.test(price)) {
-			errors.push("price");
+			errors.push(lang[cLang]["invAdditionPrice"]);
 		}
 
 		if(errors.length) {
@@ -63,7 +66,8 @@ module.exports = {
         }
       }
 
-      const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
+
       return res.status(400).send(message);
 		}
 
@@ -74,7 +78,7 @@ module.exports = {
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-				return res.status(201).send("Addition created successfully!");
+				return res.status(201).send(lang[cLang]["succAdditionCreate"]);
 			} else {
         if(filename) {
           try {
@@ -83,7 +87,7 @@ module.exports = {
             return res.status(500).send(error);
           }
         }
-        return res.status(400).send("We couldn't create a new addition, try again later!");
+        return res.status(400).send(lang[cLang]["failAdditionCreate"]);
 			}
 		}).catch((error) => {
       if(filename) {
@@ -92,8 +96,8 @@ module.exports = {
         } catch(e) {
           return res.status(500).send(e);
         }
-      }	
-      return res.status(500).send(error);	
+      }
+      return res.status(500).send(error);
 		});
 	},
 
@@ -101,27 +105,27 @@ module.exports = {
 	async update(req, res) {
 		const additionId = req.params.id;
 		const { name, type, price, available } = req.body;
-		
+
 		var errors = [];
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			errors.push("id");
+			errors.push(lang[cLang]["invAdditionId"]);
 		}
 
 		if(!name || !name.length) {
-			errors.push("name");
+			errors.push(lang[cLang]["invAdditionName"]);
 		}
 
 		if(!type || !type.length || !regEx.seq.test(type)) {
-			errors.push("type");
+			errors.push(lang[cLang]["invAdditionType"]);
 		}
 
-		if(!regEx.price.test(price)) {
-			errors.push("price");
+		if(!price || !regEx.price.test(price)) {
+			errors.push(lang[cLang]["invAdditionPrice"]);
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
@@ -133,15 +137,15 @@ module.exports = {
 			available: available
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send("The addition has been updated!");
+				return res.status(200).send(lang[cLang]["succAdditionUpdate"]);
 			} else {
-				return res.status(404).send("Addition not found!");
+				return res.status(404).send(lang[cLang]["nFAddition"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-	
+
 	//	Update a specific addition
 	async updateThumbnail(req, res) {
 		const additionId = req.params.id;
@@ -155,7 +159,7 @@ module.exports = {
           return res.status(500).send(error);
         }
       }
-      return res.status(400).send("Invalid additionId value!");
+      return res.status(400).send(lang[cLang]["invAdditionId"]);
 		}
 
 		await additions.findByIdAndUpdate(additionId, {
@@ -166,10 +170,10 @@ module.exports = {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
           } catch(error) {
-            return res.status(200).send("The addition has been updated, but thumbnail is not find!");
+            return res.status(200).send(lang[cLang]["succAdditionUpdateButThumb"]);
           }
         }
-        return res.status(200).send("The addition has been updated!");
+        return res.status(200).send(lang[cLang]["succAdditionUpdateThumb"]);
 
 			} else {
         if(filename) {
@@ -179,7 +183,7 @@ module.exports = {
             return res.status(500).send(error);
           }
         }
-        return res.status(404).send("Addition not found!");
+        return res.status(404).send(lang[cLang]["nFAddition"]);
 			}
 		}).catch((error) => {
       if(filename) {
@@ -198,7 +202,7 @@ module.exports = {
 		const additionId = req.params.id;
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			return res.status(400).send("Invalid id!");
+			return res.status(400).send(lang[cLang]["invAdditionId"]);
 		}
 
 		await additions.findByIdAndDelete(additionId).then((response) => {
@@ -207,12 +211,12 @@ module.exports = {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
           } catch(e){
-            return res.status(200).send("The addition have been deleted, but the thumbnail was not found");
+            return res.status(200).send(lang[cLang]["succAdditionDeleteButThumb"]);
           }
         }
-        return res.status(200).send("The addition and its thumbnail have been deleted!");
+        return res.status(200).send(lang[cLang]["succAdditionDelete"]);
 			} else {
-				return res.status(404).send("Addition not found!");
+				return res.status(404).send(lang[cLang]["nFAddition"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -231,7 +235,7 @@ module.exports = {
 			if(response && response.length) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).send("Additions not found!");
+				return res.status(404).send(lang[cLang]["nFAdditions"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

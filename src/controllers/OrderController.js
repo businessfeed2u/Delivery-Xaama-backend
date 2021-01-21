@@ -53,7 +53,7 @@ module.exports = {
 		if(!user || !Object.keys(user).length || !(await users.findById(user._id).exec())) {
 			errors.push("user");
 		}
-		
+
 		if(!(await users.findById(user._id).exec())) {
 			errors.push("user is not found");
 		}
@@ -204,7 +204,7 @@ module.exports = {
 						myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size]) :
 							x.product.prices[x.size]);
         }
-        
+
 				if(x.additions && x.additions.length) {
 					for(y of x.additions) {
 						myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
@@ -236,9 +236,9 @@ module.exports = {
 			if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
 				return res.status(400).send("Invalid coupon id!");
 			}
-			
+
 			coupon = await coupons.findById(couponId).exec();
-		
+
 			if(coupon) {
 				if(coupon.private && (coupon.userId != user._id)) {
 					errors.push("UserId wrong");
@@ -255,7 +255,7 @@ module.exports = {
         }
 
         var applyDiscount = false;
-        
+
         for(var c of coupon.whoUsed) {
           if((c.userId == user._id)){
             if((c.validated) && (!c.status)) {
@@ -278,7 +278,7 @@ module.exports = {
 				errors.push("Coupon");
 			}
 		}
-		
+
     totalB = (totalB - d - discountCoupon) > 0 ? (totalB - d - discountCoupon) : 0 ;
 
 		if((total != totalB)) {
@@ -331,9 +331,9 @@ module.exports = {
                     d.push(c);
                   }
                 }
-                
+
                 coupon.whoUsed = d;
-                
+
                 coupon.save().then((response) => {
                   if(response) {
                     sendMessage(sendSocketMessageTo, "new-order", [response]);

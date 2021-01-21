@@ -10,6 +10,10 @@ const fs = require("fs");
 
 // Loading helpers
 const regEx = require("../helpers/regEx");
+const lang = require("../helpers/lang");
+
+//	Chosen language
+const cLang = "ptBR";
 
 // Loading dirname
 const path = require("path");
@@ -22,14 +26,14 @@ module.exports = {
 		const productId = req.params.id;
 
 		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
-			return res.status(400).send("Invalid id!");
+			return res.status(400).send(lang[cLang]["invProductId"]);
 		}
 
 		await products.findById(productId).then((product) => {
 			if(product) {
 				return res.status(200).json(product);
 			} else {
-				return res.status(404).send("Product not found!");
+				return res.status(404).send(lang[cLang]["nFProduct"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -43,23 +47,23 @@ module.exports = {
 		var errors = [];
 
 		if(!name || !name.length) {
-			errors.push("name");
+			errors.push(lang[cLang]["invProductName"]);
 		}
 
 		if(!ingredients || !ingredients.length || !regEx.seq.test(ingredients)) {
-			errors.push("ingredients");
+			errors.push(lang[cLang]["invProductIngredients"]);
 		}
 
 		if(!type || !type.length) {
-			errors.push("type");
+			errors.push(lang[cLang]["invProductType"]);
 		}
 
 		if(!prices || !prices.length || !regEx.prices.test(prices)) {
-			errors.push("price(s)");
+			errors.push(lang[cLang]["invProductPrice"]);
 		}
 
 		if(!sizes || !sizes.length || !regEx.seq.test(sizes)) {
-			errors.push("size(s)");
+			errors.push(lang[cLang]["invProductSize"]);
 		}
 
 		if(errors.length) {
@@ -70,8 +74,9 @@ module.exports = {
           return res.status(500).send(error);
         }
       }
-      
-      const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+
+			const message = errors.join(", ");
+
       return res.status(400).send(message);
 		}
 
@@ -84,7 +89,7 @@ module.exports = {
         }
       }
 
-      return res.status(400).send("Prices and sizes don't have the same length!");
+      return res.status(400).send(lang[cLang]["invProductPriceSize"]);
 		}
 
 		await products.create({
@@ -96,7 +101,7 @@ module.exports = {
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-				return res.status(201).send("Product created successfully!");
+				return res.status(201).send(lang[cLang]["succProductCreate"]);
 			} else {
         if(filename) {
           try {
@@ -105,7 +110,7 @@ module.exports = {
             return res.status(500).send(error);
           }
         }
-        return res.status(400).send("We couldn't create a new product, try again later!");
+        return res.status(400).send(lang[cLang]["failProductCreate"]);
 			}
 		}).catch((error) => {
       if(filename) {
@@ -123,41 +128,41 @@ module.exports = {
 	async update(req, res) {
 		const productId = req.params.id;
 		const { name, ingredients, type, prices, sizes, available } = req.body;
-		
+
 		var errors = [];
-	
+
 		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
-			errors.push("id");
+			errors.push(lang[cLang]["invProductId"]);
 		}
 
 		if(!name || !name.length) {
-			errors.push("name");
+			errors.push(lang[cLang]["invProductName"]);
 		}
 
 		if(!ingredients || !ingredients.length || !regEx.seq.test(ingredients)) {
-			errors.push("ingredients");
+			errors.push(lang[cLang]["invProductIngredients"]);
 		}
 
 		if(!type || !type.length) {
-			errors.push("type");
+			errors.push(lang[cLang]["invProductType"]);
 		}
 
 		if(!prices || !prices.length || !regEx.prices.test(prices)) {
-			errors.push("price(s)");
+			errors.push(lang[cLang]["invProductPrice"]);
 		}
 
 		if(!sizes || !sizes.length || !regEx.seq.test(sizes)) {
-			errors.push("size(s)");
+			errors.push(lang[cLang]["invProductSize"]);
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
 
 		if(sizes.split(",").length !== prices.split(",").length) {
-			return res.status(400).send("Prices and sizes don't have the same length!");
+			return res.status(400).send(lang[cLang]["invProductPriceSize"]);
 		}
 
 		await products.findByIdAndUpdate(productId, {
@@ -169,22 +174,22 @@ module.exports = {
 			available: available
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send("The product has been updated!");
+				return res.status(200).send(lang[cLang]["succProductUpdate"]);
 			} else {
-				return res.status(404).send("Product not found!");
+				return res.status(404).send(lang[cLang]["nFProduct"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-	
+
 	//	Update a specific product
 	async updateThumbnail(req, res) {
 		const productId = req.params.id;
 		const filename = (req.file) ? req.file.filename : null;
-	
+
 		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
-			return res.status(400).send("Invalid productId value");
+			return res.status(400).send(lang[cLang]["invProductId"]);
 		}
 
 		await products.findByIdAndUpdate(productId, {
@@ -195,19 +200,19 @@ module.exports = {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
           } catch(error) {
-            return res.status(200).send("The product has been updated, but thumbnail old is not find!");
+            return res.status(200).send(lang[cLang]["succProductUpdateButThumb"]);
           }
         }
-        return res.status(200).send("The product has been updated!");
+        return res.status(200).send(lang[cLang]["succProductUpdateThumb"]);
 			} else {
         if(filename) {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${filename}`);
           } catch(error) {
-            return res.status(404).send("Product and thumbnail not found!");
+            return res.status(500).send(error);
           }
         }
-        return res.status(404).send("Product not found!");
+        return res.status(404).send(lang[cLang]["nFProduct"]);
 			}
 		}).catch((error) => {
       if(filename) {
@@ -226,7 +231,7 @@ module.exports = {
 		const productId = req.params.id;
 
 		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
-			return res.status(400).send("Invalid id!");
+			return res.status(400).send(lang[cLang]["invProductId"]);
 		}
 
 		await products.findByIdAndDelete(productId).then((response) => {
@@ -235,12 +240,12 @@ module.exports = {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
           } catch(e){
-            return res.status(200).send("The product was deleted, but the thumbnail was not found");
+            return res.status(200).send(lang[cLang]["succProductDeleteButThumb"]);
           }
         }
-        return res.status(200).send("The product and its thumbnail have been deleted!");
+        return res.status(200).send(lang[cLang]["succProductDelete"]);
 			} else {
-				return res.status(404).send("Product not found!");
+				return res.status(404).send(lang[cLang]["nFProduct"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -258,7 +263,7 @@ module.exports = {
 			if(response && response.length) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).send("Products not found!");
+				return res.status(404).send(lang[cLang]["nFProducts"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

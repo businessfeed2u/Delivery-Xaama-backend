@@ -8,11 +8,12 @@ require("dotenv").config();
 require("../models/User");
 const users = mongoose.model("Users");
 
-// Loading helpers
+//	Loading helpers
 const regEx = require("../helpers/regEx");
-const translation = require("../helpers/translation");
+const lang = require("../helpers/lang");
 
-const lang = "ptBR";
+//	Chosen language
+const cLang = "ptBR";
 
 //	Exporting Session features
 module.exports = {
@@ -21,14 +22,14 @@ module.exports = {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send("Invalid id!");
+			return res.status(400).send(lang[cLang]["invUserId"]);
 		}
 
 		await users.findById(userId).then((user) => {
 			if(user) {
 				return res.status(200).json(user);
 			} else {
-				return res.status(404).send("User not found!");
+				return res.status(404).send(lang[cLang]["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -40,15 +41,15 @@ module.exports = {
 		var errors = [];
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			errors.push("email");
+			errors.push(lang[cLang]["invEmail"]);
 		}
 
 		if(!password || !password.length) {
-			errors.push("password");
+			errors.push(lang[cLang]["invPassword"]);
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
@@ -60,15 +61,15 @@ module.exports = {
 						const token = jwt.sign({ user }, process.env.SECRET, {
 							expiresIn: 86400
 						});
-						return res.status(200).json({ user, token });
+						return res.status(201).json({ user, token });
 					} else {
-						return res.status(400).send(translation[lang][1]);
+						return res.status(400).send(lang[cLang]["wrongPassword"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error.message);
 				});
 			} else {
-				return res.status(404).send(translation[lang][0]);
+				return res.status(404).send(lang[cLang]["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

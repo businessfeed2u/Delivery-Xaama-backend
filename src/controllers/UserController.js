@@ -16,6 +16,10 @@ const fs = require("fs");
 
 // Loading helpers
 const regEx = require("../helpers/regEx");
+const lang = require("../helpers/lang");
+
+//	Chosen language
+const cLang = "ptBR";
 
 const { findConnections, sendMessage } = require("../config/websocket");
 
@@ -30,20 +34,19 @@ module.exports = {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send("Invalid id!");
+			return res.status(400).send(lang[cLang]["invUserId"]);
 		}
 
 		await users.findById(userId).then((user) => {
 			if(user) {
 				return res.status(200).json(user);
 			} else {
-				return res.status(400).send("No user found!");
+				return res.status(400).send(lang[cLang]["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Create a new user
 	async create(req, res) {
 		const { name, email, password, passwordC } = req.body;
@@ -53,37 +56,30 @@ module.exports = {
 
 
 		if(!name || !name.length) {
-			errors.push("name");
+			errors.push(lang[cLang]["invUserName"]);
 		}
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			errors.push("email");
+			errors.push(lang[cLang]["invEmail"]);
 		}
 
 		if(!password || !password.length || !regEx.password.test(password)) {
-			errors.push("password");
+			errors.push(lang[cLang]["invPassword"]);
 		}
 
 		if(!passwordC || !passwordC.length || !regEx.password.test(passwordC)) {
-			errors.push("password confirmation");
+			errors.push(lang[cLang]["invPasswordConfirmation"]);
 		}
 
-		var Company;
-
-		await companyData.findOne({}).then((response) => {
-			if(response) {
-			Company = response;
-			} else {
-			errors.join("No company data found!");
-			}
-		}).catch(() => {
-			errors.join("Erro ao carregar informações da empresa");
-		});
+		const company = await companyData.findOne({}).exec();
+		if(!company) {
+			res.status(400).send(lang[cLang]["nFCompanyInfo"]);
+		}
 
 		var cards = [];
 		var i = 0;
 
-		for(var c of Company.cards) {
+		for(var c of company.cards) {
 			const data = {
 				cardFidelity: c.type,
 				qtdCurrent: 0,
@@ -104,20 +100,21 @@ module.exports = {
           return res.status(500).send(error);
         }
       }
-      return res.status(400).send("The password confirmation don't match, try again!");
-	}
+      return res.status(400).send(lang[cLang]["wrongPasswordConfirmation"]);
+		}
 
-	if(errors.length) {
-    if(filename) {
-      try {
-				fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-			} catch(error) {
-				return res.status(500).send(error);
-      }
-    }
-    const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
-    return res.status(400).send(message);
-	}
+		if(errors.length) {
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(error) {
+					return res.status(500).send(error);
+				}
+			}
+			const message = errors.join(", ");
+
+			return res.status(400).send(message);
+		}
 
 		await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
 			if(response) {
@@ -128,7 +125,7 @@ module.exports = {
             return res.status(500).send(error);
           }
         }
-        return res.status(400).send("There is a user using this email, try another!");
+        return res.status(400).send(lang[cLang]["existentEmail"]);
 			} else {
 				var salt = 0, hash = "";
 
@@ -159,7 +156,7 @@ module.exports = {
             const token = jwt.sign({ user }, process.env.SECRET, {
 							expiresIn: 86400
 						});
-						return res.status(200).json({ user, token });
+						return res.status(201).json({ user, token });
 					} else {
             if(filename) {
               try {
@@ -168,7 +165,7 @@ module.exports = {
                 return res.status(500).send(e);
               }
             }
-            return res.status(400).send("We couldn't process your request, try again later!");
+            return res.status(400).send(lang[cLang]["failUserCreate"]);
 					}
 				}).catch((error) => {
           if(filename) {
@@ -200,24 +197,24 @@ module.exports = {
     const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send("Invalid id!");
+			return res.status(400).send(lang[cLang]["invUserId"]);
 		}
 		var errors = [];
 
 		if(!name || !name.length) {
-			errors.push("name");
+			errors.push(lang[cLang]["invUserName"]);
 		}
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			errors.push("email");
+			errors.push(lang[cLang]["invEmail"]);
 		}
 
 		if(phone && phone.length && !regEx.phone.test(phone)) {
-			errors.push("phone");
+			errors.push(lang[cLang]["invPhone"]);
 		}
 
 		if(address && address.length && !regEx.address.test(address)) {
-			errors.push("address");
+			errors.push(lang[cLang]["invAddress"]);
 		}
 
 		if(!status || !status.length) {
@@ -225,45 +222,45 @@ module.exports = {
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
     }
-    
+
     await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
       if(response && (response._id != userId)) {
-        return res.status(400).send("There is a user using this email, try another!");
+        return res.status(400).send(lang[cLang]["existentEmail"]);
 			} else {
         users.findById(userId).then((user) => {
           if(user) {
             var hash = "";
-    
+
             if(passwordN && passwordN.length) {
               if(!regEx.password.test(passwordN)) {
-                return res.status(400).send("Invalid new password!");
+                return res.status(400).send(lang[cLang]["invNewPassword"]);
               }
-    
+
               if(!bcrypt.compareSync(passwordO, user.password)) {
-                return res.status(400).send("Old password don't match, try again!");
+                return res.status(400).send(lang[cLang]["wrongOldPassword"]);
               }
-    
+
               try {
                 const salt = bcrypt.genSaltSync(10);
                 hash = bcrypt.hashSync(passwordN, salt);
               } catch(error) {
-                return res.status(500).send(error.message);
+                return res.status(500).send(error);
               }
             } else {
               hash = user.password;
             }
-    
+
             if(user.cards.length != status.length) {
               return res.status(400).send("vector length of status");
             }
-    
+
             var data = [];
             var i = 0;
-    
+
             for(var u of user.cards) {
               var newCard = {
                 cardFidelity: u.cardFidelity,
@@ -271,18 +268,18 @@ module.exports = {
                 completed: u.completed,
                 status: status[i]
               };
-    
+
               data.push(newCard);
               i ++;
             }
-    
+
             user.cards = data;
             user.name = name;
             user.email = email.trim().toLowerCase();
             user.password = hash;
             user.phone = phone ? phone : null;
             user.address = address && address.length ? address.split(",").map(a => a.trim()) : null;
-    
+
             user.save().then((response) => {
               if(response) {
                 users.find().sort({
@@ -292,20 +289,20 @@ module.exports = {
                 }).catch((error) => {
                   return res.status(500).send(error);
                 });
-    
+
                 const token = jwt.sign({ user }, process.env.SECRET, {
                   expiresIn: 86400
                 });
-    
+
                 return res.status(200).json({ token, user });
               } else {
-                return res.status(400).send("We couldn't save your changes, try again later!");
+                return res.status(400).send(lang[cLang]["failUserUpdate"]);
               }
             }).catch((error) => {
               return res.status(500).send(error);
             });
           } else {
-            return res.status(404).send("User not found!" );
+            return res.status(404).send(lang[cLang]["nFUser"]);
           }
         }).catch((error) => {
           return res.status(500).send(error);
@@ -331,7 +328,7 @@ module.exports = {
           return res.status(500).send(e);
         }
       }
-      return res.status(400).send("Invalid id!");
+      return res.status(400).send(lang[cLang]["invUserId"]);
     }
 
     if(!delImg || !delImg.length) {
@@ -384,7 +381,7 @@ module.exports = {
               }
             }
 
-						return res.status(400).send("We couldn't save your changes, try again later!");
+						return res.status(400).send(lang[cLang]["failUserUpdate"]);
 					}
 				}).catch((error) => {
 					if(filename) {
@@ -406,7 +403,7 @@ module.exports = {
           }
         }
 
-				return res.status(404).send("User not found!" );
+				return res.status(404).send(lang[cLang]["nFUser"]);
 			}
 		}).catch((error) => {
 			if(filename) {
@@ -429,7 +426,7 @@ module.exports = {
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push("user id");
+			errors.push(lang[cLang]["invUserId"]);
 		}
 
 		//	Validating cards fidelity
@@ -438,15 +435,10 @@ module.exports = {
 		if(!cardsNewQtd || !cardsNewQtd.length) {
 			errors.push("cardsNewQtd");
 		} else {
-			await companyData.findOne({}).then((response) => {
-				if(response) {
-					Company = response;
-				} else {
-					errors.push("No company data found!");
-				}
-			}).catch(() => {
-				errors.push("Erro ao carregar informações da empresa");
-			});
+			Company = await companyData.findOne({}).exec();
+			if(!Company) {
+				res.status(400).send(lang[cLang]["nFCompanyInfo"]);
+			}
 
 			if(cardsNewQtd.length != Company.cards.length) {
 				return res.status(400).send("Invalid cards lenght value");
@@ -454,7 +446,7 @@ module.exports = {
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
@@ -521,16 +513,16 @@ module.exports = {
 							return res.status(500).send(error);
 						});
 
-						return res.status(200).send("Successful on changing your data!");
+						return res.status(200).send(lang[cLang]["succUserUpdate"]);
 					} else {
-						return res.status(400).send("We couldn't save your changes, try again later!");
+						return res.status(400).send(lang[cLang]["failUserUpdate"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
 				});
 
 			} else {
-				return res.status(404).send("User not found!" );
+				return res.status(404).send(lang[cLang]["nFUser"]);
 			}
 		}).catch((error) => {
 				return res.status(500).send(error);
@@ -545,15 +537,15 @@ module.exports = {
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push("id");
+			errors.push(lang[cLang]["invUserId"]);
 		}
 
 		if(!password || !password.length) {
-			errors.push("password");
+			errors.push(lang[cLang]["invPassword"]);
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
@@ -561,7 +553,7 @@ module.exports = {
 		await users.findById(userId).then((user) => {
 			if(user) {
 				if(user.userType === 2) {
-					return res.status(403).send("Admin account can't be deleted");
+					return res.status(403).send(lang[cLang]["unauthOperation"]);
 				} else {
 					bcrypt.compare(password, user.password).then((match) => {
 						if(match) {
@@ -580,23 +572,23 @@ module.exports = {
 											return res.status(500).send(error);
 										});
 
-										return res.status(200).send("The user has been deleted!");
+										return res.status(200).send(lang[cLang]["succUserDelete"]);
 									} catch(e) {
-										return res.status(200).send("The user has been deleted, but the profile picture was not found!");
+										return res.status(200).send(lang[cLang]["succUserDeleteButThumb"]);
 									}
 								} else {
-									return res.status(400).send("User not found!");
+									return res.status(400).send(lang[cLang]["nFUser"]);
 								}
 							}).catch((error) => {
 								return res.status(500).send(error);
 							});
 						} else {
-							return res.status(400).send("Wrong password, try again!");
+							return res.status(400).send(lang[cLang]["wrongPassword"]);
 						}
 					});
 				}
 			} else {
-				return res.status(404).send("User not found!");
+				return res.status(404).send(lang[cLang]["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -609,23 +601,21 @@ module.exports = {
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push("user id");
+			errors.push(lang[cLang]["invUserId"]);
 		}
 
-		var Company;
+		const Company = await companyData.findOne({}).exec();
+		if(!Company) {
+			errors.push(lang[cLang]["nFCompanyInfo"]);
+		}
 
-		await companyData.findOne({}).then((response) => {
-			if(response) {
-				Company = response;
-			} else {
-				errors.push("No company data found!");
-			}
-		}).catch(() => {
-			errors.push("Erro ao carregar informações da empresa");
-		});
+		const allUsers = await users.find().exec();
+		if(!allUsers) {
+			errors.push(lang[cLang]["nFUsers"]);
+		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
@@ -633,69 +623,60 @@ module.exports = {
 		await users.findById(userId).then((user) => {
 			if(user) {
 				if(user.userType != 2) {
-					return res.status(404).send("User is not adm!");
+					return res.status(404).send(lang[cLang]["unauthOperation"]);
 				}
 			} else {
-				return res.status(404).send("User not found!");
-			}
-		}).catch((error) => {
-			return res.status(500).send(error);
-	});
-
-	var allUsers;
-
-	await users.find().then((response) => {
-		allUsers = response;
-	}).catch((error) => {
-		return res.status(500).send(error);
-	});
-
-	for(var u of allUsers) {
-		await users.findById(u._id).then((user) => {
-			if(user) {
-				var data = [];
-				var exist = false;
-
-				for(var type of Company.productTypes) {
-					exist = false;
-					for(var c of user.cards) {
-						if(type == c.cardFidelity) {
-						data.push(c);
-						exist = true;
-						break;
-						}
-					}
-					if(!exist) {
-						var newCard = {
-							cardFidelity: type,
-							qtdCurrent: 0,
-							completed: false,
-							status: false
-						};
-						data.push(newCard);
-					}
-				}
-				user.cards = data;
-
-				user.save().then((response) => {
-					if(response) {
-						return res;
-					} else {
-						return res.status(400).send("We couldn't save your changes, try again later!");
-					}
-				}).catch((error) => {
-					return res.status(500).send(error);
-				});
-			} else {
-				return res.status(404).send("User not found!" );
+				return res.status(404).send(lang[cLang]["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-	}
 
-	return res.status(200).send("All users cards have been update!");
+		for(const u of allUsers) {
+			await users.findById(u._id).then((user) => {
+				if(user) {
+					var data = [];
+					var exist = false;
 
+					for(var type of Company.productTypes) {
+						exist = false;
+						for(var c of user.cards) {
+							if(type == c.cardFidelity) {
+							data.push(c);
+							exist = true;
+							break;
+							}
+						}
+						if(!exist) {
+							var newCard = {
+								cardFidelity: type,
+								qtdCurrent: 0,
+								completed: false,
+								status: false
+							};
+							data.push(newCard);
+						}
+					}
+					user.cards = data;
+
+					user.save().then((response) => {
+						if(response) {
+							return res;
+						} else {
+							return res.status(400).send(lang[cLang]["failUserUpdate"]);
+						}
+					}).catch((error) => {
+						return res.status(500).send(error);
+					});
+				} else {
+					return res.status(404).send(lang[cLang]["nFUser"]);
+				}
+			}).catch((error) => {
+				return res.status(500).send(error);
+			});
+		}
+
+		return res.status(200).send("All users cards have been update!");
 	},
 
 	//	Return all users on database
@@ -703,7 +684,11 @@ module.exports = {
 		await users.find().sort({
 			userType: "desc"
 		}).then((response) => {
-			return res.status(200).json(response);
+			if(response) {
+				return res.status(200).json(response);
+			} else {
+				return res.status(404).json(lang[cLang]["nFUsers"]);
+			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
