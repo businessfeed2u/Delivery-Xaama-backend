@@ -2,9 +2,6 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-//	Loading User schema and Users collection from database
-require("../models/User");
-
 //	Loading helpers
 const lang = require("./lang");
 

@@ -52,7 +52,7 @@ module.exports = {
 		//	Validantig order user
 		if(!user || !Object.keys(user).length || !(await users.findById(user._id).exec())) {
 			errors.push("user");
-		}
+    }
 
 		if(!(await users.findById(user._id).exec())) {
 			errors.push("user is not found");
@@ -280,6 +280,10 @@ module.exports = {
 		}
 
     totalB = (totalB - d - discountCoupon) > 0 ? (totalB - d - discountCoupon) : 0 ;
+
+    // console.log("total: " + total);
+    // console.log("totalB: " + totalB);
+    // console.log("d: " + d);
 
 		if((total != totalB)) {
 			errors.push("delivery total");

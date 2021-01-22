@@ -444,9 +444,9 @@ module.exports = {
 					var s = user.cards[i].status;
 
 					if(Company.cards[i].available) {
-						if(!complete && s) {
-							return res.status(400).send("Invalid completed and satus value");
-						}
+						// if(!complete && s) {
+						// 	return res.status(400).send("Invalid completed and satus value");
+						// }
 
 						if(s) {
 							s = false;
