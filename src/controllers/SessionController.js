@@ -12,9 +12,6 @@ const users = mongoose.model("Users");
 const regEx = require("../helpers/regEx");
 const lang = require("../helpers/lang");
 
-//	Chosen language
-const cLang = "ptBR";
-
 //	Exporting Session features
 module.exports = {
 	//	Return user info from current session
@@ -22,14 +19,14 @@ module.exports = {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send(lang[cLang]["invUserId"]);
+			return res.status(400).send(lang["invId"]);
 		}
 
 		await users.findById(userId).then((user) => {
 			if(user) {
 				return res.status(200).json(user);
 			} else {
-				return res.status(404).send(lang[cLang]["nFUser"]);
+				return res.status(404).send(lang["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -41,11 +38,11 @@ module.exports = {
 		var errors = [];
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			errors.push(lang[cLang]["invEmail"]);
+			errors.push(lang["invEmail"]);
 		}
 
 		if(!password || !password.length) {
-			errors.push(lang[cLang]["invPassword"]);
+			errors.push(lang["invPassword"]);
 		}
 
 		if(errors.length) {
@@ -63,13 +60,13 @@ module.exports = {
 						});
 						return res.status(201).json({ user, token });
 					} else {
-						return res.status(400).send(lang[cLang]["wrongPassword"]);
+						return res.status(400).send(lang["wrongPassword"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error.message);
 				});
 			} else {
-				return res.status(404).send(lang[cLang]["nFUser"]);
+				return res.status(404).send(lang["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

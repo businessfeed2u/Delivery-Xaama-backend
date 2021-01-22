@@ -18,9 +18,6 @@ const fs = require("fs");
 const regEx = require("../helpers/regEx");
 const lang = require("../helpers/lang");
 
-//	Chosen language
-const cLang = "ptBR";
-
 const { findConnections, sendMessage } = require("../config/websocket");
 
 // Loading dirname
@@ -34,14 +31,14 @@ module.exports = {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send(lang[cLang]["invUserId"]);
+			return res.status(400).send(lang["invId"]);
 		}
 
 		await users.findById(userId).then((user) => {
 			if(user) {
 				return res.status(200).json(user);
 			} else {
-				return res.status(400).send(lang[cLang]["nFUser"]);
+				return res.status(400).send(lang["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -56,24 +53,24 @@ module.exports = {
 
 
 		if(!name || !name.length) {
-			errors.push(lang[cLang]["invUserName"]);
+			errors.push(lang["invUserName"]);
 		}
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			errors.push(lang[cLang]["invEmail"]);
+			errors.push(lang["invEmail"]);
 		}
 
 		if(!password || !password.length || !regEx.password.test(password)) {
-			errors.push(lang[cLang]["invPassword"]);
+			errors.push(lang["invPassword"]);
 		}
 
 		if(!passwordC || !passwordC.length || !regEx.password.test(passwordC)) {
-			errors.push(lang[cLang]["invPasswordConfirmation"]);
+			errors.push(lang["invPasswordConfirmation"]);
 		}
 
 		const company = await companyData.findOne({}).exec();
 		if(!company) {
-			res.status(400).send(lang[cLang]["nFCompanyInfo"]);
+			res.status(400).send(lang["nFCompanyInfo"]);
 		}
 
 		var cards = [];
@@ -100,7 +97,7 @@ module.exports = {
           return res.status(500).send(error);
         }
       }
-      return res.status(400).send(lang[cLang]["wrongPasswordConfirmation"]);
+      return res.status(400).send(lang["wrongPasswordConfirmation"]);
 		}
 
 		if(errors.length) {
@@ -125,7 +122,7 @@ module.exports = {
             return res.status(500).send(error);
           }
         }
-        return res.status(400).send(lang[cLang]["existentEmail"]);
+        return res.status(400).send(lang["existentEmail"]);
 			} else {
 				var salt = 0, hash = "";
 
@@ -165,7 +162,7 @@ module.exports = {
                 return res.status(500).send(e);
               }
             }
-            return res.status(400).send(lang[cLang]["failUserCreate"]);
+            return res.status(400).send(lang["failUserCreate"]);
 					}
 				}).catch((error) => {
           if(filename) {
@@ -197,24 +194,24 @@ module.exports = {
     const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send(lang[cLang]["invUserId"]);
+			return res.status(400).send(lang["invId"]);
 		}
 		var errors = [];
 
 		if(!name || !name.length) {
-			errors.push(lang[cLang]["invUserName"]);
+			errors.push(lang["invUserName"]);
 		}
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			errors.push(lang[cLang]["invEmail"]);
+			errors.push(lang["invEmail"]);
 		}
 
 		if(phone && phone.length && !regEx.phone.test(phone)) {
-			errors.push(lang[cLang]["invPhone"]);
+			errors.push(lang["invPhone"]);
 		}
 
 		if(address && address.length && !regEx.address.test(address)) {
-			errors.push(lang[cLang]["invAddress"]);
+			errors.push(lang["invAddress"]);
 		}
 
 		if(!status || !status.length) {
@@ -229,7 +226,7 @@ module.exports = {
 
     await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
       if(response && (response._id != userId)) {
-        return res.status(400).send(lang[cLang]["existentEmail"]);
+        return res.status(400).send(lang["existentEmail"]);
 			} else {
         users.findById(userId).then((user) => {
           if(user) {
@@ -237,11 +234,11 @@ module.exports = {
 
             if(passwordN && passwordN.length) {
               if(!regEx.password.test(passwordN)) {
-                return res.status(400).send(lang[cLang]["invNewPassword"]);
+                return res.status(400).send(lang["invNewPassword"]);
               }
 
               if(!bcrypt.compareSync(passwordO, user.password)) {
-                return res.status(400).send(lang[cLang]["wrongOldPassword"]);
+                return res.status(400).send(lang["wrongOldPassword"]);
               }
 
               try {
@@ -296,13 +293,13 @@ module.exports = {
 
                 return res.status(200).json({ token, user });
               } else {
-                return res.status(400).send(lang[cLang]["failUserUpdate"]);
+                return res.status(400).send(lang["failUserUpdate"]);
               }
             }).catch((error) => {
               return res.status(500).send(error);
             });
           } else {
-            return res.status(404).send(lang[cLang]["nFUser"]);
+            return res.status(404).send(lang["nFUser"]);
           }
         }).catch((error) => {
           return res.status(500).send(error);
@@ -328,7 +325,7 @@ module.exports = {
           return res.status(500).send(e);
         }
       }
-      return res.status(400).send(lang[cLang]["invUserId"]);
+      return res.status(400).send(lang["invId"]);
     }
 
     if(!delImg || !delImg.length) {
@@ -381,7 +378,7 @@ module.exports = {
               }
             }
 
-						return res.status(400).send(lang[cLang]["failUserUpdate"]);
+						return res.status(400).send(lang["failUserUpdate"]);
 					}
 				}).catch((error) => {
 					if(filename) {
@@ -403,7 +400,7 @@ module.exports = {
           }
         }
 
-				return res.status(404).send(lang[cLang]["nFUser"]);
+				return res.status(404).send(lang["nFUser"]);
 			}
 		}).catch((error) => {
 			if(filename) {
@@ -426,7 +423,7 @@ module.exports = {
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang[cLang]["invUserId"]);
+			errors.push(lang["invId"]);
 		}
 
 		//	Validating cards fidelity
@@ -437,7 +434,7 @@ module.exports = {
 		} else {
 			Company = await companyData.findOne({}).exec();
 			if(!Company) {
-				res.status(400).send(lang[cLang]["nFCompanyInfo"]);
+				res.status(400).send(lang["nFCompanyInfo"]);
 			}
 
 			if(cardsNewQtd.length != Company.cards.length) {
@@ -513,16 +510,16 @@ module.exports = {
 							return res.status(500).send(error);
 						});
 
-						return res.status(200).send(lang[cLang]["succUserUpdate"]);
+						return res.status(200).send(lang["succUserUpdate"]);
 					} else {
-						return res.status(400).send(lang[cLang]["failUserUpdate"]);
+						return res.status(400).send(lang["failUserUpdate"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
 				});
 
 			} else {
-				return res.status(404).send(lang[cLang]["nFUser"]);
+				return res.status(404).send(lang["nFUser"]);
 			}
 		}).catch((error) => {
 				return res.status(500).send(error);
@@ -537,11 +534,11 @@ module.exports = {
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang[cLang]["invUserId"]);
+			errors.push(lang["invId"]);
 		}
 
 		if(!password || !password.length) {
-			errors.push(lang[cLang]["invPassword"]);
+			errors.push(lang["invPassword"]);
 		}
 
 		if(errors.length) {
@@ -553,7 +550,7 @@ module.exports = {
 		await users.findById(userId).then((user) => {
 			if(user) {
 				if(user.userType === 2) {
-					return res.status(403).send(lang[cLang]["unauthOperation"]);
+					return res.status(403).send(lang["unauthOperation"]);
 				} else {
 					bcrypt.compare(password, user.password).then((match) => {
 						if(match) {
@@ -572,23 +569,23 @@ module.exports = {
 											return res.status(500).send(error);
 										});
 
-										return res.status(200).send(lang[cLang]["succUserDelete"]);
+										return res.status(200).send(lang["succUserDelete"]);
 									} catch(e) {
-										return res.status(200).send(lang[cLang]["succUserDeleteButThumb"]);
+										return res.status(200).send(lang["succUserDeleteButThumb"]);
 									}
 								} else {
-									return res.status(400).send(lang[cLang]["nFUser"]);
+									return res.status(400).send(lang["nFUser"]);
 								}
 							}).catch((error) => {
 								return res.status(500).send(error);
 							});
 						} else {
-							return res.status(400).send(lang[cLang]["wrongPassword"]);
+							return res.status(400).send(lang["wrongPassword"]);
 						}
 					});
 				}
 			} else {
-				return res.status(404).send(lang[cLang]["nFUser"]);
+				return res.status(404).send(lang["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -601,17 +598,17 @@ module.exports = {
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang[cLang]["invUserId"]);
+			errors.push(lang["invId"]);
 		}
 
 		const Company = await companyData.findOne({}).exec();
 		if(!Company) {
-			errors.push(lang[cLang]["nFCompanyInfo"]);
+			errors.push(lang["nFCompanyInfo"]);
 		}
 
 		const allUsers = await users.find().exec();
 		if(!allUsers) {
-			errors.push(lang[cLang]["nFUsers"]);
+			errors.push(lang["nFUsers"]);
 		}
 
 		if(errors.length) {
@@ -623,10 +620,10 @@ module.exports = {
 		await users.findById(userId).then((user) => {
 			if(user) {
 				if(user.userType != 2) {
-					return res.status(404).send(lang[cLang]["unauthOperation"]);
+					return res.status(404).send(lang["unauthOperation"]);
 				}
 			} else {
-				return res.status(404).send(lang[cLang]["nFUser"]);
+				return res.status(404).send(lang["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -663,13 +660,13 @@ module.exports = {
 						if(response) {
 							return res;
 						} else {
-							return res.status(400).send(lang[cLang]["failUserUpdate"]);
+							return res.status(400).send(lang["failUserUpdate"]);
 						}
 					}).catch((error) => {
 						return res.status(500).send(error);
 					});
 				} else {
-					return res.status(404).send(lang[cLang]["nFUser"]);
+					return res.status(404).send(lang["nFUser"]);
 				}
 			}).catch((error) => {
 				return res.status(500).send(error);
@@ -687,7 +684,7 @@ module.exports = {
 			if(response) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).json(lang[cLang]["nFUsers"]);
+				return res.status(404).json(lang["nFUsers"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

@@ -1,18 +1,16 @@
+//	Chosen language
+const lang = "ptBR";
+
 module.exports = {
 	ptBR : {
 		invId : "Id inválido",
-		invCouponId : "Id do cupom inválido",
-		invUserId : "Id do usuário inválido",
 		invUserName : "Nome do usuário inválido",
-		invOrderId : "Id do pedido inválido",
-		invProductId : "Id do produto inválido",
 		invProductName : "Nome do produto inválido",
 		invProductType : "Tipo do produto inválido",
 		invProductPrice : "Preço(s) do produto inválido(s)",
 		invProductSize : "Tamanho(s) do produto inválido(s)",
 		invProductPriceSize : "Preço e tamanho incompatíveis",
 		invProductIngredients : "Ingrediente(s) do produto inválido(s)",
-		invAdditionId : "Id da adição inválido",
 		invAdditionName : "Nome da adição inválido",
 		invAdditionType : "Tipo(s) da adição inválido(s)",
 		invAdditionPrice : "Preço da adição inválido",
@@ -77,18 +75,13 @@ module.exports = {
 	},
 	enUS : {
 		invId : "Invalid Id",
-		invCouponId : "Invalid coupon id",
-		invUserId : "Invalid user Id",
 		invUserName : "Invalid user name",
-		invOrderId : "Invalid order Id",
-		invProductId : "Invalid product Id",
 		invProductName : "Invalid product name",
 		invProductType : "Invalid product type",
 		invProductPrice : "Invalid product price(s)",
 		invProductSize : "Invalid product size(s)",
 		invProductPriceSize : "Incompatible price(s) and size(s)",
 		invProductIngredients : "Invalid product ingredient(s)",
-		invAdditionId : "Invalid addition Id",
 		invAdditionName : "Invalid addition name",
 		invAdditionType : "Invalid addition type(s)",
 		invAdditionPrice : "Invalid addition price",
@@ -151,4 +144,4 @@ module.exports = {
 		noToken : "No token provided",
 		closedCompany : "Company is closed"
 	}
-};
+}[lang];

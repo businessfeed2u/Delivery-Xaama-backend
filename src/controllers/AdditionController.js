@@ -12,9 +12,6 @@ const fs = require("fs");
 const regEx = require("../helpers/regEx");
 const lang = require("../helpers/lang");
 
-//	Chosen language
-const cLang = "ptBR";
-
 // Loading dirname
 const path = require("path");
 var __dirname = path.resolve();
@@ -26,14 +23,14 @@ module.exports = {
 		const additionId = req.params.id;
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			return res.status(400).send(lang[cLang]["invAdditionId"]);
+			return res.status(400).send(lang["invId"]);
 		}
 
 		await additions.findById(additionId).then((addition) => {
 			if(addition) {
 				return res.status(200).json(addition);
 			} else {
-				return res.status(404).send(lang[cLang]["nFAddition"]);
+				return res.status(404).send(lang["nFAddition"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -46,15 +43,15 @@ module.exports = {
 		var errors = [];
 
 		if(!name || !name.length) {
-			errors.push(lang[cLang]["invAdditionName"]);
+			errors.push(lang["invAdditionName"]);
 		}
 
 		if(!type || !type.length || !regEx.seq.test(type)) {
-			errors.push(lang[cLang]["invAdditionType"]);
+			errors.push(lang["invAdditionType"]);
 		}
 
 		if(!price || !price.length || !regEx.price.test(price)) {
-			errors.push(lang[cLang]["invAdditionPrice"]);
+			errors.push(lang["invAdditionPrice"]);
 		}
 
 		if(errors.length) {
@@ -78,7 +75,7 @@ module.exports = {
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-				return res.status(201).send(lang[cLang]["succAdditionCreate"]);
+				return res.status(201).send(lang["succAdditionCreate"]);
 			} else {
         if(filename) {
           try {
@@ -87,7 +84,7 @@ module.exports = {
             return res.status(500).send(error);
           }
         }
-        return res.status(400).send(lang[cLang]["failAdditionCreate"]);
+        return res.status(400).send(lang["failAdditionCreate"]);
 			}
 		}).catch((error) => {
       if(filename) {
@@ -109,19 +106,19 @@ module.exports = {
 		var errors = [];
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			errors.push(lang[cLang]["invAdditionId"]);
+			errors.push(lang["invId"]);
 		}
 
 		if(!name || !name.length) {
-			errors.push(lang[cLang]["invAdditionName"]);
+			errors.push(lang["invAdditionName"]);
 		}
 
 		if(!type || !type.length || !regEx.seq.test(type)) {
-			errors.push(lang[cLang]["invAdditionType"]);
+			errors.push(lang["invAdditionType"]);
 		}
 
 		if(!price || !regEx.price.test(price)) {
-			errors.push(lang[cLang]["invAdditionPrice"]);
+			errors.push(lang["invAdditionPrice"]);
 		}
 
 		if(errors.length) {
@@ -137,9 +134,9 @@ module.exports = {
 			available: available
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send(lang[cLang]["succAdditionUpdate"]);
+				return res.status(200).send(lang["succAdditionUpdate"]);
 			} else {
-				return res.status(404).send(lang[cLang]["nFAddition"]);
+				return res.status(404).send(lang["nFAddition"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -159,7 +156,7 @@ module.exports = {
           return res.status(500).send(error);
         }
       }
-      return res.status(400).send(lang[cLang]["invAdditionId"]);
+      return res.status(400).send(lang["invId"]);
 		}
 
 		await additions.findByIdAndUpdate(additionId, {
@@ -170,10 +167,10 @@ module.exports = {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
           } catch(error) {
-            return res.status(200).send(lang[cLang]["succAdditionUpdateButThumb"]);
+            return res.status(200).send(lang["succAdditionUpdateButThumb"]);
           }
         }
-        return res.status(200).send(lang[cLang]["succAdditionUpdateThumb"]);
+        return res.status(200).send(lang["succAdditionUpdateThumb"]);
 
 			} else {
         if(filename) {
@@ -183,7 +180,7 @@ module.exports = {
             return res.status(500).send(error);
           }
         }
-        return res.status(404).send(lang[cLang]["nFAddition"]);
+        return res.status(404).send(lang["nFAddition"]);
 			}
 		}).catch((error) => {
       if(filename) {
@@ -202,7 +199,7 @@ module.exports = {
 		const additionId = req.params.id;
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			return res.status(400).send(lang[cLang]["invAdditionId"]);
+			return res.status(400).send(lang["invId"]);
 		}
 
 		await additions.findByIdAndDelete(additionId).then((response) => {
@@ -211,12 +208,12 @@ module.exports = {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
           } catch(e){
-            return res.status(200).send(lang[cLang]["succAdditionDeleteButThumb"]);
+            return res.status(200).send(lang["succAdditionDeleteButThumb"]);
           }
         }
-        return res.status(200).send(lang[cLang]["succAdditionDelete"]);
+        return res.status(200).send(lang["succAdditionDelete"]);
 			} else {
-				return res.status(404).send(lang[cLang]["nFAddition"]);
+				return res.status(404).send(lang["nFAddition"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -235,7 +232,7 @@ module.exports = {
 			if(response && response.length) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).send(lang[cLang]["nFAdditions"]);
+				return res.status(404).send(lang["nFAdditions"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
