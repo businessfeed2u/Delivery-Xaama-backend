@@ -10,20 +10,29 @@ const coupons = mongoose.model("Coupons");
 const users = mongoose.model("Users");
 const companyData = mongoose.model("Company");
 
+// Loading helpers
+const lang = require("../helpers/lang");
 
 //	Exporting Coupon features
 module.exports = {
 	//	Return all coupons available for user on database given id user
 	async index(req, res) {
 		const userId = req.headers.authorization;
+		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send("Invalid id!");
+			errors.push(lang["invId"]);
 		}
-		
+
 		if(!(await users.findById(userId).exec())) {
-			return res.status(400).send("User is not found!");
+			errors.push(lang["nFUser"]);
     }
+
+		if(errors.length) {
+			const message = errors.join(", ");
+
+			return res.status(400).send(message);
+		}
 
 		const keysSearch = [
 			{"$and": [ {"private": true}, {"userId": userId}, {"available": true} ] },
@@ -34,12 +43,12 @@ module.exports = {
 			{"$and": [ {"whoUsed.userId": userId}, {"whoUsed.status": false} ] },
       {"$and": [ {"whoUsed": []} ] },
     ];
-    
+
     const keysSearch3 = [
       { "$or" : keysSearch },
       { "$or" : keysSearch2 },
     ];
-		
+
 		await coupons.find({ "$and" : keysSearch3 })
 		.sort({
 			type: "asc",
@@ -47,93 +56,90 @@ module.exports = {
 			name: "asc",
 			creationDate: "asc"
 		}).then((response) => {
-			return res.status(200).json(response);
+			if(response && response.length) {
+				return res.status(200).json(response);
+			} else {
+				return res.status(404).send(lang["nFCoupons"]);
+			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-	
+
 	//	Create a new coupon
 	async create(req, res) {
 		const { name, type, private, qty, method, discount, minValue, userId } = req.body;
-
 		var errors = [];
 
 		if(!name || !name.length) {
-			errors.push("name");
+			errors.push(lang["inv"]);
 		}
 
-		if(!type || !type.length || (type != "quantidade" && 
-			type != "valor" && type != "frete")) {
-			errors.push("type");
+		if(!type || !type.length || (type != "quantidade" && type != "valor" && type != "frete")) {
+			errors.push(lang["invCouponType"]);
 		}
 
 		if(type === "frete" && method != "dinheiro") {
-				errors.push("type and method wrongs");
+			errors.push(lang["invCouponTypeMethod"]);
 		}
 
 		if((type === "quantidade") && private) {
-			errors.push("type and private wrongs");
+			errors.push(lang["invCouponTypeScope"]);
+		}
+
+		if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
+			errors.push(lang["invCouponMethod"]);
 		}
 
 		if(private == null || private == undefined) {
-			errors.push("private is not defined");
+			errors.push(lang["invCouponScope"]);
+		}
+
+		if(discount == null || discount == undefined || discount < 0 || discount > 100) {
+			errors.push(lang["invCouponDiscount"]);
 		}
 
 		if(!private && userId && userId.length) {
-			errors.push("private and userId wrongs");
+			errors.push(lang["invCouponUserScope"]);
 		}
 
-		if(!private && (qty < 1)) {
-			errors.push("qty");
+		if(!private && (qty == null || qty == undefined || qty < 1)) {
+			errors.push(lang["invCouponQty"]);
 		}
 
 		if(type === "frete") {
-			await companyData.findOne({}, {
-			}).then((response) => {
-				if(response) {
-					if(response.freight != discount) {
-						errors.push("freight different from company");
-					}
-				} else {
-					return res.status(400).send("There is no company!");
-				}
-			}).catch((error) => {
-				return res.status(500).send(error);
-			});
+			const cFreight = await companyData.findOne({}).exec().freight;
+
+			if(cFreight && cFreight != discount) {
+				errors.push(lang["invCouponDiscount"]);
+			} else {
+				errors.push(lang["nFCompanyInfo"]);
+			}
 		}
 
 		if(private) {
 			if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-				return res.status(400).send("userId is not found");
+				errors.push(lang["invId"]);
 			}
-	
+
 			if(!(await users.findById(userId).exec())) {
-				errors.push("userId is not found");
+				errors.push(lang["nFUser"]);
 			}
 		}
 
 		if((type === "valor") && (minValue < 1)) {
-			errors.push("type and minValue worngs");
-		}
-
-		if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
-			errors.push("method");
-		}
-
-		if((discount < 0) || discount > 100) {
-			errors.push("discount");
+			errors.push(lang["invCouponTypeMinValue"]);
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
 
 		await coupons.findOne({ name: name.trim() }).then((response) => {
 			if(response) {
-				return res.status(400).send("There is a coupon using this name, try another!");
+				return res.status(404).send(lang["existentCoupon"]);
 			} else {
 				coupons.create({
 					name,
@@ -146,109 +152,102 @@ module.exports = {
 					userId: private && userId && userId.length ? userId : "",
 				}).then((response) => {
 					if(response) {
-						return res.status(201).send("Coupon created successfully!");
+						return res.status(201).send(lang["succCouponCreate"]);
 					} else {
-						return res.status(400).send("We couldn't create a new coupon, try again later!");
+						return res.status(400).send(lang["failCouponCreate"]);
 					}
 				}).catch((error) => {
-					return res.status(500).send(error);	
+					return res.status(500).send(error);
 				});
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-	
+
 	//	Update a specific coupon
 	async update(req, res) {
 		const couponId = req.params.id;
 		const { name, type, private, qty, method, discount, minValue, userId, available } = req.body;
-
-		if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
-			return res.status(400).send("Invalid id!");
-		}
-
 		var errors = [];
 
+		if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
+			errors.push(lang["invId"]);
+		}
+
 		if(!name || !name.length) {
-			errors.push("name");
-		}
-
-		if(!type || !type.length || (type != "quantidade" && 
-			type != "valor" && type != "frete")) {
-			errors.push("type");
-		}
-
-		if(type === "frete" && method != "dinheiro") {
-				errors.push("type and method wrongs");
-		}
-
-		if((type === "quantidade") && private) {
-			errors.push("type and private wrongs");
-		}
-
-		if(private == null || private == undefined) {
-			errors.push("private is not defined");
+			errors.push(lang["invCouponName"]);
 		}
 
 		if(available == null || available == undefined) {
-			errors.push("available is not defined");
+			errors.push(lang["invCouponAvailable"]);
+		}
+
+		if(!type || !type.length || (type != "quantidade" && type != "valor" && type != "frete")) {
+			errors.push(lang["invCouponType"]);
+		}
+
+		if(type === "frete" && method != "dinheiro") {
+			errors.push(lang["invCouponTypeMethod"]);
+		}
+
+		if((type === "quantidade") && private) {
+			errors.push(lang["invCouponTypeScope"]);
+		}
+
+		if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
+			errors.push(lang["invCouponMethod"]);
+		}
+
+		if(private == null || private == undefined) {
+			errors.push(lang["invCouponScope"]);
+		}
+
+		if(discount == null || discount == undefined || discount < 0 || discount > 100) {
+			errors.push(lang["invCouponDiscount"]);
 		}
 
 		if(!private && userId && userId.length) {
-			errors.push("private and userId wrongs");
+			errors.push(lang["invCouponUserScope"]);
 		}
 
-		if(!private && (qty < 1)) {
-			errors.push("qty");
+		if(!private && (qty == null || qty == undefined || qty < 1)) {
+			errors.push(lang["invCouponQty"]);
 		}
 
 		if(type === "frete") {
-			await companyData.findOne({}, {
-			}).then((response) => {
-				if(response) {
-					if(response.freight != discount) {
-						errors.push("freight different from company");
-					}
-				} else {
-					return res.status(400).send("There is no company!");
-				}
-			}).catch((error) => {
-				return res.status(500).send(error);
-			});
+			const cFreight = await companyData.findOne({}).exec().freight;
+
+			if(cFreight && cFreight != discount) {
+				errors.push(lang["invCouponDiscount"]);
+			} else {
+				errors.push(lang["nFCompanyInfo"]);
+			}
 		}
 
 		if(private) {
 			if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-				return res.status(400).send("userId is not found");
+				errors.push(lang["invId"]);
 			}
-	
+
 			if(!(await users.findById(userId).exec())) {
-				errors.push("userId is not found");
+				errors.push(lang["nFUser"]);
 			}
 		}
 
 		if((type === "valor") && (minValue < 1)) {
-			errors.push("type and minValue worngs");
-		}
-
-		if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
-			errors.push("method");
-		}
-
-    if((discount < 0) || discount > 100) {
-			errors.push("discount");
+			errors.push(lang["invCouponTypeMinValue"]);
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
 
 		await coupons.findOne({ name: name.trim() }).then((response) => {
 			if(response && (response._id != couponId)) {
-				return res.status(400).send("There is a coupon using this name, try another!");
+				return res.status(400).send(lang["existentCoupon"]);
 			} else {
 				coupons.findById(couponId).then((coupon) => {
 					if(coupon) {
@@ -262,18 +261,18 @@ module.exports = {
 						coupon.userId = private && userId && userId.length ? userId : "";
             coupon.private = private;
             coupon.whoUsed = [];
-						
+
 						coupon.save().then((response) => {
 							if(response) {
-								return res.status(200).send("Successful on changing your data!");
+								return res.status(200).send(lang["succCouponUpdate"]);
 							} else {
-								return res.status(400).send("We couldn't save your changes, try again later!");
+								return res.status(400).send(lang["failCouponUpdate"]);
 							}
 						}).catch((error) => {
 							return res.status(500).send(error);
 						});
 					} else {
-						return res.status(404).send("Coupon not found!" );
+						return res.status(404).send(lang["nFCoupon"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
@@ -288,35 +287,42 @@ module.exports = {
 	async updateUser(req, res) {
 		const couponId = req.params.id;
 		const userId = req.headers.authorization;
+		var errors = [];
 
 		if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
-			return res.status(400).send("Invalid id!");
+			errors.push(lang["invId"]);
 		}
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send("Invalid userId!");
+			errors.push(lang["invId"]);
 		}
 
 		if(!(await users.findById(userId).exec())) {
-			return res.status(400).send("UserId is not found!");
+			errors.push(lang["nFUser"]);
+		}
+
+		if(errors.length) {
+			const message = errors.join(", ");
+
+			return res.status(400).send(message);
 		}
 
 		coupons.findById(couponId).then((coupon) => {
 			if(coupon) {
 				if(!coupon.available) {
-					return res.status(400).send("Coupon is not available!");
+					return res.status(400).send(lang["unavailableCoupon"]);
 				}
 
 				if(coupon.private && (coupon.userId != userId)) {
-					return res.status(400).send("UserId wrong!");
+					return res.status(400).send(lang["invCouponUserScope"]);
         }
-        
+
         var data = [];
         var v = false;
 
         for(var c of coupon.whoUsed) {
           if((c.userId === userId) && c.status) {
-            return res.status(400).send("You already used this coupon!");
+            return res.status(400).send(lang["unavailableCoupon"]);
           } else if(c.userId != userId) {
             data.push(c);
           } else {
@@ -337,45 +343,45 @@ module.exports = {
 
           coupon.available = (coupon.qty === 0) ? false : true;
         }
-        
+
         coupon.whoUsed = data;
-				
+
 				coupon.save().then((response) => {
 					if(response) {
-						return res.status(200).send("Successful on changing your data!");
+						return res.status(200).send(lang["succCouponUpdate"]);
 					} else {
-						return res.status(400).send("We couldn't save your changes, try again later!");
+						return res.status(400).send(lang["failCouponUpdate"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
 				});
 			} else {
-				return res.status(404).send("Coupon not found!" );
+				return res.status(404).send(lang["nFCoupon"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-	
+
 	//	Delete a specific coupon
 	async delete(req, res) {
 		const couponId = req.params.id;
 
 		if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
-			return res.status(400).send("Invalid id!");
+			return res.status(400).send(lang["invId"]);
 		}
 
 		await coupons.findByIdAndDelete(couponId).then((response) => {
 			if(response) {
-				return res.status(200).send("The coupon have been deleted!");
+				return res.status(200).send(lang["succCouponDelete"]);
 			} else {
-				return res.status(404).send("Coupon not found!");
+				return res.status(404).send(lang["nFCoupon"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-	
+
 	//	Return all coupons coupons
 	async all(req, res) {
 		await coupons.find().sort({
@@ -387,7 +393,7 @@ module.exports = {
 			if(response && response.length) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).send("Coupons not found!");
+				return res.status(404).send(lang["nFCoupons"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
