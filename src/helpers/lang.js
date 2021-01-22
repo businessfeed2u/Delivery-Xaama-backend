@@ -10,6 +10,30 @@ module.exports = {
 		ptBR : "Nome do usuário inválido",
 		enUS : "Invalid user name"
 	}[lang],
+	invUserType : {
+		ptBR : "Tipo de usuário inválido",
+		enUS : "Invalid user type"
+	}[lang],
+	invCompanyName : {
+		ptBR : "Nome da empresa inválido",
+		enUS : "Invalid company name"
+	}[lang],
+	invCompanyFreight : {
+		ptBR : "Frete da empresa inválido",
+		enUS : "Invalid company freight"
+	}[lang],
+	invCompanyProductTypes : {
+		ptBR : "Tipo(s) de produtos da empresa inválido(s)",
+		enUS : "Invalid company product type(s)"
+	}[lang],
+	invRatingFeedback : {
+		ptBR : "Feedback da avaliação inválido(s)",
+		enUS : "Invalid rating feedback"
+	}[lang],
+	invRatingStars : {
+		ptBR : "Estrela(s) da avaliação inválida(s)",
+		enUS : "Invalid rating star(s)"
+	}[lang],
 	invProductName : {
 		ptBR : "Nome do produto inválido",
 		enUS : "Invalid product name"
@@ -221,6 +245,18 @@ module.exports = {
 	nFCoupons : {
 		ptBR : "Nenhum cupom encontrado",
 		enUS : "Coupons not found"
+	}[lang],
+	nFRating : {
+		ptBR : "Avaliação não encontrada",
+		enUS : "Rating not found"
+	}[lang],
+	nFRatings : {
+		ptBR : "Nenhuma avaliação encontrada",
+		enUS : "Ratings not found"
+	}[lang],
+	nFProductTypes : {
+		ptBR : "Tipos de produtos não encontrados",
+		enUS : "Product types not found"
 	}[lang],
 	nFCompanyInfo : {
 		ptBR : "Informações da empresa não encontradas",

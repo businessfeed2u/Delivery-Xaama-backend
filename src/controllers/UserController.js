@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-//	Loading User and Company schema
+//	Loading User and Company schemas
 require("../models/User");
 require("../models/Company");
 

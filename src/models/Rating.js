@@ -50,4 +50,4 @@ ratingSchema.virtual("thumbnail_url").get(function() {
 });
 
 //	Creating collection rating on database
-mongoose.model("Rating", ratingSchema);
+mongoose.model("Ratings", ratingSchema);
