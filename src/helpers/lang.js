@@ -10,6 +10,22 @@ module.exports = {
 		ptBR : "Nome do usuário inválido",
 		enUS : "Invalid user name"
 	}[lang],
+	invUserType : {
+		ptBR : "Tipo de usuário inválido",
+		enUS : "Invalid user type"
+	}[lang],
+	invCompanyName : {
+		ptBR : "Nome da empresa inválido",
+		enUS : "Invalid company name"
+	}[lang],
+	invCompanyFreight : {
+		ptBR : "Frete da empresa inválido",
+		enUS : "Invalid company freight"
+	}[lang],
+	invCompanyProductTypes : {
+		ptBR : "Tipo(s) de produtos da empresa inválido(s)",
+		enUS : "Invalid company product type(s)"
+	}[lang],
 	invProductName : {
 		ptBR : "Nome do produto inválido",
 		enUS : "Invalid product name"
@@ -221,6 +237,10 @@ module.exports = {
 	nFCoupons : {
 		ptBR : "Nenhum cupom encontrado",
 		enUS : "Coupons not found"
+	}[lang],
+	nFProductTypes : {
+		ptBR : "Tipos de produtos não encontrados",
+		enUS : "Product types not found"
 	}[lang],
 	nFCompanyInfo : {
 		ptBR : "Informações da empresa não encontradas",

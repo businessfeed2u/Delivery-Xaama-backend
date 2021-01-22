@@ -15,6 +15,7 @@ const fs = require("fs");
 
 // Loading helpers
 const regEx = require("../helpers/regEx");
+const lang = require("../helpers/lang");
 
 // Loading dirname
 const path = require("path");
@@ -28,55 +29,63 @@ module.exports = {
 			if(response) {
 				return res.status(200).json(response.productTypes);
 			} else {
-				return res.status(404).send("Product types not found!");
+				return res.status(404).send(lang["nFProductTypes"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Return Company data
 	async companyData(req, res) {
 		await companyData.findOne({}).then((response) => {
 			if(response) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(400).send("No company data found!");
+				return res.status(404).send(lang["nFCompanyInfo"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Create or update company data
 	async update(req, res) {
-		const { name, email, phone, address, freight, productTypes, manual, systemOpenByAdm,
-						timeWithdrawal, timeDeliveryI, timeDeliveryF } = req.body;
-
+		const {
+			name,
+			email,
+			phone,
+			address,
+			freight,
+			productTypes,
+			manual,
+			systemOpenByAdm,
+			timeWithdrawal,
+			timeDeliveryI,
+			timeDeliveryF
+		} = req.body;
 		var errors = [];
 
 		if(!name || !name.length) {
-			errors.push("name");
+			errors.push(lang["invCompanyName"]);
 		}
 
 		if(!email || !email.length || !regEx.email.test(email)) {
-			errors.push("email");
+			errors.push(lang["invEmail"]);
 		}
 
 		if(!phone || !phone.length || !regEx.phone.test(phone)) {
-			errors.push("phone");
+			errors.push(lang["invPhone"]);
 		}
 
-		if(address && address.length && !regEx.address.test(address)) {
-			errors.push("address");
+		if(!address || !address.length || !regEx.address.test(address)) {
+			errors.push(lang["invAddress"]);
 		}
 
-    if(freight < 1 || freight > 10) {
-      errors.push("freight wrong");
+    if(!freight || freight < 1 || freight > 10) {
+      errors.push(lang["invCompanyFreight"]);
     }
 
 		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
-			errors.push("product type(s)");
+			errors.push(lang["invCompanyProductTypes"]);
     }
 
     const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
@@ -87,22 +96,15 @@ module.exports = {
     }
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
     }
 
-    var company;
-    await companyData.findOne({}, {
-		}).then((response) => {
-			if(response) {
-				company = response;
-			} else {
-				return res.status(400).send("There is no company!");
-			}
-		}).catch((error) => {
-			return res.status(500).send(error);
-    });
+		const company = await companyData.findOne({}).exec();
+		if(!company) {
+				return res.status(404).send(lang["nFCompanyInfo"]);
+		}
 
     var data = [];
     var exist = false;
@@ -132,7 +134,7 @@ module.exports = {
 			email,
 			phone,
 			address,
-			freight: freight,
+			freight,
 			productTypes: typesP,
 			manual,
 			systemOpenByAdm,
@@ -158,7 +160,7 @@ module.exports = {
 					if(company) {
 						return res.status(201).json(company);
 					} else {
-						return res.status(400).send("We couldn't process your request, try again later!");
+						return res.status(400).send(lang["failCreate"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
@@ -168,7 +170,6 @@ module.exports = {
 			return res.status(500).send(error);
 		});
   },
-
   //	Update images for company
 	async updateImages(req, res) {
     const { op } = req.body;
@@ -181,7 +182,8 @@ module.exports = {
         } catch(error) {
           return res.status(500).send(error);
         }
-      }
+			}
+
       return res.status(400).send("Invalid op value!");
     }
 
@@ -249,7 +251,8 @@ module.exports = {
             } catch(error) {
               return res.status(500).send(error);
             }
-          }
+					}
+
           return res.status(400).send("Invalid op value!");
         }
 
@@ -259,10 +262,11 @@ module.exports = {
               try {
                 fs.unlinkSync(`${__dirname}/uploads/${im}`);
               } catch(error) {
-                return res.status(200).send("The company data has been updated, but thumbnail old is not find!");
+                return res.status(200).send(lang["succUpdateButThumb"]);
               }
-            }
-            return res.status(200).send("The company data has been updated!");
+						}
+
+            return res.status(200).send(lang["succUpdate"]);
 					} else {
             if(im) {
               try {
@@ -270,8 +274,9 @@ module.exports = {
               } catch(error) {
                 return res.status(500).send(error);
               }
-            }
-            return res.status(400).send("We couldn't save your changes, try again later!");
+						}
+
+            return res.status(400).send(lang["failUpdate"]);
 					}
 				}).catch((error) => {
           if(im) {
@@ -280,7 +285,8 @@ module.exports = {
             } catch(e) {
               return res.status(500).send(e);
             }
-          }
+					}
+
           return res.status(500).send(error);
 				});
 			}
@@ -291,11 +297,11 @@ module.exports = {
         } catch(e) {
           return res.status(500).send(e);
         }
-      }
+			}
+
       return res.status(500).send(error);
 		});
   },
-
 	//	Update current user on database
 	async updateUser(req, res) {
 		const userId = req.headers.authorization;
@@ -303,34 +309,38 @@ module.exports = {
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push("admin id");
+			errors.push(lang["invId"]);
 		}
 
 		if(!userUpdateId || !userUpdateId.length || !mongoose.Types.ObjectId.isValid(userUpdateId)) {
-			errors.push("user id");
+			errors.push(lang["invId"]);
 		}
 
 		if(type < 0 || type > 2) {
-			errors.push("user type");
+			errors.push(lang["invUserType"]);
 		}
 
 		if(!password || !password.length) {
-			errors.push("password");
+			errors.push(lang["invPassword"]);
 		}
 
 		if(userId === userUpdateId) {
-			return res.status(400).send("Aborted! You can't lower yourself!");
+			return res.status(400).send(lang["unauthOperation"]);
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
 
 		let hash = "";
 		await users.findById(userId).then((userAdmin) => {
-			hash = userAdmin.password;
+			if(userAdmin) {
+				hash = userAdmin.password;
+			} else {
+				return res.status(404).send(lang["nFUser"]);
+			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
@@ -346,55 +356,54 @@ module.exports = {
 
 							user.save().then((response) => {
 								if(response) {
-									return res.status(200).send("Successful on changing your data!");
+									return res.status(200).send(lang["succUpdate"]);
 								} else {
-									return res.status(400).send("We couldn't save your changes, try again later!");
+									return res.status(400).send(lang["failUpdate"]);
 								}
 							}).catch((error) => {
 								return res.status(500).send(error);
 							});
 						}
 					} else {
-						return res.status(400).send("Password don't match, try again!");
+						return res.status(400).send(lang["wrongPassword"]);
 					}
 				}).catch((error) => {
-					return res.status(500).send(error.message);
+					return res.status(500).send(error);
 				});
 			} else {
-				return res.status(404).send("User not found!");
+				return res.status(404).send(lang["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
   },
-
   //	Update opening hours
 	async updateOpeningHours(req, res) {
 		const { timetable } = req.body;
 		var errors = [];
 
-	if(!timetable || !timetable.length || timetable.length != 7) {
-			errors.push("timetable");
-	} else {
-		for(const t of timetable) {
-			if(!t.dayWeek || !t.dayWeek.length){
-				errors.push("timetable day week");
-				break;
-			}
+		if(!timetable || !timetable.length || timetable.length != 7) {
+				errors.push("timetable");
+		} else {
+			for(const t of timetable) {
+				if(!t.dayWeek || !t.dayWeek.length){
+					errors.push("timetable day week");
+					break;
+				}
 
-			if((t.beginHour && !t.endHour) || (!t.beginHour && t.endHour)
-				|| (t.beginHour && !regEx.hour.test(t.beginHour))
-				|| (t.endHour && !regEx.hour.test(t.endHour))
-				|| ((t.endHour === t.beginHour) && t.endHour != null && t.beginHour != null)) {
+				if((t.beginHour && !t.endHour) || (!t.beginHour && t.endHour)
+					|| (t.beginHour && !regEx.hour.test(t.beginHour))
+					|| (t.endHour && !regEx.hour.test(t.endHour))
+					|| ((t.endHour === t.beginHour) && t.endHour != null && t.beginHour != null)) {
 
-				errors.push("time format");
-				break;
+					errors.push("time format");
+					break;
+				}
 			}
 		}
-	}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
@@ -403,20 +412,24 @@ module.exports = {
 			timetable: timetable
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send("The company data has been updated!");
+				return res.status(200).send(lang["succUpdate"]);
 			} else {
-				return res.status(400).send("There is no company!");
+				return res.status(404).send(lang["nFCompanyInfo"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
   },
-
   //	Update cards
 	async updateCards(req, res) {
-    const { productTypes, cards } = req.body;
-    const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
+		const { productTypes, cards } = req.body;
 		var errors = [];
+
+		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
+			return res.status(400).send(lang["invCompanyProductTypes"]);
+		}
+
+    const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
 
      //	Validating cards fidelity
 		if(!cards || !cards.length) {
@@ -460,7 +473,7 @@ module.exports = {
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
@@ -469,9 +482,9 @@ module.exports = {
 			cards: cards
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send("The company data has been updated!");
+				return res.status(200).send(lang["succUpdate"]);
 			} else {
-				return res.status(400).send("There is no company!");
+				return res.status(404).send(lang["nFCompanyInfo"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
