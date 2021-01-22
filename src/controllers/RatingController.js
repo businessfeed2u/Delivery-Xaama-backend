@@ -10,6 +10,9 @@ const rating = mongoose.model("Rating");
 const users = mongoose.model("Users");
 const orders = mongoose.model("Orders");
 
+// Loading helpers
+const lang = require("../helpers/lang");
+
 //	Exporting rating features
 module.exports = {
   //	Return all rating
@@ -96,6 +99,34 @@ module.exports = {
     });
   },
 
+  // Update current rating on database
+  async update(req, res) {
+    const ratingId = req.params.id;
+
+		if(!ratingId || !ratingId.length || !mongoose.Types.ObjectId.isValid(ratingId)) {
+			return res.status(400).send(lang["invId"]);
+    }
+
+    await rating.findById(ratingId).then((response) => {
+      if(response.approved) {
+        return res.status(404).send("Avaliação já está aprovada!");
+      } else {
+        response.approved = true;
+        response.save().then((response) => {
+          if(response) {
+            return res.status(200).send(response);
+          } else {
+            return res.status(404).send("Avaliação não encontrada");
+          }
+        }).catch((error) => {
+          return res.status(500).send(error);
+        });
+      }
+    }).catch((error) => {
+      return res.status(500).send(error);
+    });
+  },
+
   //	Return all rating
   async delete(req, res) {
     const ratingId = req.params.id;
@@ -118,7 +149,9 @@ module.exports = {
 	//	Return all rating
   async all(req, res) {
     await rating.find().sort({
-			stars: "desc",
+      approved: "asc",
+      stars: "desc",
+      name: "asc",
 			creationDate: "asc"
 		}).then((response) => {
 			return res.status(200).json(response);

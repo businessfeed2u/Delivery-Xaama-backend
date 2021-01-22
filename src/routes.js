@@ -88,6 +88,7 @@ routes.delete("/sockets", authorization.manager, SocketController.deleteAll);
 
 // Rating
 routes.post("/rating", authorization.verify, RatingController.create);
+routes.put("/rating/:id", authorization.manager, RatingController.update);
 routes.delete("/rating/:id", authorization.manager, RatingController.delete);
 routes.get("/ratingAll", RatingController.all);
 
