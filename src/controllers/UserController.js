@@ -34,7 +34,11 @@ module.exports = {
 
 		await users.findById(userId).then((user) => {
 			if(user) {
-				return res.status(200).json(user);
+				const token = jwt.sign({ user }, process.env.SECRET, {
+          expiresIn: 86400
+        });
+
+        return res.status(201).json({ user, token });
 			} else {
 				return res.status(400).send(lang["nFUser"]);
 			}
