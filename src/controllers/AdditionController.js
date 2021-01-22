@@ -75,7 +75,7 @@ module.exports = {
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-				return res.status(201).send(lang["succAdditionCreate"]);
+				return res.status(201).send(lang["succCreate"]);
 			} else {
         if(filename) {
           try {
@@ -84,7 +84,7 @@ module.exports = {
             return res.status(500).send(error);
           }
         }
-        return res.status(400).send(lang["failAdditionCreate"]);
+        return res.status(400).send(lang["failCreate"]);
 			}
 		}).catch((error) => {
       if(filename) {
@@ -97,12 +97,10 @@ module.exports = {
       return res.status(500).send(error);
 		});
 	},
-
 	//	Update a specific addition
 	async update(req, res) {
 		const additionId = req.params.id;
 		const { name, type, price, available } = req.body;
-
 		var errors = [];
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
@@ -134,7 +132,7 @@ module.exports = {
 			available: available
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send(lang["succAdditionUpdate"]);
+				return res.status(200).send(lang["succUpdate"]);
 			} else {
 				return res.status(404).send(lang["nFAddition"]);
 			}
@@ -142,7 +140,6 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Update a specific addition
 	async updateThumbnail(req, res) {
 		const additionId = req.params.id;
@@ -155,7 +152,8 @@ module.exports = {
         } catch(error) {
           return res.status(500).send(error);
         }
-      }
+			}
+
       return res.status(400).send(lang["invId"]);
 		}
 
@@ -167,11 +165,11 @@ module.exports = {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
           } catch(error) {
-            return res.status(200).send(lang["succAdditionUpdateButThumb"]);
+            return res.status(200).send(lang["succUpdateButThumb"]);
           }
-        }
-        return res.status(200).send(lang["succAdditionUpdateThumb"]);
+				}
 
+        return res.status(200).send(lang["succUpdateThumb"]);
 			} else {
         if(filename) {
           try {
@@ -179,7 +177,8 @@ module.exports = {
           } catch(error) {
             return res.status(500).send(error);
           }
-        }
+				}
+
         return res.status(404).send(lang["nFAddition"]);
 			}
 		}).catch((error) => {
@@ -189,11 +188,11 @@ module.exports = {
         } catch(e) {
           return res.status(500).send(e);
         }
-      }
+			}
+
       return res.status(500).send(error);
 		});
 	},
-
 	//	Delete a specific addition
 	async delete(req, res) {
 		const additionId = req.params.id;
@@ -208,10 +207,11 @@ module.exports = {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
           } catch(e){
-            return res.status(200).send(lang["succAdditionDeleteButThumb"]);
+            return res.status(200).send(lang["succDeleteButThumb"]);
           }
-        }
-        return res.status(200).send(lang["succAdditionDelete"]);
+				}
+
+        return res.status(200).send(lang["succDelete"]);
 			} else {
 				return res.status(404).send(lang["nFAddition"]);
 			}
@@ -219,8 +219,7 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-
-	//	Return all additions additions
+	//	Return all additions
 	async all(req, res) {
 		await additions.find().sort({
 			type: "asc",

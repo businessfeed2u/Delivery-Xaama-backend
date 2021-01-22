@@ -2,184 +2,236 @@
 const lang = "ptBR";
 
 module.exports = {
-	ptBR : {
-		invId : "Id inválido",
-		invUserName : "Nome do usuário inválido",
-		invProductName : "Nome do produto inválido",
-		invProductType : "Tipo do produto inválido",
-		invProductPrice : "Preço(s) do produto inválido(s)",
-		invProductSize : "Tamanho(s) do produto inválido(s)",
-		invProductPriceSize : "Preço e tamanho incompatíveis",
-		invProductIngredients : "Ingrediente(s) do produto inválido(s)",
-		invAdditionName : "Nome da adição inválido",
-		invAdditionType : "Tipo(s) da adição inválido(s)",
-		invAdditionPrice : "Preço da adição inválido",
-		invCouponName : "Nome do cupom inválido",
-		invCouponDiscount : "Desconto do cupom inválido",
-		invCouponType : "Tipo do cupom inválido",
-		invCouponTypeMethod : "Tipo e método incompatíveis",
-		invCouponTypeScope : "Tipo e escopo incompatíveis",
-		invCouponTypeMinValue : "Tipo e valor mínimo incompatíveis",
-		invCouponUserScope : "Usuário e escopo incompatíveis",
-		invCouponAvailable : "Disponibilidade do cupom inválida",
-		invCouponQty : "Quantidade do cupom inválido",
-		invCouponScope : "Escopo (público ou privado) do cupom inválido",
-		invCouponMethod : "Método do cupom inválido",
-		invEmail : "Email inválido",
-		invPhone : "Telefone inválido",
-		invAddress : "Endereço inválido",
-		invPassword : "Senha inválida",
-		invNewPassword : "Nova senha inválida",
-		invPasswordConfirmation : "Confirmação de senha inválida",
-		invToken : "Token inválido",
-		succAdditionCreate : "Adição criada com sucesso",
-		succAdditionUpdate : "Informações da adição alteradas com sucesso",
-		succAdditionUpdateThumb : "Imagem da adição alterada com sucesso",
-		succAdditionUpdateButThumb : "Imagem da adição alterada com sucesso, porém a imagem antiga não foi encontrada",
-		succAdditionDelete : "Adição removida com sucesso",
-		succAdditionDeleteButThumb : "Adição removida com sucesso, porém a imagem antiga não foi encontrada",
-		succProductCreate : "Produto criado com sucesso",
-		succProductUpdate : "Informações do produto alteradas com sucesso",
-		succProductUpdateThumb : "Imagem do produto alterada com sucesso",
-		succProductUpdateButThumb : "Imagem do produto alterada com sucesso, porém a imagem antiga não foi encontrada",
-		succProductDelete : "Produto removido com sucesso",
-		succProductDeleteButThumb : "Produto removido com sucesso, porém a imagem antiga não foi encontrada",
-		succOrderCreate : "Pedido criado com sucesso",
-		succOrderUpdate : "Informações do pedido alteradas com sucesso",
-		succOrderDelete : "Pedido removido com sucesso",
-		succUserCreate : "Usuário criado com sucesso",
-		succUserUpdate : "Informações do usuário alteradas com sucesso",
-		succUserUpdateThumb : "Foto de perfil do usuário alterada com sucesso",
-		succUserUpdateButThumb : "Foto de perfil do usuário alterada com sucesso, porém a foto de perfil antiga não foi encontrada",
-		succUserDelete : "Usuário removido com sucesso",
-		succUserDeleteButThumb : "Usuário removido com sucesso, porém a foto de perfil antiga não foi encontrada",
-		succCouponCreate : "Cupom criado com sucesso",
-		succCouponUpdate : "Informações do cupom alteradas com sucesso",
-		succCouponDelete : "Cupom removido com sucesso",
-		failAdditionCreate : "Não foi possível criar uma nova adição",
-		failAdditionUpdate : "Não foi possível alterar as informações da adição",
-		failAdditionDelete : "Não foi possível remover a adição",
-		failProductCreate : "Não foi possível criar um novo produto",
-		failProductUpdate : "Não foi possível alterar as informações do produto",
-		failProductDelete : "Não foi possível remover o produto",
-		failOrderCreate : "Não foi possível criar um pedido",
-		failOrderUpdate : "Não foi possível alterar as informações do pedido",
-		failOrderDelete : "Não foi possível remover o pedido",
-		failUserCreate : "Não foi possível criar um usuário",
-		failUserUpdate : "Não foi possível alterar as informações do usuário",
-		failUserDelete : "Não foi possível remover o usuário",
-		failCouponCreate : "Não foi possível criar um novo cupom",
-		failCouponUpdate : "Não foi possível alterar as informações do cupom",
-		failCouponDelete : "Não foi possível remover o cupom",
-		unauthOperation : "Operação não autorizada",
-		unavailableCoupon : "Cupom indisponível para uso",
-		existentEmail : "Já há uma conta com este email",
-		existentCoupon : "Já há um cupom com este nome",
-		wrongPassword : "Senha incorreta",
-		wrongPasswordConfirmation : "Senha de confirmação incorreta",
-		wrongOldPassword : "Senha antiga incorreta",
-		nFUser : "Usuário não encontrado",
-		nFUsers : "Nenhum usuário encontrado",
-		nFOrder : "Pedido não encontrado",
-		nFOrders : "Nenhum pedido encontrado",
-		nFAddition : "Adição não encontrada",
-		nFAdditions : "Nenhuma adição encontrada",
-		nFProduct : "Produto não encontrado",
-		nFProducts : "Nenhum produto encontrado",
-		nFCoupon : "Cupom não encontrado",
-		nFCoupons : "Nenhum cupom encontrado",
-		nFCompanyInfo : "Informações da empresa não encontradas",
-		noToken : "Nenhum token fornecido",
-		closedCompany : "Empresa está fechada"
-	},
-	enUS : {
-		invId : "Invalid Id",
-		invUserName : "Invalid user name",
-		invProductName : "Invalid product name",
-		invProductType : "Invalid product type",
-		invProductPrice : "Invalid product price(s)",
-		invProductSize : "Invalid product size(s)",
-		invProductPriceSize : "Incompatible price(s) and size(s)",
-		invProductIngredients : "Invalid product ingredient(s)",
-		invAdditionName : "Invalid addition name",
-		invAdditionType : "Invalid addition type(s)",
-		invAdditionPrice : "Invalid addition price",
-		invCouponName : "Invalid coupon name",
-		invCouponDiscount : "Invalid coupon discount",
-		invCouponType : "Invalid coupon type",
-		invCouponTypeMethod : "Incompatible type and method",
-		invCouponTypeScope : "Incompatible type and scope",
-		invCouponTypeMinValue : "Incompatible type and minimum value",
-		invCouponUserScope : "Incompatible user and scope",
-		invCouponAvailable : "Invalid coupon available",
-		invCouponQty : "Invalid coupon quantity",
-		invCouponScope : "Invalid coupon scope (public or private)",
-		invCouponMethod : "Invalid coupon method",
-		invEmail : "Invalid email",
-		invPhone : "Invalid phone",
-		invAddress : "Invalid address",
-		invPassword : "Invalid password",
-		invNewPassword : "Invalid new password",
-		invPasswordConfirmation : "Invalid password confirmation",
-		invToken : "Invalid token",
-		succAdditionCreate : "Addition created successfully",
-		succAdditionUpdate : "Addition info updated successfully",
-		succAdditionUpdateThumb : "Addition image updated successfully",
-		succAdditionUpdateButThumb : "Addition image updated successfully, but its old image was not found",
-		succAdditionDelete : "Addition deleted successfully",
-		succAdditionDeleteButThumb : "Addition deleted successfully, but its old image was not found",
-		succProductCreate : "Product created successfully",
-		succProductUpdate : "Product info updated successfully",
-		succProductUpdateThumb : "Product image updated successfully",
-		succProductUpdateButThumb : "Product image updated successfully, but its old image was not found",
-		succProductDelete : "Product deleted successfully",
-		succProductDeleteButThumb : "Product deleted successfully, but its old image was not found",
-		succOrderCreate : "Order created successfully",
-		succOrderUpdate : "Product info updated successfully",
-		succOrderDelete : "Order deleted successfully",
-		succUserCreate : "User created successfully",
-		succUserUpdate : "User info updated successfully",
-		succUserUpdateThumb : "User profile pic updated successfully",
-		succUserUpdateButThumb : "User profile pic updated successfully, but its old profile pic was not found",
-		succUserDelete : "User deleted successfully",
-		succUserDeleteButThumb : "User deleted successfully, but its old profile pic was not found",
-		succCouponCreate : "Coupon created successfully",
-		succCouponUpdate : "Coupon info updated successfully",
-		succCouponDelete : "Coupon deleted successfully",
-		failAdditionCreate : "A new addition could not be created",
-		failAdditionUpdate : "Addition info could not be updated",
-		failAdditionDelete : "Addition could not be deleted",
-		failProductCreate : "A new product could not be created",
-		failProductUpdate : "Product info could not be updated",
-		failProductDelete : "Product could not be deleted",
-		failOrderCreate : "A new order could not be created",
-		failOrderUpdate : "Order info could not be updated",
-		failOrderDelete : "Order could not be deleted",
-		failUserCreate : "A new user could not be created",
-		failUserUpdate : "User info could not be updated",
-		failUserDelete : "User could not be deleted",
-		failCouponCreate : "A new coupon could not be created",
-		failCouponUpdate : "Coupon info could not be updated",
-		failCouponDelete : "Coupon could not be deleted",
-		unauthOperation : "Unauthorized operation",
-		unavailableCoupon : "Coupon unavailable for use",
-		existentEmail : "There is already an account using this email",
-		existentCoupon : "There is already a coupon using this name",
-		wrongPassword : "Wrong password",
-		wrongPasswordConfirmation : "Wrong confirmation password",
-		wrongOldPassword : "Wrong old password",
-		nFUser : "User not found",
-		nFUsers : "Users not found",
-		nFOrder : "Order not found",
-		nFOrders : "Orders not found",
-		nFAddition : "Addition not found",
-		nFAdditions : "Additions not found",
-		nFProduct : "Product not found",
-		nFProducts : "Products not found",
-		nFCoupon : "Coupon not found",
-		nFCoupons : "Coupons not found",
-		nFCompanyInfo : "Company info not found",
-		noToken : "No token provided",
-		closedCompany : "Company is closed"
+	invId : {
+		ptBR : "Id inválido",
+		enUS : "Invalid Id"
+	}[lang],
+	invUserName : {
+		ptBR : "Nome do usuário inválido",
+		enUS : "Invalid user name"
+	}[lang],
+	invProductName : {
+		ptBR : "Nome do produto inválido",
+		enUS : "Invalid product name"
+	}[lang],
+	invProductType : {
+		ptBR : "Tipo do produto inválido",
+		enUS : "Invalid product type"
+	}[lang],
+	invProductPrice : {
+		ptBR : "Preço(s) do produto inválido(s)",
+		enUS : "Invalid product price(s)"
+	}[lang],
+	invProductSize : {
+		ptBR : "Tamanho(s) do produto inválido(s)",
+		enUS : "Invalid product size(s)"
+	}[lang],
+	invProductPriceSize : {
+		ptBR : "Preço e tamanho incompatíveis",
+		enUS : "Incompatible price(s) and size(s)"
+	}[lang],
+	invProductIngredients : {
+		ptBR : "Ingrediente(s) do produto inválido(s)",
+		enUS : "Invalid product ingredient(s)"
+	}[lang],
+	invAdditionName : {
+		ptBR : "Nome da adição inválido",
+		enUS : "Invalid addition name"
+	}[lang],
+	invAdditionType : {
+		ptBR : "Tipo(s) da adição inválido(s)",
+		enUS : "Invalid addition type(s)"
+	}[lang],
+	invAdditionPrice : {
+		ptBR : "Preço da adição inválido",
+		enUS : "Invalid addition price"
+	}[lang],
+	invCouponName : {
+		ptBR : "Nome do cupom inválido",
+		enUS : "Invalid coupon name"
+	}[lang],
+	invCouponDiscount : {
+		ptBR : "Desconto do cupom inválido",
+		enUS : "Invalid coupon discount"
+	}[lang],
+	invCouponType : {
+		ptBR : "Tipo do cupom inválido",
+		enUS : "Invalid coupon type"
+	}[lang],
+	invCouponTypeMethod : {
+		ptBR : "Tipo e método incompatíveis",
+		enUS : "Incompatible type and method"
+	}[lang],
+	invCouponTypeScope : {
+		ptBR : "Tipo e escopo incompatíveis",
+		enUS : "Incompatible type and scope"
+	}[lang],
+	invCouponTypeMinValue : {
+		ptBR : "Tipo e valor mínimo incompatíveis",
+		enUS : "Incompatible type and minimum value"
+	}[lang],
+	invCouponUserScope : {
+		ptBR : "Usuário e escopo incompatíveis",
+		enUS : "Incompatible user and scope"
+	}[lang],
+	invCouponAvailable : {
+		ptBR : "Disponibilidade do cupom inválida",
+		enUS : "Invalid coupon available"
+	}[lang],
+	invCouponQty : {
+		ptBR : "Quantidade do cupom inválido",
+		enUS : "Invalid coupon quantity"
+	}[lang],
+	invCouponScope : {
+		ptBR : "Escopo (público ou privado) do cupom inválido",
+		enUS : "Invalid coupon scope (public or private)"
+	}[lang],
+	invCouponMethod : {
+		ptBR : "Método do cupom inválido",
+		enUS : "Invalid coupon method"
+	}[lang],
+	invEmail : {
+		ptBR : "Email inválido",
+		enUS : "Invalid email"
+	}[lang],
+	invPhone : {
+		ptBR : "Telefone inválido",
+		enUS : "Invalid phone"
+	}[lang],
+	invAddress : {
+		ptBR : "Endereço inválido",
+		enUS : "Invalid address"
+	}[lang],
+	invPassword : {
+		ptBR : "Senha inválida",
+		enUS : "Invalid password"
+	}[lang],
+	invNewPassword : {
+		ptBR : "Nova senha inválida",
+		enUS : "Invalid new password"
+	}[lang],
+	invPasswordConfirmation : {
+		ptBR : "Confirmação de senha inválida",
+		enUS : "Invalid password confirmation"
+	}[lang],
+	invToken : {
+		ptBR : "Token inválido",
+		enUS : "Invalid token"
+	}[lang],
+	succCreate : {
+		ptBR : "Criado com sucesso",
+		enUS : "Created successfully"
+	}[lang],
+	succUpdate : {
+		ptBR : "Informações atualizadas com sucesso",
+		enUS : "Info updated successfully"
+	}[lang],
+	succUpdateThumb : {
+		ptBR : "Imagem atualizada com sucesso",
+		enUS : "Image updated successfully"
+	}[lang],
+	succUpdateButThumb : {
+		ptBR : "Imagem atualizada com sucesso, porém a imagem antiga não foi encontrada",
+		enUS : "Image updated successfully, but old image was not found"
+	}[lang],
+	succDelete : {
+		ptBR : "Removido com sucesso",
+		enUS : "Deleted successfully"
+	}[lang],
+	succDeleteButThumb : {
+		ptBR : "Removido com sucesso, porém a imagem antiga não foi encontrada",
+		enUS : "Deleted successfully, but old image was not found"
+	}[lang],
+	failCreate : {
+		ptBR : "Não foi possível finalizar a operação de criação",
+		enUS : "Create operation could not be completed"
+	}[lang],
+	failUpdate : {
+		ptBR : "Não foi possível finalizar a operação de atualização",
+		enUS : "Update operation could not be completed"
+	}[lang],
+	failDelete : {
+		ptBR : "Não foi possível finalizar a operação de remoção",
+		enUS : "Delete operation could not be completed"
+	}[lang],
+	unauthOperation : {
+		ptBR : "Operação não autorizada",
+		enUS : "Unauthorized operation"
+	}[lang],
+	unavailableCoupon : {
+		ptBR : "Cupom indisponível para uso",
+		enUS : "Coupon unavailable for use"
+	}[lang],
+	existentEmail : {
+		ptBR : "Já há uma conta com este email",
+		enUS : "There is already an account using this email"
+	}[lang],
+	existentCoupon : {
+		ptBR : "Já há um cupom com este nome",
+		enUS : "There is already a coupon using this name"
+	}[lang],
+	wrongPassword : {
+		ptBR : "Senha incorreta",
+		enUS : "Wrong password"
+	}[lang],
+	wrongPasswordConfirmation : {
+		ptBR : "Senha de confirmação incorreta",
+		enUS : "Wrong confirmation password"
+	}[lang],
+	wrongOldPassword : {
+		ptBR : "Senha antiga incorreta",
+		enUS : "Wrong old password"
+	}[lang],
+	nFUser : {
+		ptBR : "Usuário não encontrado",
+		enUS : "User not found"
+	}[lang],
+	nFUsers : {
+		ptBR : "Nenhum usuário encontrado",
+		enUS : "Users not found"
+	}[lang],
+	nFOrder : {
+		ptBR : "Pedido não encontrado",
+		enUS : "Order not found"
+	}[lang],
+	nFOrders : {
+		ptBR : "Nenhum pedido encontrado",
+		enUS : "Orders not found"
+	}[lang],
+	nFAddition : {
+		ptBR : "Adição não encontrada",
+		enUS : "Addition not found"
+	}[lang],
+	nFAdditions : {
+		ptBR : "Nenhuma adição encontrada",
+		enUS : "Additions not found"
+	}[lang],
+	nFProduct : {
+		ptBR : "Produto não encontrado",
+		enUS : "Product not found"
+	}[lang],
+	nFProducts : {
+		ptBR : "Nenhum produto encontrado",
+		enUS : "Products not found"
+	}[lang],
+	nFCoupon : {
+		ptBR : "Cupom não encontrado",
+		enUS : "Coupon not found"
+	}[lang],
+	nFCoupons : {
+		ptBR : "Nenhum cupom encontrado",
+		enUS : "Coupons not found"
+	}[lang],
+	nFCompanyInfo : {
+		ptBR : "Informações da empresa não encontradas",
+		enUS : "Company info not found"
+	}[lang],
+	closedCompany : {
+		ptBR : "A empresa está fechada",
+		enUS : "the company is closed"
+	}[lang],
+	noToken : {
+		ptBR : "Nenhum token fornecido",
+		enUS : "No token provided"
 	}
-}[lang];
+};

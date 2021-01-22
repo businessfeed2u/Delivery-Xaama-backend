@@ -18,8 +18,6 @@ const fs = require("fs");
 const regEx = require("../helpers/regEx");
 const lang = require("../helpers/lang");
 
-const { findConnections, sendMessage } = require("../config/websocket");
-
 // Loading dirname
 const path = require("path");
 var __dirname = path.resolve();
@@ -48,9 +46,7 @@ module.exports = {
 	async create(req, res) {
 		const { name, email, password, passwordC } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-		const sendSocketMessageTo = await findConnections();
 		var errors = [];
-
 
 		if(!name || !name.length) {
 			errors.push(lang["invUserName"]);
@@ -96,8 +92,9 @@ module.exports = {
         } catch(error) {
           return res.status(500).send(error);
         }
-      }
-      return res.status(400).send(lang["wrongPasswordConfirmation"]);
+			}
+
+      errors.push(lang["wrongPasswordConfirmation"]);
 		}
 
 		if(errors.length) {
@@ -149,10 +146,10 @@ module.exports = {
 					cards: cards,
 				}).then((user) => {
 					if(user) {
-            sendMessage(sendSocketMessageTo, "new-user", user);
             const token = jwt.sign({ user }, process.env.SECRET, {
 							expiresIn: 86400
 						});
+
 						return res.status(201).json({ user, token });
 					} else {
             if(filename) {
@@ -161,8 +158,9 @@ module.exports = {
               } catch(e) {
                 return res.status(500).send(e);
               }
-            }
-            return res.status(400).send(lang["failUserCreate"]);
+						}
+
+            return res.status(400).send(lang["failCreate"]);
 					}
 				}).catch((error) => {
           if(filename) {
@@ -171,7 +169,8 @@ module.exports = {
             } catch(e) {
               return res.status(500).send(e);
             }
-          }
+					}
+
           return res.status(500).send(error);
 				});
 			}
@@ -182,21 +181,20 @@ module.exports = {
         } catch(e) {
           return res.status(500).send(e);
         }
-      }
+			}
+
       return res.status(500).send(error);
 		});
 	},
-
 	//	Update current user on database
 	async update(req, res) {
     const userId = req.headers.authorization;
 		const { name, email, passwordO, passwordN, address, phone, status } = req.body;
-    const sendSocketMessageTo = await findConnections();
+		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send(lang["invId"]);
+			errors.push(lang["invId"]);
 		}
-		var errors = [];
 
 		if(!name || !name.length) {
 			errors.push(lang["invUserName"]);
@@ -279,21 +277,13 @@ module.exports = {
 
             user.save().then((response) => {
               if(response) {
-                users.find().sort({
-                  userType: "desc"
-                }).then((response) => {
-                  sendMessage(sendSocketMessageTo, "update-user", response);
-                }).catch((error) => {
-                  return res.status(500).send(error);
-                });
-
                 const token = jwt.sign({ user }, process.env.SECRET, {
                   expiresIn: 86400
                 });
 
                 return res.status(200).json({ token, user });
               } else {
-                return res.status(400).send(lang["failUserUpdate"]);
+                return res.status(400).send(lang["failUpdate"]);
               }
             }).catch((error) => {
               return res.status(500).send(error);
@@ -309,13 +299,11 @@ module.exports = {
       return res.status(500).send(error);
 		});
   },
-
   //	Update current user on database
 	async updateThumbnail(req, res) {
     const userId = req.headers.authorization;
     const { delImg } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-    const sendSocketMessageTo = await findConnections();
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
       if(filename) {
@@ -324,7 +312,8 @@ module.exports = {
         } catch(e) {
           return res.status(500).send(e);
         }
-      }
+			}
+
       return res.status(400).send(lang["invId"]);
     }
 
@@ -335,15 +324,14 @@ module.exports = {
         } catch(e) {
           return res.status(500).send(e);
         }
-      }
+			}
+
       return res.status(400).send("Invalid delImg!");
     }
 
 		await users.findById(userId).then((user) => {
 			if(user) {
-
         var deleteThumbnail = filename || (delImg === "true") ? user.thumbnail : null;
-
         user.thumbnail = filename;
 
 				user.save().then((response) => {
@@ -352,17 +340,9 @@ module.exports = {
 							try {
                 fs.unlinkSync(`${__dirname}/uploads/${deleteThumbnail}`);
               } catch(e) {
-                //
+                return res.status(500).send(e);
               }
             }
-
-						users.find().sort({
-							userType: "desc"
-						}).then((response) => {
-							sendMessage(sendSocketMessageTo, "update-user", response);
-						}).catch((error) => {
-							return res.status(500).send(error);
-						});
 
             const token = jwt.sign({ user }, process.env.SECRET, {
 							expiresIn: 86400
@@ -378,7 +358,7 @@ module.exports = {
               }
             }
 
-						return res.status(400).send(lang["failUserUpdate"]);
+						return res.status(400).send(lang["failUpdate"]);
 					}
 				}).catch((error) => {
 					if(filename) {
@@ -414,12 +394,10 @@ module.exports = {
 			return res.status(500).send(error);
 		});
   },
-
   //	Update current card of user on database
 	async updateCard(req, res) {
 		const userId = req.headers["order-user-id"];
 		const { cardsNewQtd } = req.body;
-		const sendSocketMessageTo = await findConnections();
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
@@ -434,11 +412,11 @@ module.exports = {
 		} else {
 			Company = await companyData.findOne({}).exec();
 			if(!Company) {
-				res.status(400).send(lang["nFCompanyInfo"]);
+				errors.push(lang["nFCompanyInfo"]);
 			}
 
 			if(cardsNewQtd.length != Company.cards.length) {
-				return res.status(400).send("Invalid cards lenght value");
+				errors.push("Invalid cards length value");
 			}
 		}
 
@@ -502,22 +480,13 @@ module.exports = {
 
 				user.save().then((response) => {
 					if(response) {
-						users.find().sort({
-							userType: "desc"
-						}).then((response) => {
-							sendMessage(sendSocketMessageTo, "update-user", response);
-						}).catch((error) => {
-							return res.status(500).send(error);
-						});
-
-						return res.status(200).send(lang["succUserUpdate"]);
+						return res.status(200).send(lang["succUpdate"]);
 					} else {
-						return res.status(400).send(lang["failUserUpdate"]);
+						return res.status(400).send(lang["failUpdate"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
 				});
-
 			} else {
 				return res.status(404).send(lang["nFUser"]);
 			}
@@ -525,12 +494,10 @@ module.exports = {
 				return res.status(500).send(error);
 		});
   },
-
 	//	Remove current user from database
 	async delete(req, res) {
 		const { password } = req.headers;
 		const userId = req.headers.authorization;
-		const sendSocketMessageTo = await findConnections();
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
@@ -556,23 +523,15 @@ module.exports = {
 						if(match) {
 							user.remove().then((uDeleted) => {
 								if(uDeleted){
-									try {
-										if(uDeleted.thumbnail){
+									if(uDeleted.thumbnail) {
+										try {
 											fs.unlinkSync(`${__dirname}/uploads/${uDeleted.thumbnail}`);
-                    }
-
-										users.find().sort({
-											userType: "desc"
-										}).then((response) => {
-											sendMessage(sendSocketMessageTo, "delete-user", response);
-										}).catch((error) => {
-											return res.status(500).send(error);
-										});
-
-										return res.status(200).send(lang["succUserDelete"]);
-									} catch(e) {
-										return res.status(200).send(lang["succUserDeleteButThumb"]);
+										} catch(e) {
+											return res.status(200).send(lang["succDeleteButThumb"]);
+										}
 									}
+
+									return res.status(200).send(lang["succDelete"]);
 								} else {
 									return res.status(400).send(lang["nFUser"]);
 								}
@@ -591,7 +550,6 @@ module.exports = {
 			return res.status(500).send(error);
 		});
   },
-
   //	Update current cards of users on database
 	async updateAll(req, res) {
 		const userId = req.headers.authorization;
@@ -657,10 +615,8 @@ module.exports = {
 					user.cards = data;
 
 					user.save().then((response) => {
-						if(response) {
-							return res;
-						} else {
-							return res.status(400).send(lang["failUserUpdate"]);
+						if(!response) {
+							return res.status(400).send(lang["failUpdate"]);
 						}
 					}).catch((error) => {
 						return res.status(500).send(error);
@@ -673,9 +629,8 @@ module.exports = {
 			});
 		}
 
-		return res.status(200).send("All users cards have been update!");
+		return res.status(200).send(lang["succUpdate"]);
 	},
-
 	//	Return all users on database
 	async all(req, res) {
 		await users.find().sort({

@@ -36,7 +36,6 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Create a new product for the menu
 	async create(req, res) {
 		const { name, ingredients, type, prices, sizes } = req.body;
@@ -98,7 +97,7 @@ module.exports = {
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-				return res.status(201).send(lang["succProductCreate"]);
+				return res.status(201).send(lang["succCreate"]);
 			} else {
         if(filename) {
           try {
@@ -106,8 +105,9 @@ module.exports = {
           } catch(error) {
             return res.status(500).send(error);
           }
-        }
-        return res.status(400).send(lang["failProductCreate"]);
+				}
+
+        return res.status(400).send(lang["failCreate"]);
 			}
 		}).catch((error) => {
       if(filename) {
@@ -116,16 +116,15 @@ module.exports = {
         } catch(e) {
           return res.status(500).send(e);
         }
-      }
+			}
+
       return res.status(500).send(error);
 		});
 	},
-
 	//	Update a specific product
 	async update(req, res) {
 		const productId = req.params.id;
 		const { name, ingredients, type, prices, sizes, available } = req.body;
-
 		var errors = [];
 
 		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
@@ -171,7 +170,7 @@ module.exports = {
 			available: available
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send(lang["succProductUpdate"]);
+				return res.status(200).send(lang["succUpdate"]);
 			} else {
 				return res.status(404).send(lang["nFProduct"]);
 			}
@@ -179,7 +178,6 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Update a specific product
 	async updateThumbnail(req, res) {
 		const productId = req.params.id;
@@ -197,10 +195,11 @@ module.exports = {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
           } catch(error) {
-            return res.status(200).send(lang["succProductUpdateButThumb"]);
+            return res.status(200).send(lang["succUpdateButThumb"]);
           }
-        }
-        return res.status(200).send(lang["succProductUpdateThumb"]);
+				}
+
+        return res.status(200).send(lang["succUpdateThumb"]);
 			} else {
         if(filename) {
           try {
@@ -208,7 +207,8 @@ module.exports = {
           } catch(error) {
             return res.status(500).send(error);
           }
-        }
+				}
+
         return res.status(404).send(lang["nFProduct"]);
 			}
 		}).catch((error) => {
@@ -218,11 +218,11 @@ module.exports = {
         } catch(e) {
           return res.status(500).send(e);
         }
-      }
+			}
+
       return res.status(500).send(error);
 		});
 	},
-
 	//	Delete a specific product
 	async delete(req, res) {
 		const productId = req.params.id;
@@ -237,10 +237,11 @@ module.exports = {
           try {
             fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
           } catch(e){
-            return res.status(200).send(lang["succProductDeleteButThumb"]);
+            return res.status(200).send(lang["succDeleteButThumb"]);
           }
-        }
-        return res.status(200).send(lang["succProductDelete"]);
+				}
+
+        return res.status(200).send(lang["succDelete"]);
 			} else {
 				return res.status(404).send(lang["nFProduct"]);
 			}
@@ -248,7 +249,6 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Return all products
 	async all(req, res) {
 		await products.find().sort({

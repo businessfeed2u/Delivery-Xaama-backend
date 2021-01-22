@@ -15,16 +15,14 @@ const lang = require("../helpers/lang");
 
 //	Exporting Coupon features
 module.exports = {
-	//	Return all coupons available for user on database given id user
+	//	Return all coupons available for user on database given user id
 	async index(req, res) {
 		const userId = req.headers.authorization;
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			errors.push(lang["invId"]);
-		}
-
-		if(!(await users.findById(userId).exec())) {
+		} else if(!(await users.findById(userId).exec())) {
 			errors.push(lang["nFUser"]);
     }
 
@@ -120,9 +118,7 @@ module.exports = {
 		if(private) {
 			if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 				errors.push(lang["invId"]);
-			}
-
-			if(!(await users.findById(userId).exec())) {
+			} else if(!(await users.findById(userId).exec())) {
 				errors.push(lang["nFUser"]);
 			}
 		}
@@ -152,9 +148,9 @@ module.exports = {
 					userId: private && userId && userId.length ? userId : "",
 				}).then((response) => {
 					if(response) {
-						return res.status(201).send(lang["succCouponCreate"]);
+						return res.status(201).send(lang["succCreate"]);
 					} else {
-						return res.status(400).send(lang["failCouponCreate"]);
+						return res.status(400).send(lang["failCreate"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
@@ -164,7 +160,6 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Update a specific coupon
 	async update(req, res) {
 		const couponId = req.params.id;
@@ -228,9 +223,7 @@ module.exports = {
 		if(private) {
 			if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 				errors.push(lang["invId"]);
-			}
-
-			if(!(await users.findById(userId).exec())) {
+			} else if(!(await users.findById(userId).exec())) {
 				errors.push(lang["nFUser"]);
 			}
 		}
@@ -264,9 +257,9 @@ module.exports = {
 
 						coupon.save().then((response) => {
 							if(response) {
-								return res.status(200).send(lang["succCouponUpdate"]);
+								return res.status(200).send(lang["succUpdate"]);
 							} else {
-								return res.status(400).send(lang["failCouponUpdate"]);
+								return res.status(400).send(lang["failUpdate"]);
 							}
 						}).catch((error) => {
 							return res.status(500).send(error);
@@ -282,7 +275,6 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Update a specific coupon of user
 	async updateUser(req, res) {
 		const couponId = req.params.id;
@@ -295,9 +287,7 @@ module.exports = {
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			errors.push(lang["invId"]);
-		}
-
-		if(!(await users.findById(userId).exec())) {
+		} else if(!(await users.findById(userId).exec())) {
 			errors.push(lang["nFUser"]);
 		}
 
@@ -348,9 +338,9 @@ module.exports = {
 
 				coupon.save().then((response) => {
 					if(response) {
-						return res.status(200).send(lang["succCouponUpdate"]);
+						return res.status(200).send(lang["succUpdate"]);
 					} else {
-						return res.status(400).send(lang["failCouponUpdate"]);
+						return res.status(400).send(lang["failUpdate"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
@@ -362,7 +352,6 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Delete a specific coupon
 	async delete(req, res) {
 		const couponId = req.params.id;
@@ -373,7 +362,7 @@ module.exports = {
 
 		await coupons.findByIdAndDelete(couponId).then((response) => {
 			if(response) {
-				return res.status(200).send(lang["succCouponDelete"]);
+				return res.status(200).send(lang["succDelete"]);
 			} else {
 				return res.status(404).send(lang["nFCoupon"]);
 			}
@@ -381,8 +370,7 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-
-	//	Return all coupons coupons
+	//	Return all coupons
 	async all(req, res) {
 		await coupons.find().sort({
 			type: "asc",
