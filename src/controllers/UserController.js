@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-//	Loading User schema and Users collection from database
+//	Loading User and Company schema
 require("../models/User");
-const users = mongoose.model("Users");
-
-//	Loading Company collection from database
 require("../models/Company");
+
+//	Loading Users and Companies collections from database
+const users = mongoose.model("Users");
 const companyData = mongoose.model("Company");
 
 // Loading module to delete uploads

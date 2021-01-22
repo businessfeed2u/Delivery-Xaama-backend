@@ -1,11 +1,12 @@
 //  Loading database module
 const mongoose = require("mongoose");
 
-//	Loading Coupon, User and Company collections from database
+//	Loading Coupon, User and Company schemas
 require("../models/Coupon");
 require("../models/User");
 require("../models/Company");
 
+//	Loading Coupons, Users and Companies collections from database
 const coupons = mongoose.model("Coupons");
 const users = mongoose.model("Users");
 const companyData = mongoose.model("Company");
