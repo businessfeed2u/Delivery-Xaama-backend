@@ -1,50 +1,47 @@
 //  Loading database and bcryptjs modules
 const mongoose = require("mongoose");
 
-//	Loading rating, Order and User collections from database
+//	Loading Rating, Order and User schemas
 require("../models/Rating");
 require("../models/User");
 require("../models/Order");
 
-const rating = mongoose.model("Rating");
+//	Loading Ratings, Orders and Users collections from database
+const ratings = mongoose.model("Ratings");
 const users = mongoose.model("Users");
 const orders = mongoose.model("Orders");
 
 // Loading helpers
 const lang = require("../helpers/lang");
 
-//	Exporting rating features
+//	Exporting Rating features
 module.exports = {
   //	Return all rating
   async create(req, res) {
-
-    const { orderId, feedback, stars } = req.body;
     const userId = req.headers.authorization;
-    
+    const { orderId, feedback, stars } = req.body;
     var errors = [];
 
     if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send("Invalid user id!");
-		}
-
-    if(!(await users.findById(userId).exec())) {
-      errors.push("userId");
+			errors.push(lang["invId"]);
+		} else if(!(await users.findById(userId).exec())) {
+      errors.push(lang["nFUser"]);
     }
 
     if(!orderId || !orderId.length || !mongoose.Types.ObjectId.isValid(orderId)) {
-			return res.status(400).send("Invalid orderId id!");
+			errors.push(lang["invId"]);
 		}
 
     if(!feedback || !feedback.length) {
-      errors.push("feedback");
+      errors.push(lang["invRatingFeedback"]);
     }
 
     if(!stars || stars < 0 || stars > 5) {
-      errors.push("stars");
+      errors.push(lang["invRatingStars"]);
     }
 
     if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
     }
@@ -54,24 +51,24 @@ module.exports = {
     await orders.findById(orderId).then((order) => {
       if(order) {
         if(order.user._id == userId ) {
-          rating.find( keysSearch )
+          ratings.find(keysSearch)
           .then((response) => {
             if(response && response.length) {
-              return res.status(400).send("Have you already submitted this request!");
+              return res.status(400).send("You already submitted this request!");
             } else {
-              rating.create({
+              ratings.create({
                 userId,
                 orderId,
                 feedback,
                 stars,
                 name: order.user.name ? order.user.name : "",
                 thumbnail: order.user.thumbnail ? order.user.thumbnail : null
-              }).then((ratingCreate) => {
-                if(ratingCreate) {
+              }).then((rating) => {
+                if(rating) {
                   order.feedback = true;
                   order.save().then((response) => {
                     if(response) {
-                      return res.status(201).json(ratingCreate);
+                      return res.status(201).json(rating);
                     } else {
                       return res.status(400).send("Created a new rating, but did not update the feedback!");
                     }
@@ -79,7 +76,7 @@ module.exports = {
                     return res.status(500).send(error);
                   });
                 } else {
-                  return res.status(400).send("We couldn't create a new rating, try again later!");
+                  return res.status(400).send(lang["failCreate"]);
                 }
               }).catch((error) => {
                 return res.status(500).send(error);
@@ -89,34 +86,32 @@ module.exports = {
             return res.status(500).send(error);
           });
         } else {
-          return res.status(400).send("user not authorized!");
+          return res.status(403).send(lang["unauthOperation"]);
         }
       } else {
-        return res.status(400).send("Order is not found!");
+        return res.status(404).send(lang["nFOrder"]);
       }
     }).catch((error) => {
       return res.status(500).send(error);
     });
   },
-
   // Update current rating on database
   async update(req, res) {
     const ratingId = req.params.id;
-
 		if(!ratingId || !ratingId.length || !mongoose.Types.ObjectId.isValid(ratingId)) {
 			return res.status(400).send(lang["invId"]);
     }
 
-    await rating.findById(ratingId).then((response) => {
+    await ratings.findById(ratingId).then((response) => {
       if(response.approved) {
-        return res.status(404).send("Avaliação já está aprovada!");
+        return res.status(400).send("Avaliação já está aprovada!");
       } else {
         response.approved = true;
         response.save().then((response) => {
           if(response) {
             return res.status(200).send(response);
           } else {
-            return res.status(404).send("Avaliação não encontrada");
+            return res.status(404).send(lang["nFRating"]);
           }
         }).catch((error) => {
           return res.status(500).send(error);
@@ -126,20 +121,19 @@ module.exports = {
       return res.status(500).send(error);
     });
   },
-
-  //	Return all rating
+  //	Delete rating
   async delete(req, res) {
     const ratingId = req.params.id;
 
 		if(!ratingId || !ratingId.length || !mongoose.Types.ObjectId.isValid(ratingId)) {
-			return res.status(400).send("Invalid rating id!");
+			return res.status(400).send(lang["invId"]);
 		}
 
-		await rating.findByIdAndDelete(ratingId).then((response) => {
+		await ratings.findByIdAndDelete(ratingId).then((response) => {
 			if(response) {
-        return res.status(200).send("The rating have been deleted!");
+        return res.status(200).send(lang["succDelete"]);
 			} else {
-				return res.status(404).send("rating not found!");
+				return res.status(404).send(lang["nFRating"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -148,16 +142,19 @@ module.exports = {
 
 	//	Return all rating
   async all(req, res) {
-    await rating.find().sort({
+    await ratings.find().sort({
       approved: "asc",
       stars: "desc",
       name: "asc",
 			creationDate: "asc"
 		}).then((response) => {
-			return res.status(200).json(response);
+      if(response) {
+        return res.status(200).json(response);
+      } else {
+        return res.status(404).json(lang["nFRatings"]);
+      }
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
   }
-
 };

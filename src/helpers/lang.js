@@ -26,6 +26,14 @@ module.exports = {
 		ptBR : "Tipo(s) de produtos da empresa inválido(s)",
 		enUS : "Invalid company product type(s)"
 	}[lang],
+	invRatingFeedback : {
+		ptBR : "Feedback da avaliação inválido(s)",
+		enUS : "Invalid rating feedback"
+	}[lang],
+	invRatingStars : {
+		ptBR : "Estrela(s) da avaliação inválida(s)",
+		enUS : "Invalid rating star(s)"
+	}[lang],
 	invProductName : {
 		ptBR : "Nome do produto inválido",
 		enUS : "Invalid product name"
@@ -237,6 +245,14 @@ module.exports = {
 	nFCoupons : {
 		ptBR : "Nenhum cupom encontrado",
 		enUS : "Coupons not found"
+	}[lang],
+	nFRating : {
+		ptBR : "Avaliação não encontrada",
+		enUS : "Rating not found"
+	}[lang],
+	nFRatings : {
+		ptBR : "Nenhuma avaliação encontrada",
+		enUS : "Ratings not found"
 	}[lang],
 	nFProductTypes : {
 		ptBR : "Tipos de produtos não encontrados",
