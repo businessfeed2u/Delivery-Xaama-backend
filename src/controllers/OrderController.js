@@ -434,7 +434,7 @@ module.exports = {
 		}
 
 		async function deleteOrders() {
-			await orders.deleteMany().then((response) => {
+			await orders.deleteMany({status : true}).then((response) => {
 				if(response.n) {
 					sendMessage(sendSocketMessageTo, "delete-order", []);
 					return res.status(200).send("All orders have been deleted!");
