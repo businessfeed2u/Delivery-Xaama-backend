@@ -431,7 +431,7 @@ module.exports = {
 
 		const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
 
-		 //	Validating cards fidelity
+		//	Validating cards fidelity
 		if(!cards || !cards.length) {
 			errors.push("cards");
 		} else {
