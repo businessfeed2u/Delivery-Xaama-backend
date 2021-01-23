@@ -387,7 +387,7 @@ module.exports = {
 		} else {
 			for(const t of timetable) {
 				if(!t.dayWeek || !t.dayWeek.length){
-					errors.pushlang["invTimeTable"]);
+					errors.push(lang["invTimeTable"]);
 					break;
 				}
 
