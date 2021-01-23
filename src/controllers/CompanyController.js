@@ -80,54 +80,54 @@ module.exports = {
 			errors.push(lang["invAddress"]);
 		}
 
-    if(!freight || freight < 1 || freight > 10) {
-      errors.push(lang["invCompanyFreight"]);
-    }
+		if(!freight || freight < 1 || freight > 10) {
+			errors.push(lang["invCompanyFreight"]);
+		}
 
 		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
 			errors.push(lang["invCompanyProductTypes"]);
-    }
+		}
 
-    const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
+		const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
 
 		if(timeWithdrawal < 10 || timeDeliveryI < 10 || timeDeliveryF < 10
 		|| timeDeliveryI > timeDeliveryF || timeDeliveryI === timeDeliveryF) {
 				errors.push("timeDelivery or timeWithdrawal");
-    }
+		}
 
 		if(errors.length) {
 			const message = errors.join(", ");
 
 			return res.status(400).send(message);
-    }
+		}
 
 		const company = await companyData.findOne({}).exec();
 		if(!company) {
 				return res.status(404).send(lang["nFCompanyInfo"]);
 		}
 
-    var data = [];
-    var exist = false;
+		var data = [];
+		var exist = false;
 
-    for(var type of typesP) {
-      exist = false;
-      for(var c of company.cards) {
-        if(type == c.type) {
-          data.push(c);
-          exist = true;
-          break;
-        }
-      }
-      if(!exist) {
-        var newCard = {
-          type: type,
-          available: false,
-          qtdMax: 10,
-          discount : 8
-        };
-        data.push(newCard);
-      }
-    }
+		for(var type of typesP) {
+			exist = false;
+			for(var c of company.cards) {
+				if(type == c.type) {
+					data.push(c);
+					exist = true;
+					break;
+				}
+			}
+			if(!exist) {
+				var newCard = {
+					type: type,
+					available: false,
+					qtdMax: 10,
+					discount : 8
+				};
+				data.push(newCard);
+			}
+		}
 
 		await companyData.findOneAndUpdate({}, {
 			name,
@@ -140,8 +140,8 @@ module.exports = {
 			systemOpenByAdm,
 			timeWithdrawal,
 			timeDeliveryI,
-      timeDeliveryF,
-      cards: data
+			timeDeliveryF,
+			cards: data
 		}).then((response) => {
 			if(response) {
 				return res.status(200).json({ company : response });
@@ -154,8 +154,8 @@ module.exports = {
 					freight,
 					productTypes: typesP,
 					manual,
-          systemOpenByAdm,
-          cards: data
+					systemOpenByAdm,
+					cards: data
 				}).then((company) => {
 					if(company) {
 						return res.status(201).json(company);
@@ -169,139 +169,139 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-  },
-  //	Update images for company
+	},
+	//	Update images for company
 	async updateImages(req, res) {
-    const { op } = req.body;
-    const image = (req.file) ? req.file.filename : null;
+		const { op } = req.body;
+		const image = (req.file) ? req.file.filename : null;
 
-    if(!op || !op.length) {
-      if(image) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${image}`);
-        } catch(error) {
-          return res.status(500).send(error);
-        }
+		if(!op || !op.length) {
+			if(image) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${image}`);
+				} catch(error) {
+					return res.status(500).send(error);
+				}
 			}
 
-      return res.status(400).send("Invalid op value!");
-    }
+			return res.status(400).send("Invalid op value!");
+		}
 
-    var im = null;
-    var data = [];
-    var i = 0;
+		var im = null;
+		var data = [];
+		var i = 0;
 
-    await companyData.findOne({}).then((company) => {
+		await companyData.findOne({}).then((company) => {
 			if(company) {
-        if(op === "logo") {
-          im = company.logo;
-          company.logo = image ? image : company.logo;
-        } else if(op === "c1") {
-          im = company.carousel[0] ? company.carousel[0] : null;
+				if(op === "logo") {
+					im = company.logo;
+					company.logo = image ? image : company.logo;
+				} else if(op === "c1") {
+					im = company.carousel[0] ? company.carousel[0] : null;
 
-          data = [];
-          i = 0;
+					data = [];
+					i = 0;
 
-          for(let c of company.carousel) {
-            if(i == 0) {
-              data.push(image);
-            } else {
-              data.push(c);
-            }
-            i++;
-          }
-
-          company.carousel = data;
-        } else if(op === "c2") {
-          im = company.carousel[1] ? company.carousel[1] : null;
-
-          data = [];
-          i = 0;
-
-          for(let c of company.carousel) {
-            if(i == 1) {
-              data.push(image);
-            } else {
-              data.push(c);
-            }
-            i++;
-          }
-
-          company.carousel = data;
-        } else if(op === "c3") {
-          im = company.carousel[2] ? company.carousel[2] : null;
-
-          data = [];
-          i = 0;
-
-          for(let c of company.carousel) {
-            if(i == 2) {
-              data.push(image);
-            } else {
-              data.push(c);
-            }
-            i++;
-          }
-
-          company.carousel = data;
-        } else {
-          if(image) {
-            try {
-              fs.unlinkSync(`${__dirname}/uploads/${image}`);
-            } catch(error) {
-              return res.status(500).send(error);
-            }
+					for(let c of company.carousel) {
+						if(i == 0) {
+							data.push(image);
+						} else {
+							data.push(c);
+						}
+						i++;
 					}
 
-          return res.status(400).send("Invalid op value!");
-        }
+					company.carousel = data;
+				} else if(op === "c2") {
+					im = company.carousel[1] ? company.carousel[1] : null;
 
-        company.save().then((response) => {
+					data = [];
+					i = 0;
+
+					for(let c of company.carousel) {
+						if(i == 1) {
+							data.push(image);
+						} else {
+							data.push(c);
+						}
+						i++;
+					}
+
+					company.carousel = data;
+				} else if(op === "c3") {
+					im = company.carousel[2] ? company.carousel[2] : null;
+
+					data = [];
+					i = 0;
+
+					for(let c of company.carousel) {
+						if(i == 2) {
+							data.push(image);
+						} else {
+							data.push(c);
+						}
+						i++;
+					}
+
+					company.carousel = data;
+				} else {
+					if(image) {
+						try {
+							fs.unlinkSync(`${__dirname}/uploads/${image}`);
+						} catch(error) {
+							return res.status(500).send(error);
+						}
+					}
+
+					return res.status(400).send("Invalid op value!");
+				}
+
+				company.save().then((response) => {
 					if(response) {
-            if(im && (im != company.thumbnail)) {
-              try {
-                fs.unlinkSync(`${__dirname}/uploads/${im}`);
-              } catch(error) {
-                return res.status(200).send(lang["succUpdateButThumb"]);
-              }
+						if(im && (im != company.thumbnail)) {
+							try {
+								fs.unlinkSync(`${__dirname}/uploads/${im}`);
+							} catch(error) {
+								return res.status(200).send(lang["succUpdateButThumb"]);
+							}
 						}
 
-            return res.status(200).send(lang["succUpdate"]);
+						return res.status(200).send(lang["succUpdate"]);
 					} else {
-            if(im) {
-              try {
-                fs.unlinkSync(`${__dirname}/uploads/${im}`);
-              } catch(error) {
-                return res.status(500).send(error);
-              }
+						if(im) {
+							try {
+								fs.unlinkSync(`${__dirname}/uploads/${im}`);
+							} catch(error) {
+								return res.status(500).send(error);
+							}
 						}
 
-            return res.status(400).send(lang["failUpdate"]);
+						return res.status(400).send(lang["failUpdate"]);
 					}
 				}).catch((error) => {
-          if(im) {
-            try {
-              fs.unlinkSync(`${__dirname}/uploads/${im}`);
-            } catch(e) {
-              return res.status(500).send(e);
-            }
+					if(im) {
+						try {
+							fs.unlinkSync(`${__dirname}/uploads/${im}`);
+						} catch(e) {
+							return res.status(500).send(e);
+						}
 					}
 
-          return res.status(500).send(error);
+					return res.status(500).send(error);
 				});
 			}
 		}).catch((error) => {
-      if(im) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${im}`);
-        } catch(e) {
-          return res.status(500).send(e);
-        }
+			if(im) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${im}`);
+				} catch(e) {
+					return res.status(500).send(e);
+				}
 			}
 
-      return res.status(500).send(error);
+			return res.status(500).send(error);
 		});
-  },
+	},
 	//	Update current user on database
 	async updateUser(req, res) {
 		const userId = req.headers.authorization;
@@ -376,8 +376,8 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-  },
-  //	Update opening hours
+	},
+	//	Update opening hours
 	async updateOpeningHours(req, res) {
 		const { timetable } = req.body;
 		var errors = [];
@@ -419,8 +419,8 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-  },
-  //	Update cards
+	},
+	//	Update cards
 	async updateCards(req, res) {
 		const { productTypes, cards } = req.body;
 		var errors = [];
@@ -429,45 +429,45 @@ module.exports = {
 			return res.status(400).send(lang["invCompanyProductTypes"]);
 		}
 
-    const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
+		const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
 
-     //	Validating cards fidelity
+		 //	Validating cards fidelity
 		if(!cards || !cards.length) {
 			errors.push("cards");
 		} else {
 			for(const card of cards) {
 				if(!card.type || !card.type.length){
-          errors.push("cards type");
-          break;
-        }
+					errors.push("cards type");
+					break;
+				}
 
-        var invalid = true;
-        for(const type of typesP) {
-          if(type == card.type) {
-            invalid = false;
-            break;
-          }
-        }
+				var invalid = true;
+				for(const type of typesP) {
+					if(type == card.type) {
+						invalid = false;
+						break;
+					}
+				}
 
-        if(invalid) {
-          errors.push("card type do not exists");
-          break;
-        }
+				if(invalid) {
+					errors.push("card type do not exists");
+					break;
+				}
 
-        if(card.available == null || typeof(card.available) != "boolean") {
-          errors.push("card available");
-          break;
-        }
+				if(card.available == null || typeof(card.available) != "boolean") {
+					errors.push("card available");
+					break;
+				}
 
-        if(isNaN(card.qtdMax) || card.qtdMax < 10 || card.qtdMax > 20) {
-          errors.push("card qtdMax");
-          break;
-        }
+				if(isNaN(card.qtdMax) || card.qtdMax < 10 || card.qtdMax > 20) {
+					errors.push("card qtdMax");
+					break;
+				}
 
-        if(isNaN(card.discount) || card.discount < 8 || card.discount > 20) {
-          errors.push("card discount");
-          break;
-        }
+				if(isNaN(card.discount) || card.discount < 8 || card.discount > 20) {
+					errors.push("card discount");
+					break;
+				}
 
 			}
 		}
@@ -489,5 +489,5 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-  }
+	}
 };

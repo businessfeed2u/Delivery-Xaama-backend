@@ -13,17 +13,17 @@ const cardFidelitySchema = Schema({
 	available: {
 		type: Boolean,
 		default: 0,
-    required: true
-  },
+		required: true
+	},
 	qtdMax: {
 		type: Number,
-    default: 10,
-    required: true
-  },
-  discount: {
+		default: 10,
+		required: true
+	},
+	discount: {
 		type: Number,
-    default: 10
-  },
+		default: 10
+	},
 	creationDate: {
 		type: Date,
 		default: Date.now()

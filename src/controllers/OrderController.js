@@ -52,7 +52,7 @@ module.exports = {
 		//	Validantig order user
 		if(!user || !Object.keys(user).length || !(await users.findById(user._id).exec())) {
 			errors.push("user");
-    }
+		}
 
 		if(!(await users.findById(user._id).exec())) {
 			errors.push("user is not found");
@@ -195,7 +195,7 @@ module.exports = {
 		}
 
 		//	Calculate order total price
-    var myMapTypesProducts = new Map();
+		var myMapTypesProducts = new Map();
 
 		if(products){
 			for(x of products) {
@@ -203,34 +203,34 @@ module.exports = {
 					myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
 						myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size]) :
 							x.product.prices[x.size]);
-        }
+				}
 
 				if(x.additions && x.additions.length) {
 					for(y of x.additions) {
 						myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
 							myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + y.price) :
 								y.price);
-          }
-        }
+					}
+				}
 			}
-    }
+		}
 
 		// Calculate discount
-    var d = 0;
+		var d = 0;
 
 		if(user && user.cards && company && company.cards){
 			user.cards.map((card,index) => {
 				card.completed && !card.status && myMapTypesProducts && myMapTypesProducts.get(card.cardFidelity) ?
 					d = parseInt(d) + parseInt((company.cards[index].discount < myMapTypesProducts.get(card.cardFidelity) ?
 						company.cards[index].discount : myMapTypesProducts.get(card.cardFidelity)))
-            :
+						:
 					null;
 			});
 		}
 
 		//  Validating coupon if it exists and assigning the discount
 		var discountCoupon = 0;
-    var coupon = null;
+		var coupon = null;
 
 		if(couponId && couponId.length) {
 			if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
@@ -242,48 +242,48 @@ module.exports = {
 			if(coupon) {
 				if(coupon.private && (coupon.userId != user._id)) {
 					errors.push("UserId wrong");
-        }
+				}
 
-        if(coupon.type === "frete" && !deliver) {
-          errors.push("freight coupon used without asking to deliver the order");
-        }
+				if(coupon.type === "frete" && !deliver) {
+					errors.push("freight coupon used without asking to deliver the order");
+				}
 
-        var priceProducts = deliver ? totalB - company.freight : totalB;
+				var priceProducts = deliver ? totalB - company.freight : totalB;
 
-        if((coupon.type === "valor") && ( priceProducts < coupon.minValue)) {
-          errors.push("coupon used without reaching the minimum value");
-        }
+				if((coupon.type === "valor") && ( priceProducts < coupon.minValue)) {
+					errors.push("coupon used without reaching the minimum value");
+				}
 
-        var applyDiscount = false;
+				var applyDiscount = false;
 
-        for(var c of coupon.whoUsed) {
-          if((c.userId == user._id)){
-            if((c.validated) && (!c.status)) {
-              applyDiscount = true;
-            }
-          }
-        }
+				for(var c of coupon.whoUsed) {
+					if((c.userId == user._id)){
+						if((c.validated) && (!c.status)) {
+							applyDiscount = true;
+						}
+					}
+				}
 
-        if(applyDiscount) {
-          if(coupon.method === "porcentagem") {
-            discountCoupon = (priceProducts * coupon.discount) / 100;
-          } else {
-            discountCoupon = coupon.discount;
-          }
-        } else {
-          errors.push("apply discount");
-        }
+				if(applyDiscount) {
+					if(coupon.method === "porcentagem") {
+						discountCoupon = (priceProducts * coupon.discount) / 100;
+					} else {
+						discountCoupon = coupon.discount;
+					}
+				} else {
+					errors.push("apply discount");
+				}
 
 			} else {
 				errors.push("Coupon");
 			}
 		}
 
-    totalB = (totalB - d - discountCoupon) > 0 ? (totalB - d - discountCoupon) : 0 ;
+		totalB = (totalB - d - discountCoupon) > 0 ? (totalB - d - discountCoupon) : 0 ;
 
-    // console.log("total: " + total);
-    // console.log("totalB: " + totalB);
-    // console.log("d: " + d);
+		// console.log("total: " + total);
+		// console.log("totalB: " + totalB);
+		// console.log("d: " + d);
 
 		if((total != totalB)) {
 			errors.push("delivery total");
@@ -307,58 +307,58 @@ module.exports = {
 			creationDate: cd
 		}).then((response) => {
 			if(response) {
-        if(couponId && couponId.length) {
-          if(coupon && coupon.private) {
-            coupons.findByIdAndDelete(couponId).then((r) => {
-              if(r) {
-                sendMessage(sendSocketMessageTo, "new-order", [response]);
-                return res.status(201).json(response);
-              } else {
-                return res.status(404).send("Coupon not found!");
-              }
-            }).catch((error) => {
-              return res.status(500).send(error);
-            });
-          } else {
-            coupons.findById(couponId).then((coupon) => {
-              if(coupon) {
-                var d = [];
+				if(couponId && couponId.length) {
+					if(coupon && coupon.private) {
+						coupons.findByIdAndDelete(couponId).then((r) => {
+							if(r) {
+								sendMessage(sendSocketMessageTo, "new-order", [response]);
+								return res.status(201).json(response);
+							} else {
+								return res.status(404).send("Coupon not found!");
+							}
+						}).catch((error) => {
+							return res.status(500).send(error);
+						});
+					} else {
+						coupons.findById(couponId).then((coupon) => {
+							if(coupon) {
+								var d = [];
 
-                for(var c of coupon.whoUsed) {
-                  if((c.userId === user._id)){
-                    d.push({
-                      userId: user._id,
-                      validated: true,
-                      status: true
-                    });
-                  } else {
-                    d.push(c);
-                  }
-                }
+								for(var c of coupon.whoUsed) {
+									if((c.userId === user._id)){
+										d.push({
+											userId: user._id,
+											validated: true,
+											status: true
+										});
+									} else {
+										d.push(c);
+									}
+								}
 
-                coupon.whoUsed = d;
+								coupon.whoUsed = d;
 
-                coupon.save().then((response) => {
-                  if(response) {
-                    sendMessage(sendSocketMessageTo, "new-order", [response]);
-                    return res.status(201).json(response);
-                  } else {
-                    return res.status(400).send("We couldn't save your changes, try again later!");
-                  }
-                }).catch((error) => {
-                  return res.status(500).send(error);
-                });
-              } else {
-                return res.status(404).send("Coupon not found!" );
-              }
-            }).catch((error) => {
-              return res.status(500).send(error);
-            });
-          }
-        } else {
-          sendMessage(sendSocketMessageTo, "new-order", [response]);
-          return res.status(201).json(response);
-        }
+								coupon.save().then((response) => {
+									if(response) {
+										sendMessage(sendSocketMessageTo, "new-order", [response]);
+										return res.status(201).json(response);
+									} else {
+										return res.status(400).send("We couldn't save your changes, try again later!");
+									}
+								}).catch((error) => {
+									return res.status(500).send(error);
+								});
+							} else {
+								return res.status(404).send("Coupon not found!" );
+							}
+						}).catch((error) => {
+							return res.status(500).send(error);
+						});
+					}
+				} else {
+					sendMessage(sendSocketMessageTo, "new-order", [response]);
+					return res.status(201).json(response);
+				}
 			} else {
 				return res.status(400).send("We couldn't create a new order, try again later!");
 			}

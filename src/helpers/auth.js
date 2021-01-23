@@ -59,9 +59,9 @@ module.exports = {
 				if(err) {
 					return res.status(401).send(lang["invToken"]);
 				} else {
-          req.headers.authorization = decoded.user.id;
-          req.body.user = decoded.user;
-          return next();
+					req.headers.authorization = decoded.user.id;
+					req.body.user = decoded.user;
+					return next();
 				}
 			});
 		}

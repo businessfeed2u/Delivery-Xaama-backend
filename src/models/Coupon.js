@@ -11,43 +11,43 @@ const CouponSchema = Schema({
 		required: true
 	},
 	userId: {
-    type: String,
-    default: "",
-  },
-  type: {
+		type: String,
+		default: "",
+	},
+	type: {
 		type: String,
 		required: true
-  },
-  private: {
+	},
+	private: {
 		type: Boolean,
-    required: true
-  },
-  qty: {
+		required: true
+	},
+	qty: {
 		type: Number,
-    default: 0,
-  },
-  method: {
+		default: 0,
+	},
+	method: {
 		type: String,
 		required: true
-  },
-  discount: {
+	},
+	discount: {
 		type: Number,
-    default: 0,
-    required: true
-  },
-  available: {
+		default: 0,
+		required: true
+	},
+	available: {
 		type: Boolean,
 		default: true,
-    required: true
-  },
-  minValue: {
+		required: true
+	},
+	minValue: {
 		type: Number,
-    default: 0,
-  },
-  whoUsed: {
-    type: Array,
-    default: [],
-  },
+		default: 0,
+	},
+	whoUsed: {
+		type: Array,
+		default: [],
+	},
 	creationDate: {
 		type: Date,
 		default: Date.now()

@@ -31,15 +31,15 @@ const companySchema = Schema({
 	productTypes: {
 		type: [String],
 		required: true
-  },
-  systemOpenByAdm: {
+	},
+	systemOpenByAdm: {
 	type: Boolean,
 	default: true
-  },
-  manual: {
+	},
+	manual: {
 	type: Boolean,
 	default: false
-  },
+	},
 	logo: {
 		type: String,
 		default: null
@@ -47,27 +47,27 @@ const companySchema = Schema({
 	carousel: {
 		type: [String],
 		default: null
-  },
-  timetable: {
-    type: [timetableSchema],
-    default: null
-  },
-  timeWithdrawal: {
-    type: Number,
-    required: true
-  },
-  timeDeliveryI: {
-    type: Number,
-    required: true
-  },
-  timeDeliveryF: {
-    type: Number,
-    required: true
-  },
-  cards: {
-    type: [cardFidelitySchema],
-    default: null
-  }
+	},
+	timetable: {
+		type: [timetableSchema],
+		default: null
+	},
+	timeWithdrawal: {
+		type: Number,
+		required: true
+	},
+	timeDeliveryI: {
+		type: Number,
+		required: true
+	},
+	timeDeliveryF: {
+		type: Number,
+		required: true
+	},
+	cards: {
+		type: [cardFidelitySchema],
+		default: null
+	}
 }, {
 	toJSON: {
 		virtuals: true,

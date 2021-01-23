@@ -35,8 +35,8 @@ const orderSchema = Schema({
 	status: {
 		type: Boolean,
 		default: false
-  },
-  feedback: {
+	},
+	feedback: {
 		type: Boolean,
 		default: false
 	},

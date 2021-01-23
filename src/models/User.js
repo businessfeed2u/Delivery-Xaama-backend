@@ -36,7 +36,7 @@ const userSchema = Schema({
 	cards: {
 		type: [cardFidelityUserSchema],
 		default: null
-  },
+	},
 	creationDate: {
 		type: Date,
 		default: Date.now()

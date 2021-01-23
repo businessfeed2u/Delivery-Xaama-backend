@@ -35,10 +35,10 @@ module.exports = {
 		await users.findById(userId).then((user) => {
 			if(user) {
 				const token = jwt.sign({ user }, process.env.SECRET, {
-          expiresIn: 86400
-        });
+					expiresIn: 86400
+				});
 
-        return res.status(201).json({ user, token });
+				return res.status(201).json({ user, token });
 			} else {
 				return res.status(400).send(lang["nFUser"]);
 			}
@@ -90,15 +90,15 @@ module.exports = {
 		}
 
 		if(password !== passwordC) {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(error) {
-          return res.status(500).send(error);
-        }
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(error) {
+					return res.status(500).send(error);
+				}
 			}
 
-      errors.push(lang["wrongPasswordConfirmation"]);
+			errors.push(lang["wrongPasswordConfirmation"]);
 		}
 
 		if(errors.length) {
@@ -116,14 +116,14 @@ module.exports = {
 
 		await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
 			if(response) {
-        if(filename) {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-          } catch(error) {
-            return res.status(500).send(error);
-          }
-        }
-        return res.status(400).send(lang["existentEmail"]);
+				if(filename) {
+					try {
+						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					} catch(error) {
+						return res.status(500).send(error);
+					}
+				}
+				return res.status(400).send(lang["existentEmail"]);
 			} else {
 				var salt = 0, hash = "";
 
@@ -131,14 +131,14 @@ module.exports = {
 					salt = bcrypt.genSaltSync(10);
 					hash = bcrypt.hashSync(password, salt);
 				} catch(error) {
-          if(filename) {
-            try {
-              fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-            } catch(e) {
-              return res.status(500).send(e);
-            }
-          }
-          return res.status(500).send(error);
+					if(filename) {
+						try {
+							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+						} catch(e) {
+							return res.status(500).send(e);
+						}
+					}
+					return res.status(500).send(error);
 				}
 
 				users.create({
@@ -150,49 +150,49 @@ module.exports = {
 					cards: cards,
 				}).then((user) => {
 					if(user) {
-            const token = jwt.sign({ user }, process.env.SECRET, {
+						const token = jwt.sign({ user }, process.env.SECRET, {
 							expiresIn: 86400
 						});
 
 						return res.status(201).json({ user, token });
 					} else {
-            if(filename) {
-              try {
-                fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-              } catch(e) {
-                return res.status(500).send(e);
-              }
+						if(filename) {
+							try {
+								fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+							} catch(e) {
+								return res.status(500).send(e);
+							}
 						}
 
-            return res.status(400).send(lang["failCreate"]);
+						return res.status(400).send(lang["failCreate"]);
 					}
 				}).catch((error) => {
-          if(filename) {
-            try {
-              fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-            } catch(e) {
-              return res.status(500).send(e);
-            }
+					if(filename) {
+						try {
+							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+						} catch(e) {
+							return res.status(500).send(e);
+						}
 					}
 
-          return res.status(500).send(error);
+					return res.status(500).send(error);
 				});
 			}
 		}).catch((error) => {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(e) {
-          return res.status(500).send(e);
-        }
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(e) {
+					return res.status(500).send(e);
+				}
 			}
 
-      return res.status(500).send(error);
+			return res.status(500).send(error);
 		});
 	},
 	//	Update current user on database
 	async update(req, res) {
-    const userId = req.headers.authorization;
+		const userId = req.headers.authorization;
 		const { name, email, passwordO, passwordN, address, phone, status } = req.body;
 		var errors = [];
 
@@ -224,181 +224,181 @@ module.exports = {
 			const message = errors.join(", ");
 
 			return res.status(400).send(message);
-    }
+		}
 
-    await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
-      if(response && (response._id != userId)) {
-        return res.status(400).send(lang["existentEmail"]);
+		await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
+			if(response && (response._id != userId)) {
+				return res.status(400).send(lang["existentEmail"]);
 			} else {
-        users.findById(userId).then((user) => {
-          if(user) {
-            var hash = "";
+				users.findById(userId).then((user) => {
+					if(user) {
+						var hash = "";
 
-            if(passwordN && passwordN.length) {
-              if(!regEx.password.test(passwordN)) {
-                return res.status(400).send(lang["invNewPassword"]);
-              }
+						if(passwordN && passwordN.length) {
+							if(!regEx.password.test(passwordN)) {
+								return res.status(400).send(lang["invNewPassword"]);
+							}
 
-              if(!bcrypt.compareSync(passwordO, user.password)) {
-                return res.status(400).send(lang["wrongOldPassword"]);
-              }
+							if(!bcrypt.compareSync(passwordO, user.password)) {
+								return res.status(400).send(lang["wrongOldPassword"]);
+							}
 
-              try {
-                const salt = bcrypt.genSaltSync(10);
-                hash = bcrypt.hashSync(passwordN, salt);
-              } catch(error) {
-                return res.status(500).send(error);
-              }
-            } else {
-              hash = user.password;
-            }
+							try {
+								const salt = bcrypt.genSaltSync(10);
+								hash = bcrypt.hashSync(passwordN, salt);
+							} catch(error) {
+								return res.status(500).send(error);
+							}
+						} else {
+							hash = user.password;
+						}
 
-            if(user.cards.length != status.length) {
-              return res.status(400).send("vector length of status");
-            }
+						if(user.cards.length != status.length) {
+							return res.status(400).send("vector length of status");
+						}
 
-            var data = [];
-            var i = 0;
+						var data = [];
+						var i = 0;
 
-            for(var u of user.cards) {
-              var newCard = {
-                cardFidelity: u.cardFidelity,
-                qtdCurrent: u.qtdCurrent,
-                completed: u.completed,
-                status: status[i]
-              };
+						for(var u of user.cards) {
+							var newCard = {
+								cardFidelity: u.cardFidelity,
+								qtdCurrent: u.qtdCurrent,
+								completed: u.completed,
+								status: status[i]
+							};
 
-              data.push(newCard);
-              i ++;
-            }
+							data.push(newCard);
+							i ++;
+						}
 
-            user.cards = data;
-            user.name = name;
-            user.email = email.trim().toLowerCase();
-            user.password = hash;
-            user.phone = phone ? phone : null;
-            user.address = address && address.length ? address.split(",").map(a => a.trim()) : null;
+						user.cards = data;
+						user.name = name;
+						user.email = email.trim().toLowerCase();
+						user.password = hash;
+						user.phone = phone ? phone : null;
+						user.address = address && address.length ? address.split(",").map(a => a.trim()) : null;
 
-            user.save().then((response) => {
-              if(response) {
-                const token = jwt.sign({ user }, process.env.SECRET, {
-                  expiresIn: 86400
-                });
+						user.save().then((response) => {
+							if(response) {
+								const token = jwt.sign({ user }, process.env.SECRET, {
+									expiresIn: 86400
+								});
 
-                return res.status(200).json({ token, user });
-              } else {
-                return res.status(400).send(lang["failUpdate"]);
-              }
-            }).catch((error) => {
-              return res.status(500).send(error);
-            });
-          } else {
-            return res.status(404).send(lang["nFUser"]);
-          }
-        }).catch((error) => {
-          return res.status(500).send(error);
-        });
-      }
+								return res.status(200).json({ token, user });
+							} else {
+								return res.status(400).send(lang["failUpdate"]);
+							}
+						}).catch((error) => {
+							return res.status(500).send(error);
+						});
+					} else {
+						return res.status(404).send(lang["nFUser"]);
+					}
+				}).catch((error) => {
+					return res.status(500).send(error);
+				});
+			}
 		}).catch((error) => {
-      return res.status(500).send(error);
+			return res.status(500).send(error);
 		});
-  },
-  //	Update current user on database
+	},
+	//	Update current user on database
 	async updateThumbnail(req, res) {
-    const userId = req.headers.authorization;
-    const { delImg } = req.body;
+		const userId = req.headers.authorization;
+		const { delImg } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(e) {
-          return res.status(500).send(e);
-        }
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(e) {
+					return res.status(500).send(e);
+				}
 			}
 
-      return res.status(400).send(lang["invId"]);
-    }
+			return res.status(400).send(lang["invId"]);
+		}
 
-    if(!delImg || !delImg.length) {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(e) {
-          return res.status(500).send(e);
-        }
+		if(!delImg || !delImg.length) {
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(e) {
+					return res.status(500).send(e);
+				}
 			}
 
-      return res.status(400).send("Invalid delImg!");
-    }
+			return res.status(400).send("Invalid delImg!");
+		}
 
 		await users.findById(userId).then((user) => {
 			if(user) {
-        var deleteThumbnail = filename || (delImg === "true") ? user.thumbnail : null;
-        user.thumbnail = filename;
+				var deleteThumbnail = filename || (delImg === "true") ? user.thumbnail : null;
+				user.thumbnail = filename;
 
 				user.save().then((response) => {
 					if(response) {
-            if(deleteThumbnail && (deleteThumbnail != user.thumbnail) || (delImg === "true")) {
+						if(deleteThumbnail && (deleteThumbnail != user.thumbnail) || (delImg === "true")) {
 							try {
-                fs.unlinkSync(`${__dirname}/uploads/${deleteThumbnail}`);
-              } catch(e) {
-                return res.status(500).send(e);
-              }
-            }
+								fs.unlinkSync(`${__dirname}/uploads/${deleteThumbnail}`);
+							} catch(e) {
+								return res.status(500).send(e);
+							}
+						}
 
-            const token = jwt.sign({ user }, process.env.SECRET, {
+						const token = jwt.sign({ user }, process.env.SECRET, {
 							expiresIn: 86400
 						});
 
 						return res.status(200).json({ token, user });
 					} else {
-            if(filename) {
-              try {
-                fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-              } catch(e) {
-                return res.status(500).send(e);
-              }
-            }
+						if(filename) {
+							try {
+								fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+							} catch(e) {
+								return res.status(500).send(e);
+							}
+						}
 
 						return res.status(400).send(lang["failUpdate"]);
 					}
 				}).catch((error) => {
 					if(filename) {
-            try {
-              fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-            } catch(e) {
-              return res.status(500).send(e);
-            }
-          }
+						try {
+							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+						} catch(e) {
+							return res.status(500).send(e);
+						}
+					}
 
 					return res.status(500).send(error);
 				});
 			} else {
 				if(filename) {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-          } catch(e) {
-            return res.status(500).send(e);
-          }
-        }
+					try {
+						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					} catch(e) {
+						return res.status(500).send(e);
+					}
+				}
 
 				return res.status(404).send(lang["nFUser"]);
 			}
 		}).catch((error) => {
 			if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(e) {
-          return res.status(500).send(e);
-        }
-      }
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(e) {
+					return res.status(500).send(e);
+				}
+			}
 
 			return res.status(500).send(error);
 		});
-  },
-  //	Update current card of user on database
+	},
+	//	Update current card of user on database
 	async updateCard(req, res) {
 		const userId = req.headers["order-user-id"];
 		const { cardsNewQtd } = req.body;
@@ -497,7 +497,7 @@ module.exports = {
 		}).catch((error) => {
 				return res.status(500).send(error);
 		});
-  },
+	},
 	//	Remove current user from database
 	async delete(req, res) {
 		const { password } = req.headers;
@@ -553,8 +553,8 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-  },
-  //	Update current cards of users on database
+	},
+	//	Update current cards of users on database
 	async updateAll(req, res) {
 		const userId = req.headers.authorization;
 		var errors = [];

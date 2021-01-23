@@ -63,29 +63,29 @@ module.exports = {
 		}
 
 		if(errors.length) {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(error) {
-          return res.status(500).send(error);
-        }
-      }
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(error) {
+					return res.status(500).send(error);
+				}
+			}
 
 			const message = errors.join(", ");
 
-      return res.status(400).send(message);
+			return res.status(400).send(message);
 		}
 
 		if(sizes.split(",").length !== prices.split(",").length) {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(error) {
-          return res.status(500).send(error);
-        }
-      }
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(error) {
+					return res.status(500).send(error);
+				}
+			}
 
-      return res.status(400).send(lang["invProductPriceSize"]);
+			return res.status(400).send(lang["invProductPriceSize"]);
 		}
 
 		await products.create({
@@ -99,26 +99,26 @@ module.exports = {
 			if(response) {
 				return res.status(201).send(lang["succCreate"]);
 			} else {
-        if(filename) {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-          } catch(error) {
-            return res.status(500).send(error);
-          }
+				if(filename) {
+					try {
+						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					} catch(error) {
+						return res.status(500).send(error);
+					}
 				}
 
-        return res.status(400).send(lang["failCreate"]);
+				return res.status(400).send(lang["failCreate"]);
 			}
 		}).catch((error) => {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(e) {
-          return res.status(500).send(e);
-        }
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(e) {
+					return res.status(500).send(e);
+				}
 			}
 
-      return res.status(500).send(error);
+			return res.status(500).send(error);
 		});
 	},
 	//	Update a specific product
@@ -191,36 +191,36 @@ module.exports = {
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-        if(response.thumbnail) {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
-          } catch(error) {
-            return res.status(200).send(lang["succUpdateButThumb"]);
-          }
+				if(response.thumbnail) {
+					try {
+						fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
+					} catch(error) {
+						return res.status(200).send(lang["succUpdateButThumb"]);
+					}
 				}
 
-        return res.status(200).send(lang["succUpdateThumb"]);
+				return res.status(200).send(lang["succUpdateThumb"]);
 			} else {
-        if(filename) {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-          } catch(error) {
-            return res.status(500).send(error);
-          }
+				if(filename) {
+					try {
+						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					} catch(error) {
+						return res.status(500).send(error);
+					}
 				}
 
-        return res.status(404).send(lang["nFProduct"]);
+				return res.status(404).send(lang["nFProduct"]);
 			}
 		}).catch((error) => {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(e) {
-          return res.status(500).send(e);
-        }
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(e) {
+					return res.status(500).send(e);
+				}
 			}
 
-      return res.status(500).send(error);
+			return res.status(500).send(error);
 		});
 	},
 	//	Delete a specific product
@@ -233,15 +233,15 @@ module.exports = {
 
 		await products.findByIdAndDelete(productId).then((response) => {
 			if(response) {
-        if(response.thumbnail) {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
-          } catch(e){
-            return res.status(200).send(lang["succDeleteButThumb"]);
-          }
+				if(response.thumbnail) {
+					try {
+						fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
+					} catch(e){
+						return res.status(200).send(lang["succDeleteButThumb"]);
+					}
 				}
 
-        return res.status(200).send(lang["succDelete"]);
+				return res.status(200).send(lang["succDelete"]);
 			} else {
 				return res.status(404).send(lang["nFProduct"]);
 			}

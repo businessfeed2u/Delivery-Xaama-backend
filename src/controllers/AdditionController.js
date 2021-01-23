@@ -55,17 +55,17 @@ module.exports = {
 		}
 
 		if(errors.length) {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(error) {
-          return res.status(500).send(error);
-        }
-      }
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(error) {
+					return res.status(500).send(error);
+				}
+			}
 
 			const message = errors.join(", ");
 
-      return res.status(400).send(message);
+			return res.status(400).send(message);
 		}
 
 		await additions.create({
@@ -77,24 +77,24 @@ module.exports = {
 			if(response) {
 				return res.status(201).send(lang["succCreate"]);
 			} else {
-        if(filename) {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-          } catch(error) {
-            return res.status(500).send(error);
-          }
-        }
-        return res.status(400).send(lang["failCreate"]);
+				if(filename) {
+					try {
+						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					} catch(error) {
+						return res.status(500).send(error);
+					}
+				}
+				return res.status(400).send(lang["failCreate"]);
 			}
 		}).catch((error) => {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(e) {
-          return res.status(500).send(e);
-        }
-      }
-      return res.status(500).send(error);
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(e) {
+					return res.status(500).send(e);
+				}
+			}
+			return res.status(500).send(error);
 		});
 	},
 	//	Update a specific addition
@@ -146,51 +146,51 @@ module.exports = {
 		const filename = (req.file) ? req.file.filename : null;
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(error) {
-          return res.status(500).send(error);
-        }
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(error) {
+					return res.status(500).send(error);
+				}
 			}
 
-      return res.status(400).send(lang["invId"]);
+			return res.status(400).send(lang["invId"]);
 		}
 
 		await additions.findByIdAndUpdate(additionId, {
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-        if(response.thumbnail) {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
-          } catch(error) {
-            return res.status(200).send(lang["succUpdateButThumb"]);
-          }
+				if(response.thumbnail) {
+					try {
+						fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
+					} catch(error) {
+						return res.status(200).send(lang["succUpdateButThumb"]);
+					}
 				}
 
-        return res.status(200).send(lang["succUpdateThumb"]);
+				return res.status(200).send(lang["succUpdateThumb"]);
 			} else {
-        if(filename) {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-          } catch(error) {
-            return res.status(500).send(error);
-          }
+				if(filename) {
+					try {
+						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					} catch(error) {
+						return res.status(500).send(error);
+					}
 				}
 
-        return res.status(404).send(lang["nFAddition"]);
+				return res.status(404).send(lang["nFAddition"]);
 			}
 		}).catch((error) => {
-      if(filename) {
-        try {
-          fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-        } catch(e) {
-          return res.status(500).send(e);
-        }
+			if(filename) {
+				try {
+					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+				} catch(e) {
+					return res.status(500).send(e);
+				}
 			}
 
-      return res.status(500).send(error);
+			return res.status(500).send(error);
 		});
 	},
 	//	Delete a specific addition
@@ -203,15 +203,15 @@ module.exports = {
 
 		await additions.findByIdAndDelete(additionId).then((response) => {
 			if(response) {
-        if(response.thumbnail) {
-          try {
-            fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
-          } catch(e){
-            return res.status(200).send(lang["succDeleteButThumb"]);
-          }
+				if(response.thumbnail) {
+					try {
+						fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
+					} catch(e){
+						return res.status(200).send(lang["succDeleteButThumb"]);
+					}
 				}
 
-        return res.status(200).send(lang["succDelete"]);
+				return res.status(200).send(lang["succDelete"]);
 			} else {
 				return res.status(404).send(lang["nFAddition"]);
 			}

@@ -25,7 +25,7 @@ module.exports = {
 			errors.push(lang["invId"]);
 		} else if(!(await users.findById(userId).exec())) {
 			errors.push(lang["nFUser"]);
-    }
+		}
 
 		if(errors.length) {
 			const message = errors.join(", ");
@@ -35,18 +35,18 @@ module.exports = {
 
 		const keysSearch = [
 			{"$and": [ {"private": true}, {"userId": userId}, {"available": true} ] },
-      {"$and": [ {"private": false}, {"available": true} ] },
-    ];
+			{"$and": [ {"private": false}, {"available": true} ] },
+		];
 
-    const keysSearch2 = [
+		const keysSearch2 = [
 			{"$and": [ {"whoUsed.userId": userId}, {"whoUsed.status": false} ] },
-      {"$and": [ {"whoUsed": []} ] },
-    ];
+			{"$and": [ {"whoUsed": []} ] },
+		];
 
-    const keysSearch3 = [
-      { "$or" : keysSearch },
-      { "$or" : keysSearch2 },
-    ];
+		const keysSearch3 = [
+			{ "$or" : keysSearch },
+			{ "$or" : keysSearch2 },
+		];
 
 		await coupons.find({ "$and" : keysSearch3 })
 		.sort({
@@ -253,8 +253,8 @@ module.exports = {
 						coupon.minValue = (type === "valor") ? minValue : 0,
 						coupon.available = available;
 						coupon.userId = private && userId && userId.length ? userId : "";
-            coupon.private = private;
-            coupon.whoUsed = [];
+						coupon.private = private;
+						coupon.whoUsed = [];
 
 						coupon.save().then((response) => {
 							if(response) {
@@ -306,36 +306,36 @@ module.exports = {
 
 				if(coupon.private && (coupon.userId != userId)) {
 					return res.status(400).send(lang["invCouponUserScope"]);
-        }
+				}
 
-        var data = [];
-        var v = false;
+				var data = [];
+				var v = false;
 
-        for(var c of coupon.whoUsed) {
-          if((c.userId === userId) && c.status) {
-            return res.status(400).send(lang["unavailableCoupon"]);
-          } else if(c.userId != userId) {
-            data.push(c);
-          } else {
-            v = true;
-          }
-        }
+				for(var c of coupon.whoUsed) {
+					if((c.userId === userId) && c.status) {
+						return res.status(400).send(lang["unavailableCoupon"]);
+					} else if(c.userId != userId) {
+						data.push(c);
+					} else {
+						v = true;
+					}
+				}
 
-        data.push({
-          userId: userId,
-          validated: true,
-          status: false
-        });
+				data.push({
+					userId: userId,
+					validated: true,
+					status: false
+				});
 
 				if(!coupon.private) {
-          if(!v) {
-            coupon.qty = (coupon.qty > 0) ? (coupon.qty - 1) : 0;
-          }
+					if(!v) {
+						coupon.qty = (coupon.qty > 0) ? (coupon.qty - 1) : 0;
+					}
 
-          coupon.available = (coupon.qty === 0) ? false : true;
-        }
+					coupon.available = (coupon.qty === 0) ? false : true;
+				}
 
-        coupon.whoUsed = data;
+				coupon.whoUsed = data;
 
 				coupon.save().then((response) => {
 					if(response) {

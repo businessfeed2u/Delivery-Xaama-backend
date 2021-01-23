@@ -9,32 +9,32 @@ const ratingSchema = Schema({
 	userId: {
 		type: String,
 		required: true,
-  },
-  name: {
+	},
+	name: {
 		type: String,
 		required: true
-  },
-  thumbnail: {
+	},
+	thumbnail: {
 		type: String,
 		default: null
 	},
-  orderId: {
+	orderId: {
 		type: String,
 		required: true,
 	},
 	feedback: {
 		type: String,
 		default: null
-  },
-  stars: {
-    type: Number,
+	},
+	stars: {
+		type: Number,
 		default: 0
-  },
-  approved: {
+	},
+	approved: {
 		type: Boolean,
 		default: false
-  },
-  creationDate: {
+	},
+	creationDate: {
 		type: Date,
 		default: Date.now()
 	}
