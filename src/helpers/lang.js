@@ -14,6 +14,70 @@ module.exports = {
 		ptBR : "Tipo de usuário inválido",
 		enUS : "Invalid user type"
 	}[lang],
+	invUserDelImage : {
+		ptBR : "Variável de remoção de imagem de usuário inválido",
+		enUS : "Invalid user delete image variable"
+	}[lang],
+	invOrderProducts : {
+		ptBR : "Produtos inválidos",
+		enUS : "Invalid products"
+	}[lang],
+	invOrderDeliver : {
+		ptBR : "Entrega de pedido inválida",
+		enUS : "Invalid order deliver"
+	}[lang],
+	invOrderPaymentMethod : {
+		ptBR : "Método de pagamento inválido",
+		enUS : "Invalid payment method"
+	}[lang],
+	invOrderTotal : {
+		ptBR : "Valor total inválido",
+		enUS : "Invalid total value"
+	}[lang],
+	invOrderChange : {
+		ptBR : "Troco inválido",
+		enUS : "Invalid change"
+	}[lang],
+	invOrderCoupon : {
+		ptBR : "Cupom inválido",
+		enUS : "Invalid coupon"
+	}[lang],
+	invOrderStatus : {
+		ptBR : "Status do pedido inválido",
+		enUS : "Invalid order status"
+	}[lang],
+	invOperation : {
+		ptBR : "Operação inválida",
+		enUS : "Invalid operation"
+	}[lang],
+	invTime : {
+		ptBR : "Tempo inválido",
+		enUS : "Invalid time"
+	}[lang],
+	invTimeTable : {
+		ptBR : "Tabela de dias da semana inválido",
+		enUS : "Invalid week days table"
+	}[lang],
+	invCard : {
+		ptBR : "Cartões fidelidade inválidos",
+		enUS : "Invalid fidelity cards"
+	}[lang],
+	invCardDiscount : {
+		ptBR : "Desconto de cartão fidelidade inválido",
+		enUS : "Invalid fidelity card discount"
+	}[lang],
+	invCardVector : {
+		ptBR : "Vetor de status de cartões fidelidade inválido",
+		enUS : "Invalid fidelity cards vector"
+	}[lang],
+	invCardQty : {
+		ptBR : "Quantidade de cartões fidelidade inválido",
+		enUS : "Invalid fidelity cards quantity"
+	}[lang],
+	invCardType : {
+		ptBR : "Tipo(s) de cartões fidelidade inválido(s)",
+		enUS : "Invalid fidelity cards type(s)"
+	}[lang],
 	invCompanyName : {
 		ptBR : "Nome da empresa inválido",
 		enUS : "Invalid company name"
@@ -186,6 +250,18 @@ module.exports = {
 		ptBR : "Cupom indisponível para uso",
 		enUS : "Coupon unavailable for use"
 	}[lang],
+	unavailableCard : {
+		ptBR : "Cartão fidelidade indisponível para uso",
+		enUS : "Fidelity card unavailable for use"
+	}[lang],
+	unavailableProduct : {
+		ptBR : "Produto indisponível para pedido",
+		enUS : "Product unavailable for order"
+	}[lang],
+	unavailableAddition : {
+		ptBR : "Adição indisponível para pedido",
+		enUS : "Addition unavailable for order"
+	}[lang],
 	existentEmail : {
 		ptBR : "Já há uma conta com este email",
 		enUS : "There is already an account using this email"
@@ -205,6 +281,10 @@ module.exports = {
 	wrongOldPassword : {
 		ptBR : "Senha antiga incorreta",
 		enUS : "Wrong old password"
+	}[lang],
+	approvedRating : {
+		ptBR : "Avaliação já está aprovada",
+		enUS : "Rating is already approved"
 	}[lang],
 	nFUser : {
 		ptBR : "Usuário não encontrado",
@@ -269,5 +349,5 @@ module.exports = {
 	noToken : {
 		ptBR : "Nenhum token fornecido",
 		enUS : "No token provided"
-	}
+	}[lang]
 };

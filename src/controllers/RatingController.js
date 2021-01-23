@@ -54,7 +54,7 @@ module.exports = {
 					ratings.find(keysSearch)
 					.then((response) => {
 						if(response && response.length) {
-							return res.status(400).send("You already submitted this request!");
+							return res.status(403).send(lang["unauthOperation"]);
 						} else {
 							ratings.create({
 								userId,
@@ -70,7 +70,7 @@ module.exports = {
 										if(response) {
 											return res.status(201).json(rating);
 										} else {
-											return res.status(400).send("Created a new rating, but did not update the feedback!");
+											return res.status(400).send(lang["failCreate"]);
 										}
 									}).catch((error) => {
 										return res.status(500).send(error);
@@ -104,7 +104,7 @@ module.exports = {
 
 		await ratings.findById(ratingId).then((response) => {
 			if(response.approved) {
-				return res.status(400).send("Avaliação já está aprovada!");
+				return res.status(400).send(lang["approvedRating"]);
 			} else {
 				response.approved = true;
 				response.save().then((response) => {

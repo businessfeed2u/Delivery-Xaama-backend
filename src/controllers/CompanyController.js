@@ -92,7 +92,7 @@ module.exports = {
 
 		if(timeWithdrawal < 10 || timeDeliveryI < 10 || timeDeliveryF < 10
 		|| timeDeliveryI > timeDeliveryF || timeDeliveryI === timeDeliveryF) {
-				errors.push("timeDelivery or timeWithdrawal");
+				errors.push(lang["invTime"]);
 		}
 
 		if(errors.length) {
@@ -184,7 +184,7 @@ module.exports = {
 				}
 			}
 
-			return res.status(400).send("Invalid op value!");
+			return res.status(400).send(lang["invOperation"]);
 		}
 
 		var im = null;
@@ -253,7 +253,7 @@ module.exports = {
 						}
 					}
 
-					return res.status(400).send("Invalid op value!");
+					return res.status(400).send(lang["invOperation"]);
 				}
 
 				company.save().then((response) => {
@@ -350,7 +350,7 @@ module.exports = {
 				bcrypt.compare(password, hash).then((match) => {
 					if(match) {
 						if(type === user.userType) {
-							return res.status(400).send("Aborted! The user is already of that type requested!");
+							return res.status(400).send(lang["invOperation"]);
 						} else {
 							user.userType = type;
 
@@ -383,11 +383,11 @@ module.exports = {
 		var errors = [];
 
 		if(!timetable || !timetable.length || timetable.length != 7) {
-				errors.push("timetable");
+				errors.push(lang["invTimeTable"]);
 		} else {
 			for(const t of timetable) {
 				if(!t.dayWeek || !t.dayWeek.length){
-					errors.push("timetable day week");
+					errors.pushlang["invTimeTable"]);
 					break;
 				}
 
@@ -396,7 +396,7 @@ module.exports = {
 					|| (t.endHour && !regEx.hour.test(t.endHour))
 					|| ((t.endHour === t.beginHour) && t.endHour != null && t.beginHour != null)) {
 
-					errors.push("time format");
+					errors.push(lang["invTime"]);
 					break;
 				}
 			}
@@ -433,11 +433,11 @@ module.exports = {
 
 		//	Validating cards fidelity
 		if(!cards || !cards.length) {
-			errors.push("cards");
+			errors.push(lang["invCard"]);
 		} else {
 			for(const card of cards) {
 				if(!card.type || !card.type.length){
-					errors.push("cards type");
+					errors.push(lang["invCardType"]);
 					break;
 				}
 
@@ -450,22 +450,22 @@ module.exports = {
 				}
 
 				if(invalid) {
-					errors.push("card type do not exists");
+					errors.push(lang["invCardType"]);
 					break;
 				}
 
 				if(card.available == null || typeof(card.available) != "boolean") {
-					errors.push("card available");
+					errors.push(lang["unavailableCard"]);
 					break;
 				}
 
 				if(isNaN(card.qtdMax) || card.qtdMax < 10 || card.qtdMax > 20) {
-					errors.push("card qtdMax");
+					errors.push(lang["invCardQty"]);
 					break;
 				}
 
 				if(isNaN(card.discount) || card.discount < 8 || card.discount > 20) {
-					errors.push("card discount");
+					errors.push(lang["invCardDiscount"]);
 					break;
 				}
 

@@ -71,7 +71,7 @@ module.exports = {
 		var errors = [];
 
 		if(!name || !name.length) {
-			errors.push(lang["inv"]);
+			errors.push(lang["invCouponName"]);
 		}
 
 		if(!type || !type.length || (type != "quantidade" && type != "valor" && type != "frete")) {

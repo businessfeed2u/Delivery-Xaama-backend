@@ -217,7 +217,7 @@ module.exports = {
 		}
 
 		if(!status || !status.length) {
-			errors.push("vector of status");
+			errors.push(lang["invCardVector"]);
 		}
 
 		if(errors.length) {
@@ -254,7 +254,7 @@ module.exports = {
 						}
 
 						if(user.cards.length != status.length) {
-							return res.status(400).send("vector length of status");
+							return res.status(400).send(lang["invCardVector"]);
 						}
 
 						var data = [];
@@ -330,7 +330,7 @@ module.exports = {
 				}
 			}
 
-			return res.status(400).send("Invalid delImg!");
+			return res.status(400).send(lang["invUserDelImage"]);
 		}
 
 		await users.findById(userId).then((user) => {
@@ -412,7 +412,7 @@ module.exports = {
 		var Company = null;
 
 		if(!cardsNewQtd || !cardsNewQtd.length) {
-			errors.push("cardsNewQtd");
+			errors.push(lang["invCardQty"]);
 		} else {
 			Company = await companyData.findOne({}).exec();
 			if(!Company) {
@@ -420,7 +420,7 @@ module.exports = {
 			}
 
 			if(cardsNewQtd.length != Company.cards.length) {
-				errors.push("Invalid cards length value");
+				errors.push(lang["invCardQty"]);
 			}
 		}
 
@@ -440,7 +440,7 @@ module.exports = {
 					(qtd.cardFidelity != user.cards[i].cardFidelity) ||
 					(qtd.qtdCurrent < 0)) {
 
-						return res.status(400).send("Invalid card value");
+						return res.status(400).send(lang["invCard"]);
 					}
 
 					var q = user.cards[i].qtdCurrent;

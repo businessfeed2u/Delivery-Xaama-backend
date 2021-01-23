@@ -19,6 +19,7 @@ const coupons = mongoose.model("Coupons");
 
 // Loading helpers
 const regEx = require("../helpers/regEx");
+const lang = require("../helpers/lang");
 
 const { findConnections, sendMessage } = require("../config/websocket");
 const { systemOpen } = require("../helpers/systemOpen");
@@ -30,19 +31,22 @@ module.exports = {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send("Invalid id!");
+			return res.status(400).send(lang["invId"]);
 		}
 
 		await orders.find({ "user._id": userId }).sort({
 			status: "asc",
 			creationDate: "asc"
 		}).then((response) => {
-			return res.status(200).json(response);
+			if(response) {
+				return res.status(200).json(response);
+			} else {
+				return res.status(404).send(lang["nFOrders"]);
+			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Create a new order
 	async create(req, res) {
 		const { user, products, deliver, address, typePayment, change, total, phone, couponId } = req.body;
@@ -51,21 +55,21 @@ module.exports = {
 
 		//	Validantig order user
 		if(!user || !Object.keys(user).length || !(await users.findById(user._id).exec())) {
-			errors.push("user");
+			errors.push(lang["invId"]);
 		}
 
 		if(!(await users.findById(user._id).exec())) {
-			errors.push("user is not found");
+			errors.push(lang["nFUser"]);
 		}
 
 		//	Validating order products and their additions
 		if(!products || !products.length) {
-			errors.push("products");
+			errors.push(lang["invOrderProducts"]);
 		} else {
 			var invalid = false;
 			for(const prod of products) {
 				if(!(await productsMenu.findById(prod.product._id).exec())) {
-					errors.push("products");
+					errors.push(lang["invOrderProducts"]);
 					break;
 				}
 
@@ -77,34 +81,34 @@ module.exports = {
 				}
 
 				if(invalid) {
-					errors.push("products");
+					errors.push(lang["invOrderProducts"]);
 					break;
 				}
 			}
 		}
 
 		if(deliver == null) {
-			errors.push("deliver");
+			errors.push(lang["invOrderDeliver"]);
 		}
 
 		if(isNaN(typePayment) || (typePayment != 0 && typePayment != 1)){
-			errors.push("delivery typePayment");
+			errors.push(lang["invOrderPaymentMethod"]);
 		}
 
 		if(isNaN(total)) {
-			errors.push("delivery total");
+			errors.push(lang["invOrderTotal"]);
 		}
 
 		if((typePayment == 0) && (isNaN(change) || (change < total))) {
-			errors.push("delivery change");
+			errors.push(lang["invOrderChange"]);
 		}
 
 		if(deliver && (!address || !address.length || !regEx.address.test(address))) {
-			errors.push("address");
+			errors.push(lang["invAddress"]);
 		}
 
 		if(!phone || !phone.length || !regEx.phone.test(phone)) {
-			errors.push("phone");
+			errors.push(lang["invPhone"]);
 		}
 
 		const date = new Date();
@@ -147,12 +151,12 @@ module.exports = {
 		// Searching for a product or some addition of each product that is unavailable
 		for(var product of products) {
 			if(!product.product.available){
-				errors.push("some added product is unavailable");
+				errors.push(lang["unavailableProduct"]);
 				break;
 			}
 			for(var addition of product.additions) {
 				if(!addition.available){
-					errors.push("some added addition is unavailable");
+					errors.push(lang["unavailableAddition"]);
 					break;
 				}
 			}
@@ -163,13 +167,13 @@ module.exports = {
 			if(companyInfo) {
 				company = companyInfo;
 				if(companyInfo.manual && !companyInfo.systemOpenByAdm) {
-					errors.push("the company is closed");
+					errors.push(lang["closedCompany"]);
 				}
 				else if(!companyInfo.manual && !systemOpen(companyInfo)) {
-					errors.push("the company is closed");
+					errors.push(lang["closedCompany"]);
 				}
 			} else {
-				errors.push("no company data found");
+				errors.push(lang["nFCompanyInfo"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -234,24 +238,24 @@ module.exports = {
 
 		if(couponId && couponId.length) {
 			if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
-				return res.status(400).send("Invalid coupon id!");
+				return res.status(400).send(lang["invId"]);
 			}
 
 			coupon = await coupons.findById(couponId).exec();
 
 			if(coupon) {
 				if(coupon.private && (coupon.userId != user._id)) {
-					errors.push("UserId wrong");
+					errors.push(lang["invId"]);
 				}
 
 				if(coupon.type === "frete" && !deliver) {
-					errors.push("freight coupon used without asking to deliver the order");
+					errors.push(lang["unavailableCoupon"]);
 				}
 
 				var priceProducts = deliver ? totalB - company.freight : totalB;
 
 				if((coupon.type === "valor") && ( priceProducts < coupon.minValue)) {
-					errors.push("coupon used without reaching the minimum value");
+					errors.push(lang["unavailableCoupon"]);
 				}
 
 				var applyDiscount = false;
@@ -271,11 +275,11 @@ module.exports = {
 						discountCoupon = coupon.discount;
 					}
 				} else {
-					errors.push("apply discount");
+					errors.push(lang["invCouponDiscount"]);
 				}
 
 			} else {
-				errors.push("Coupon");
+				errors.push(lang["invOrderCoupon"]);
 			}
 		}
 
@@ -286,11 +290,11 @@ module.exports = {
 		// console.log("d: " + d);
 
 		if((total != totalB)) {
-			errors.push("delivery total");
+			errors.push(lang["invOrderTotal"]);
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
@@ -312,9 +316,9 @@ module.exports = {
 						coupons.findByIdAndDelete(couponId).then((r) => {
 							if(r) {
 								sendMessage(sendSocketMessageTo, "new-order", [response]);
-								return res.status(201).json(response);
+								return res.status(201).json(lang["succCreate"]);
 							} else {
-								return res.status(404).send("Coupon not found!");
+								return res.status(404).send(lang["nFCoupon"]);
 							}
 						}).catch((error) => {
 							return res.status(500).send(error);
@@ -341,15 +345,15 @@ module.exports = {
 								coupon.save().then((response) => {
 									if(response) {
 										sendMessage(sendSocketMessageTo, "new-order", [response]);
-										return res.status(201).json(response);
+										return res.status(201).json(lang["succCreate"]);
 									} else {
-										return res.status(400).send("We couldn't save your changes, try again later!");
+										return res.status(400).send(lang["failUpdate"]);
 									}
 								}).catch((error) => {
 									return res.status(500).send(error);
 								});
 							} else {
-								return res.status(404).send("Coupon not found!" );
+								return res.status(404).send(lang["nFCoupon"]);
 							}
 						}).catch((error) => {
 							return res.status(500).send(error);
@@ -357,16 +361,15 @@ module.exports = {
 					}
 				} else {
 					sendMessage(sendSocketMessageTo, "new-order", [response]);
-					return res.status(201).json(response);
+					return res.status(201).json(lang["succCreate"]);
 				}
 			} else {
-				return res.status(400).send("We couldn't create a new order, try again later!");
+				return res.status(400).send(lang["failCreate"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Update current order status
 	async update(req, res) {
 		const orderId = req.params.id;
@@ -374,11 +377,11 @@ module.exports = {
 		const sendSocketMessageTo = await findConnections();
 
 		if(!orderId || !orderId.length || !mongoose.Types.ObjectId.isValid(orderId)) {
-			return res.status(400).send("No order received!");
+			return res.status(400).send(lang["invId"]);
 		}
 
-		if(typeof status != "boolean") {
-			return res.status(400).send("Status is empty!");
+		if(status === null || status === undefined) {
+			return res.status(400).send(lang["invOrderStatus"]);
 		}
 
 		await orders.findById(orderId).then((order) => {
@@ -396,39 +399,37 @@ module.exports = {
 							return res.status(500).send(error);
 						});
 
-						return res.status(200).send("Successful on changing your data!");
+						return res.status(200).send(lang["succUpdate"]);
 					} else {
-						return res.status(400).send("We couldn't save your changes, try again later!");
+						return res.status(400).send(lang["failUpdate"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
 				});
 			} else {
-				return res.status(404).send("User not found!");
+				return res.status(404).send(lang["nFOrder"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Delete all orders
 	async delete(req, res) {
 		const { password } = req.headers;
 		const userId = req.headers.authorization;
-
 		const sendSocketMessageTo = await findConnections();
 		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push("id");
+			errors.push(lang["invId"]);
 		}
 
 		if(!password || !password.length) {
-			errors.push("password");
+			errors.push(lang["invPassword"]);
 		}
 
 		if(errors.length) {
-			const message = "Invalid " + errors.join(", ") + " value" + (errors.length > 1 ? "s!" : "!");
+			const message = errors.join(", ");
 
 			return res.status(400).send(message);
 		}
@@ -437,9 +438,9 @@ module.exports = {
 			await orders.deleteMany({status : true}).then((response) => {
 				if(response.n) {
 					sendMessage(sendSocketMessageTo, "delete-order", []);
-					return res.status(200).send("All orders have been deleted!");
+					return res.status(200).send(lang["succDelete"]);
 				} else {
-					return res.status(404).send("Orders not found!");
+					return res.status(404).send(lang["nFOrders"]);
 				}
 			}).catch((error) => {
 				return res.status(500).send(error);
@@ -452,24 +453,27 @@ module.exports = {
 					if(match) {
 						deleteOrders();
 					} else {
-						return res.status(400).send("Wrong password, try again!");
+						return res.status(400).send(lang["wrongPassword"]);
 					}
 				});
 			} else {
-				return res.status(404).send("UserId not found!");
+				return res.status(404).send(lang["nFUser"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
 	},
-
 	//	Return all orders
 	async all(req, res) {
 		await orders.find().sort({
 			status: "asc",
 			creationDate: "asc"
 		}).then((response) => {
-			return res.status(200).json(response);
+			if(response) {
+				return res.status(200).json(response);
+			} else {
+				return res.status(404).send(lang["nFOrders"]);
+			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
