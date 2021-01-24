@@ -46,7 +46,7 @@ module.exports = {
 			errors.push(lang["invProductName"]);
 		}
 
-		if(!ingredients || !ingredients.length || !regEx.seq.test(ingredients)) {
+		if(ingredients && ingredients.length && !regEx.seq.test(ingredients)) {
 			errors.push(lang["invProductIngredients"]);
 		}
 
@@ -90,7 +90,10 @@ module.exports = {
 
 		await products.create({
 			name,
-			ingredients: ingredients.split(",").map(ing => ing.trim().toLowerCase()),
+			ingredients: ingredients && ingredients.length ?
+				ingredients.split(",").map(ing => ing.trim().toLowerCase())
+				:
+				null,
 			sizes: sizes.split(",").map(s => s.trim().toLowerCase()),
 			type: type.trim().toLowerCase(),
 			prices: prices.split(",").map(p => parseFloat(p.trim())),
@@ -135,7 +138,7 @@ module.exports = {
 			errors.push(lang["invProductName"]);
 		}
 
-		if(!ingredients || !ingredients.length || !regEx.seq.test(ingredients)) {
+		if(ingredients && ingredients.length && !regEx.seq.test(ingredients)) {
 			errors.push(lang["invProductIngredients"]);
 		}
 
@@ -163,7 +166,10 @@ module.exports = {
 
 		await products.findByIdAndUpdate(productId, {
 			name,
-			ingredients: ingredients.split(",").map(ing => ing.trim().toLowerCase()),
+			ingredients: ingredients && ingredients.length ?
+				ingredients.split(",").map(ing => ing.trim().toLowerCase())
+				:
+				null,
 			sizes: sizes.split(",").map(s => s.trim().toLowerCase()),
 			type: type.trim().toLowerCase(),
 			prices: prices.split(",").map(p => parseFloat(p.trim())),
@@ -178,7 +184,7 @@ module.exports = {
 			return res.status(500).send(error);
 		});
 	},
-	//	Update a specific product
+	//	Update a specific product thumbnail
 	async updateThumbnail(req, res) {
 		const productId = req.params.id;
 		const filename = (req.file) ? req.file.filename : null;
