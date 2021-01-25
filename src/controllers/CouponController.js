@@ -212,13 +212,16 @@ module.exports = {
 		}
 
 		if(type === "frete") {
-			const cFreight = await companyData.findOne({}).exec().freight;
+      var cFreight = await companyData.findOne({}).exec();
+      cFreight = cFreight.freight;
 
-			if(cFreight && cFreight != discount) {
-				errors.push(lang["invCouponDiscount"]);
-			} else {
+      if(!cFreight) {
 				errors.push(lang["nFCompanyInfo"]);
 			}
+
+			if(cFreight != discount) {
+				errors.push(lang["invCouponDiscount"]);
+			} 
 		}
 
 		if(private) {
