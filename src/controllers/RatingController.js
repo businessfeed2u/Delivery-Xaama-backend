@@ -109,7 +109,7 @@ module.exports = {
 				response.approved = true;
 				response.save().then((response) => {
 					if(response) {
-						return res.status(200).send(response);
+						return res.status(200).send(lang["succUpdate"]);
 					} else {
 						return res.status(404).send(lang["nFRating"]);
 					}
