@@ -111,8 +111,8 @@ module.exports = {
 			errors.push(lang["invPhone"]);
 		}
 
-		const date = new Date();
-		var GMT = new Date().toString().split(" ");
+		const date = new Date().toLocaleString("pt-BR", {timeZone: "America/Sao_Paulo"});
+		var GMT = new Date().toLocaleString("pt-BR", {timeZone: "America/Sao_Paulo"}).toString().split(" ");
 		var zone = false;
 		var hour = date.getHours();
 
