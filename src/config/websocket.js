@@ -7,13 +7,19 @@ const sockets = mongoose.model("sockets");
 let io;
 
 exports.setupWebsocket = (server) => {
-	io = socketio(server);
+  io = socketio(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET"]
+    }
+  });
 
 	io.on("connection", async socket => {
 			await sockets.create({
 				id: socket.id,
 			});
-	});
+  });
+
 };
 
 exports.findConnections = () => {

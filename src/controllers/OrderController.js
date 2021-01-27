@@ -180,8 +180,7 @@ module.exports = {
 		});
 
 		//	Get freight price and add if deliver is true
-		var totalB = await companyData.findOne({}).exec();
-		totalB = (deliver) ? totalB.freight : 0.0;
+		var totalB = (deliver) ? company.freight : 0.0;
 
 		//	Calculate order total price
 		for(var x of products) {
@@ -285,10 +284,6 @@ module.exports = {
 
 		totalB = (totalB - d - discountCoupon) > 0 ? (totalB - d - discountCoupon) : 0 ;
 
-		// console.log("total: " + total);
-		// console.log("totalB: " + totalB);
-		// console.log("d: " + d);
-
 		if((total != totalB)) {
 			errors.push(lang["invOrderTotal"]);
 		}
@@ -309,13 +304,13 @@ module.exports = {
 			typePayment,
 			change: (typePayment == 0) ? change : null,
 			creationDate: cd
-		}).then((response) => {
-			if(response) {
+		}).then((order) => {
+			if(order) {
 				if(couponId && couponId.length) {
 					if(coupon && coupon.private) {
 						coupons.findByIdAndDelete(couponId).then((r) => {
 							if(r) {
-								sendMessage(sendSocketMessageTo, "new-order", [response]);
+								sendMessage(sendSocketMessageTo, "new-order", [order]);
 								return res.status(201).json(lang["succCreate"]);
 							} else {
 								return res.status(404).send(lang["nFCoupon"]);
@@ -342,9 +337,9 @@ module.exports = {
 
 								coupon.whoUsed = d;
 
-								coupon.save().then((response) => {
-									if(response) {
-										sendMessage(sendSocketMessageTo, "new-order", [response]);
+								coupon.save().then((c) => {
+									if(c) {
+										sendMessage(sendSocketMessageTo, "new-order", [order]);
 										return res.status(201).json(lang["succCreate"]);
 									} else {
 										return res.status(400).send(lang["failUpdate"]);
@@ -360,7 +355,7 @@ module.exports = {
 						});
 					}
 				} else {
-					sendMessage(sendSocketMessageTo, "new-order", [response]);
+					sendMessage(sendSocketMessageTo, "new-order", [order]);
 					return res.status(201).json(lang["succCreate"]);
 				}
 			} else {
