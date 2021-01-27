@@ -111,42 +111,13 @@ module.exports = {
 			errors.push(lang["invPhone"]);
 		}
 
-		const date = new Date().toLocaleString("pt-BR", {timeZone: "America/Sao_Paulo"});
-		var GMT = new Date().toLocaleString("pt-BR", {timeZone: "America/Sao_Paulo"}).toString().split(" ");
-		var zone = false;
-		var hour = date.getHours();
-
-		for(var g of GMT) {
-			if(g === "(GMT-03:00)" || g === "GMT-0300") {
-				hour = (hour < 10) ? "0" + hour : hour;
-				zone = true;
-				break;
-			}
-		}
-
-		var minutes = date.getMinutes();
-		minutes = (minutes < 10) ? "0" + minutes : minutes;
-
-		const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-		var cd = week[date.getDay()] + " às " + hour + ":" + minutes;
-
-		if(!zone) {
-			if(hour == 0 || hour == 1 || hour == 2) {
-				if(hour == 0) {
-					hour = 21;
-				} else if(hour == 1) {
-					hour = 22;
-				} else if(hour == 2) {
-					hour = 23;
-				}
-
-				cd = week[date.getDay()-1] + " às " + hour + ":" + minutes;
-			} else {
-				hour -= 3;
-				hour = (hour < 10) ? "0" + hour : hour;
-				cd = week[date.getDay()] + " às " + hour + ":" + minutes;
-			}
-		}
+		//	Setting creation date
+		const date = new Date().toLocaleTimeString("pt-BR", {timeZone: "America/Sao_Paulo", weekday: "long"});
+		const weekDay = date.split(", ")[0];
+		const time = date.split(", ")[1];
+		const hour = time.split(":")[0];
+		const minutes = time.split(":")[1];
+		var cd = weekDay + " às " + hour + ":" + minutes;
 
 		// Searching for a product or some addition of each product that is unavailable
 		for(var product of products) {
