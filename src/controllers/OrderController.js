@@ -113,6 +113,8 @@ module.exports = {
 
 		//	Setting creation date
 		const date = new Date().toLocaleTimeString("pt-BR", {timeZone: "America/Sao_Paulo", weekday: "long"});
+		console.log(date);
+		return;
 		const weekDay = date.split(", ")[0];
 		const time = date.split(", ")[1];
 		const hour = time.split(":")[0];
