@@ -429,24 +429,31 @@ module.exports = {
 			return res.status(400).send(message);
 		}
 
-		async function deleteOrders() {
-			await orders.deleteMany({status : true}).then((response) => {
-				if(response.n) {
-					sendMessage(sendSocketMessageTo, "delete-order", []);
-					return res.status(200).send(lang["succDelete"]);
-				} else {
-					return res.status(404).send(lang["nFOrders"]);
-				}
-			}).catch((error) => {
-				return res.status(500).send(error);
-			});
-		}
-
 		await users.findById(userId).then((user) => {
 			if(user) {
 				bcrypt.compare(password, user.password).then((match) => {
 					if(match) {
-						deleteOrders();
+						orders.deleteMany({status : true}).then((response) => {
+              if(response.n) {
+                orders.find().sort({
+                  status: "asc",
+                  creationDate: "asc"
+                }).then((response) => {
+                  if(response) {
+                    sendMessage(sendSocketMessageTo, "delete-order", response);
+                    return res.status(200).send(lang["succDelete"]);
+                  } else {
+                    return res.status(200).send(lang["succDelete"]);
+                  }
+                }).catch((error) => {
+                  return res.status(500).send(error);
+                });
+              } else {
+                return res.status(404).send(lang["nFOrders"]);
+              }
+            }).catch((error) => {
+              return res.status(500).send(error);
+            });
 					} else {
 						return res.status(400).send(lang["wrongPassword"]);
 					}
