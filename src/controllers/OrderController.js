@@ -111,6 +111,14 @@ module.exports = {
 			errors.push(lang["invPhone"]);
 		}
 
+		//	TESTING
+		console.log("pt-BR: " + new Date().toLocaleTimeString("pt-br", { timeZone : "America/Sao_Paulo" }));
+		console.log("pt-BR week: " + new Date().toLocaleTimeString("pt-br", { timeZone : "America/Sao_Paulo", weekday : "long" }));
+		console.log("en-US: " + new Date().toLocaleTimeString("en-us", { timeZone : "America/Sao_Paulo"}));
+		console.log("en-US: " + new Date().toLocaleTimeString("en-us", { timeZone : "America/Sao_Paulo", weekday : "long" }));
+		console.log("Nothing: " + new Date().toLocaleTimeString([], { timeZone : "America/Sao_Paulo" }));
+		return;
+
 		//	Setting creation date
 		const date = new Date();
 		var GMT = new Date().toString().split(" ");
