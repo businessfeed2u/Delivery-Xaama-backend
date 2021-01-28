@@ -111,6 +111,7 @@ module.exports = {
 			errors.push(lang["invPhone"]);
 		}
 
+		//	Setting creation date
 		const date = new Date();
 		var GMT = new Date().toString().split(" ");
 		var zone = false;
@@ -147,6 +148,13 @@ module.exports = {
 				cd = week[date.getDay()] + " às " + hour + ":" + minutes;
 			}
 		}
+		/*
+		const date = new Date().toLocaleTimeString("pt-BR", {timeZone: "America/Sao_Paulo", weekday: "long"});
+		const weekDay = date.split(", ")[0];
+		const time = date.split(", ")[1];
+		const hour = time.split(":")[0];
+		const minutes = time.split(":")[1];
+		var cd = weekDay + " às " + hour + ":" + minutes;*/
 
 		// Searching for a product or some addition of each product that is unavailable
 		for(var product of products) {
