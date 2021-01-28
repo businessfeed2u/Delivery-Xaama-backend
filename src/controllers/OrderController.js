@@ -112,11 +112,6 @@ module.exports = {
 			errors.push(lang["invPhone"]);
 		}
 
-		//	Setting creation date
-		var cd = date("weekDay") + " às " + date("hours") + ":" + date("minutes");
-		console.log(cd);
-		return;
-
 		// Searching for a product or some addition of each product that is unavailable
 		for(var product of products) {
 			if(!product.product.available){
@@ -272,7 +267,7 @@ module.exports = {
 			phone,
 			typePayment,
 			change: (typePayment == 0) ? change : null,
-			creationDate: cd
+			creationDate: date("weekDay") + " às " + date("hours") + ":" + date("minutes")
 		}).then((order) => {
 			if(order) {
 				if(couponId && couponId.length) {
