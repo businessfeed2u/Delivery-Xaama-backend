@@ -56,7 +56,7 @@ module.exports = {
 
 		//	Validantig order user
 		if(!user || !Object.keys(user).length || !(await users.findById(user._id).exec())) {
-			errors.push(lang["invId"]);
+      return res.status(400).send(lang["invId"]);
 		}
 
 		if(!(await users.findById(user._id).exec())) {
@@ -129,11 +129,11 @@ module.exports = {
 		var company = null;
 		await companyData.findOne({}).then((companyInfo) => {
 			if(companyInfo) {
-				company = companyInfo;
+        company = companyInfo;
 				if(companyInfo.manual && !companyInfo.systemOpenByAdm) {
 					errors.push(lang["closedCompany"]);
 				}
-				else if(!companyInfo.manual && !systemOpen(companyInfo)) {
+				else if(!companyInfo.manual && !systemOpen(company)) {
 					errors.push(lang["closedCompany"]);
 				}
 			} else {
@@ -254,9 +254,8 @@ module.exports = {
 
 		if(errors.length) {
 			const message = errors.join(", ");
-
 			return res.status(400).send(message);
-		}
+    }
 
 		await orders.create({
 			user,
@@ -274,7 +273,7 @@ module.exports = {
 					if(coupon && coupon.private) {
 						coupons.findByIdAndDelete(couponId).then((r) => {
 							if(r) {
-								sendMessage(sendSocketMessageTo, "new-order", [order]);
+                sendMessage(sendSocketMessageTo, "new-order", [order]);
 								return res.status(201).json(lang["succCreate"]);
 							} else {
 								return res.status(404).send(lang["nFCoupon"]);
@@ -303,7 +302,7 @@ module.exports = {
 
 								coupon.save().then((c) => {
 									if(c) {
-										sendMessage(sendSocketMessageTo, "new-order", [order]);
+                    sendMessage(sendSocketMessageTo, "new-order", [order]);
 										return res.status(201).json(lang["succCreate"]);
 									} else {
 										return res.status(400).send(lang["failUpdate"]);
