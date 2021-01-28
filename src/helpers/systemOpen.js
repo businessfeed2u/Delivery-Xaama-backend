@@ -1,15 +1,14 @@
 exports.systemOpen = (companyInfo) => {
-	//const data = new Date().toLocaleString("pt-BR", {timeZone: "America/Sao_Paulo"});
-	const data = new Date();
-	const openHour = data && companyInfo && companyInfo.timetable &&
-									companyInfo.timetable[data.getDay()].beginHour ?
-		companyInfo.timetable[data.getDay()].beginHour : "";
+	const date = new Date(new Date().toLocaleString([], { timeZone : "America/Sao_Paulo" }));
+	const openHour =
+		date && companyInfo && companyInfo.timetable && companyInfo.timetable[date.getDay()].beginHour ?
+			companyInfo.timetable[date.getDay()].beginHour : "";
 
-	const endHour = data && companyInfo && companyInfo.timetable &&
-									companyInfo.timetable[data.getDay()].endHour ?
-		companyInfo.timetable[data.getDay()].endHour : "";
+	const endHour =
+		date && companyInfo && companyInfo.timetable && companyInfo.timetable[date.getDay()].endHour ?
+			companyInfo.timetable[date.getDay()].endHour : "";
 
-	const current = new Date("2020-07-28 " + data.getHours() + ":" + data.getMinutes());
+	const current = new Date("2020-07-28 " + date.getHours() + ":" + date.getMinutes());
 	const open = new Date("2020-07-28 " + openHour);
 	const end = new Date("2020-07-28 " + endHour);
 

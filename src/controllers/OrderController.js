@@ -20,6 +20,7 @@ const coupons = mongoose.model("Coupons");
 // Loading helpers
 const regEx = require("../helpers/regEx");
 const lang = require("../helpers/lang");
+const date = require("../helpers/date");
 
 const { findConnections, sendMessage } = require("../config/websocket");
 const { systemOpen } = require("../helpers/systemOpen");
@@ -110,59 +111,6 @@ module.exports = {
 		if(!phone || !phone.length || !regEx.phone.test(phone)) {
 			errors.push(lang["invPhone"]);
 		}
-
-		//	TESTING
-		console.log("pt-BR: " + new Date().toLocaleTimeString("pt-br", { timeZone : "America/Sao_Paulo" }));
-		console.log("pt-BR week: " + new Date().toLocaleTimeString("pt-br", { timeZone : "America/Sao_Paulo", weekday : "long" }));
-		console.log("en-US: " + new Date().toLocaleTimeString("en-us", { timeZone : "America/Sao_Paulo"}));
-		console.log("en-US: " + new Date().toLocaleTimeString("en-us", { timeZone : "America/Sao_Paulo", weekday : "long" }));
-		console.log("Nothing: " + new Date().toLocaleTimeString([], { timeZone : "America/Sao_Paulo" }));
-		return;
-
-		//	Setting creation date
-		const date = new Date();
-		var GMT = new Date().toString().split(" ");
-		var zone = false;
-		var hour = date.getHours();
-
-		for(var g of GMT) {
-			if(g === "(GMT-03:00)" || g === "GMT-0300") {
-				hour = (hour < 10) ? "0" + hour : hour;
-				zone = true;
-				break;
-			}
-		}
-
-		var minutes = date.getMinutes();
-		minutes = (minutes < 10) ? "0" + minutes : minutes;
-
-		const week = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-		var cd = week[date.getDay()] + " às " + hour + ":" + minutes;
-
-		if(!zone) {
-			if(hour == 0 || hour == 1 || hour == 2) {
-				if(hour == 0) {
-					hour = 21;
-				} else if(hour == 1) {
-					hour = 22;
-				} else if(hour == 2) {
-					hour = 23;
-				}
-
-				cd = week[date.getDay()-1] + " às " + hour + ":" + minutes;
-			} else {
-				hour -= 3;
-				hour = (hour < 10) ? "0" + hour : hour;
-				cd = week[date.getDay()] + " às " + hour + ":" + minutes;
-			}
-		}
-		/*
-		const date = new Date().toLocaleTimeString("pt-BR", {timeZone: "America/Sao_Paulo", weekday: "long"});
-		const weekDay = date.split(", ")[0];
-		const time = date.split(", ")[1];
-		const hour = time.split(":")[0];
-		const minutes = time.split(":")[1];
-		var cd = weekDay + " às " + hour + ":" + minutes;*/
 
 		// Searching for a product or some addition of each product that is unavailable
 		for(var product of products) {
@@ -319,7 +267,7 @@ module.exports = {
 			phone,
 			typePayment,
 			change: (typePayment == 0) ? change : null,
-			creationDate: cd
+			creationDate: date("weekDay") + " às " + date("hours") + ":" + date("minutes")
 		}).then((order) => {
 			if(order) {
 				if(couponId && couponId.length) {
