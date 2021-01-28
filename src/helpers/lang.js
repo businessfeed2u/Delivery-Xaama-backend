@@ -225,6 +225,10 @@ module.exports = {
 	succDelete : {
 		ptBR : "Removido com sucesso",
 		enUS : "Deleted successfully"
+  }[lang],
+  succAllDelete : {
+		ptBR : "Removidos com sucesso",
+		enUS : "Deleted successfully"
 	}[lang],
 	succDeleteButThumb : {
 		ptBR : "Removido com sucesso, porém a imagem antiga não foi encontrada",
@@ -333,6 +337,14 @@ module.exports = {
 	nFRatings : {
 		ptBR : "Nenhuma avaliação encontrada",
 		enUS : "Ratings not found"
+  }[lang],
+  nFSocket : {
+		ptBR : "Socket não encontrado",
+		enUS : "Socket not found"
+	}[lang],
+	nFSockets : {
+		ptBR : "Nenhum socket encontrado",
+		enUS : "Sockets not found"
 	}[lang],
 	nFProductTypes : {
 		ptBR : "Tipos de produtos não encontrados",

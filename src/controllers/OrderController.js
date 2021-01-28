@@ -449,9 +449,9 @@ module.exports = {
                 }).then((response) => {
                   if(response) {
                     sendMessage(sendSocketMessageTo, "delete-order", response);
-                    return res.status(200).send(lang["succDelete"]);
+                    return res.status(200).send(lang["succAllDelete"]);
                   } else {
-                    return res.status(200).send(lang["succDelete"]);
+                    return res.status(200).send(lang["succAllDelete"]);
                   }
                 }).catch((error) => {
                   return res.status(500).send(error);
