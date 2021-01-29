@@ -40,7 +40,19 @@ module.exports = {
 	async create(req, res) {
 		const { name, ingredients, type, prices, sizes } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-		var errors = [];
+    var errors = [];
+    
+     //  Checking if the upload is really an image
+     var mimeType = req.file ? req.file : null;
+    
+     if(mimeType) {
+       mimeType = mimeType.mimetype;
+       mimeType = mimeType.split("/", 1) + "";
+     
+       if(!mimeType || !mimeType.length || (mimeType != "image")) {
+         errors.push(lang["invTypeImage"]);
+       }
+     }
 
 		if(!name || !name.length) {
 			errors.push(lang["invProductName"]);
@@ -187,7 +199,19 @@ module.exports = {
 	//	Update a specific product thumbnail
 	async updateThumbnail(req, res) {
 		const productId = req.params.id;
-		const filename = (req.file) ? req.file.filename : null;
+    const filename = (req.file) ? req.file.filename : null;
+    
+     //  Checking if the upload is really an image
+     var mimeType = req.file ? req.file : null;
+    
+     if(mimeType) {
+       mimeType = mimeType.mimetype;
+       mimeType = mimeType.split("/", 1) + "";
+     
+       if(!mimeType || !mimeType.length || (mimeType != "image")) {
+        return res.status(400).send(lang["invTypeImage"]);
+       }
+     }
 
 		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
 			return res.status(400).send(lang["invId"]);

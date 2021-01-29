@@ -173,7 +173,19 @@ module.exports = {
 	//	Update images for company
 	async updateImages(req, res) {
 		const { op } = req.body;
-		const image = (req.file) ? req.file.filename : null;
+    const image = (req.file) ? req.file.filename : null;
+    
+     //  Checking if the upload is really an image
+     var mimeType = req.file ? req.file : null;
+    
+     if(mimeType) {
+       mimeType = mimeType.mimetype;
+       mimeType = mimeType.split("/", 1) + "";
+     
+       if(!mimeType || !mimeType.length || (mimeType != "image")) {
+         return res.status(400).send(lang["invTypeImage"]);
+       }
+     }
 
 		if(!op || !op.length) {
 			if(image) {

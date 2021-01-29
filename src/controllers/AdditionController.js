@@ -40,7 +40,19 @@ module.exports = {
 	async create(req, res) {
 		const { name, type, price } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-		var errors = [];
+    var errors = [];
+    
+    //  Checking if the upload is really an image
+    var mimeType = req.file ? req.file : null;
+    
+    if(mimeType) {
+      mimeType = mimeType.mimetype;
+      mimeType = mimeType.split("/", 1) + "";
+    
+      if(!mimeType || !mimeType.length || (mimeType != "image")) {
+        errors.push(lang["invTypeImage"]);
+      }
+    }
 
 		if(!name || !name.length) {
 			errors.push(lang["invAdditionName"]);
@@ -143,7 +155,19 @@ module.exports = {
 	//	Update a specific addition
 	async updateThumbnail(req, res) {
 		const additionId = req.params.id;
-		const filename = (req.file) ? req.file.filename : null;
+    const filename = (req.file) ? req.file.filename : null;
+    
+    //  Checking if the upload is really an image
+    var mimeType = req.file ? req.file : null;
+    
+    if(mimeType) {
+      mimeType = mimeType.mimetype;
+      mimeType = mimeType.split("/", 1) + "";
+    
+      if(!mimeType || !mimeType.length || (mimeType != "image")) {
+        return res.status(400).send(lang["invTypeImage"]);
+      }
+    }
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
 			if(filename) {
