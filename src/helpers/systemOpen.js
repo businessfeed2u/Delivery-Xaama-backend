@@ -1,7 +1,8 @@
 exports.systemOpen = (companyInfo) => {
-  const date = new Date();
-  //const date = new Date(new Date().toLocaleString([], { timeZone : "America/Sao_Paulo" }));
-	const openHour =
+  var date = new Date();
+  date.toLocaleString([], { timeZone : "America/Sao_Paulo" });
+  
+  const openHour =
     date && companyInfo && companyInfo.timetable && companyInfo.timetable[date.getDay()] && 
       companyInfo.timetable[date.getDay()].beginHour ? companyInfo.timetable[date.getDay()].beginHour : "";
 
@@ -12,11 +13,6 @@ exports.systemOpen = (companyInfo) => {
 	const current = new Date("2020-07-28 " + date.getHours() + ":" + date.getMinutes());
 	const open = new Date("2020-07-28 " + openHour);
   const end = new Date("2020-07-28 " + endHour);
-  
-  // console.log("date: " + date);
-  // console.log("current: " + current);
-  // console.log("open: " + open);
-  // console.log("end: " + end);
 
 	if(end.getTime() < open.getTime()) {
 		if ((current.getTime() >= open.getTime()) || (current.getTime() <= end.getTime())) {
