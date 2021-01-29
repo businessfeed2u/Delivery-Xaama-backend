@@ -1,4 +1,5 @@
 exports.systemOpen = (companyInfo) => {
+	//	Setting date
   var date = new Date();
   date.toLocaleString([], { timeZone : "America/Sao_Paulo" });
 
