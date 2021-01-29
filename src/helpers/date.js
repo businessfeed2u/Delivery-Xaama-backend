@@ -1,7 +1,6 @@
 module.exports = (input) => {
-	var date = new Date();
-  date.toLocaleString([], { timeZone : "America/Sao_Paulo" });
-  
+	var date = new Date(new Date().toLocaleString("en-US", { timeZone : "America/Sao_Paulo" }));
+
 	const months = [
 		"Janeiro",
 		"Fevereiro",
