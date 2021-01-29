@@ -60,13 +60,13 @@ module.exports = {
 						});
 						return res.status(201).json({ user, token });
 					} else {
-						return res.status(400).send(lang["wrongPassword"]);
+						return res.status(400).send(lang["wrongEmailOrPassword"]);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error.message);
 				});
 			} else {
-				return res.status(404).send(lang["nFUser"]);
+				return res.status(404).send(lang["wrongEmailOrPassword"]);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

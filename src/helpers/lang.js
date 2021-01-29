@@ -274,6 +274,10 @@ module.exports = {
 		ptBR : "Já há um cupom com este nome",
 		enUS : "There is already a coupon using this name"
 	}[lang],
+	wrongEmailOrPassword : {
+		ptBR : "Email ou senha incorretos",
+		enUS : "Incorrect email or password"
+	}[lang],
 	wrongPassword : {
 		ptBR : "Senha incorreta",
 		enUS : "Wrong password"
