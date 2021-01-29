@@ -45,12 +45,25 @@ module.exports = {
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-	},
+  },
+  
 	//	Create a new user
 	async create(req, res) {
 		const { name, email, password, passwordC } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-		var errors = [];
+    var errors = [];
+    
+    //  Checking if the upload is really an image
+    var mimeType = req.file ? req.file : null;
+    
+    if(mimeType) {
+      mimeType = mimeType.mimetype;
+      mimeType = mimeType.split("/", 1) + "";
+    
+      if(!mimeType || !mimeType.length || (mimeType != "image")) {
+        errors.push(lang["invTypeImage"]);
+      }
+    }
 
 		if(!name || !name.length) {
 			errors.push(lang["invUserName"]);
@@ -307,7 +320,19 @@ module.exports = {
 	async updateThumbnail(req, res) {
 		const userId = req.headers.authorization;
 		const { delImg } = req.body;
-		const filename = (req.file) ? req.file.filename : null;
+    const filename = (req.file) ? req.file.filename : null;
+    
+    //  Checking if the upload is really an image
+    var mimeType = req.file ? req.file : null;
+    
+    if(mimeType) {
+      mimeType = mimeType.mimetype;
+      mimeType = mimeType.split("/", 1) + "";
+    
+      if(!mimeType || !mimeType.length || (mimeType != "image")) {
+        return res.status(400).send(lang["invTypeImage"]);
+      }
+    }
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			if(filename) {
@@ -448,10 +473,6 @@ module.exports = {
 					var s = user.cards[i].status;
 
 					if(Company.cards[i].available) {
-						// if(!complete && s) {
-						// 	return res.status(400).send("Invalid completed and satus value");
-						// }
-
 						if(s) {
 							s = false;
 							complete = false;

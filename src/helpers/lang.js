@@ -17,7 +17,11 @@ module.exports = {
 	invUserDelImage : {
 		ptBR : "Variável de remoção de imagem de usuário inválido",
 		enUS : "Invalid user delete image variable"
-	}[lang],
+  }[lang],
+  invTypeImage : {
+		ptBR : "Tipo de imagem inválid",
+		enUS : "Invalid type image"
+  }[lang],
 	invOrderProducts : {
 		ptBR : "Produtos inválidos",
 		enUS : "Invalid products"
