@@ -1,7 +1,6 @@
 exports.systemOpen = (companyInfo) => {
 	//	Setting date
-  var date = new Date();
-  date.toLocaleString([], { timeZone : "America/Sao_Paulo" });
+  const date = new Date(new Date().toLocaleString("en-US", { timeZone : "America/Sao_Paulo" }));
 
   const openHour =
     date && companyInfo && companyInfo.timetable && companyInfo.timetable[date.getDay()] &&
