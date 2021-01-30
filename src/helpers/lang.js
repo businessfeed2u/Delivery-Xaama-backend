@@ -369,5 +369,9 @@ module.exports = {
 	noToken : {
 		ptBR : "Nenhum token fornecido",
 		enUS : "No token provided"
+  }[lang],
+  roboDetected : {
+		ptBR : "Foi detectado um comportamento suspeito de ser um Robô",
+		enUS : "Behavior suspected of being a Robot was detected"
 	}[lang]
 };
