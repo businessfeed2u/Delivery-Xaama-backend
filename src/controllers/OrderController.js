@@ -52,7 +52,7 @@ module.exports = {
 	async create(req, res) {
 		const { user, products, deliver, address, typePayment, change, total, phone, couponId } = req.body;
 		const sendSocketMessageTo = await findConnections();
-		var errors = [];
+		const errors = [], productsOrder = [];
 
 		//	Validantig order user
 		if(!user || !Object.keys(user).length || !(await users.findById(user._id).exec())) {
@@ -63,27 +63,65 @@ module.exports = {
 			errors.push(lang["nFUser"]);
 		}
 
-		//	Validating order products and their additions
+		//	Validating and checking if order products and their additions are available
 		if(!products || !products.length) {
 			errors.push(lang["invOrderProducts"]);
 		} else {
-			var invalid = false;
+			var invalid = false, available = true;
+
 			for(const prod of products) {
-				if(!(await productsMenu.findById(prod.product._id).exec())) {
+				if(!mongoose.Types.ObjectId.isValid(prod.product)) {
 					errors.push(lang["invOrderProducts"]);
 					break;
-				}
+				} else {
+					const prodMenu = await productsMenu.findById(prod.product).exec();
 
-				for(const addition of prod.additions) {
-					if(!(await additions.findById(addition._id).exec())) {
-						invalid = true;
+					if(prodMenu) {
+						if(!prodMenu.available) {
+							errors.push(lang["unavailableProduct"]);
+							break;
+						} else {
+							const adds = [];
+
+							for(const add of prod.additions) {
+								if(!mongoose.Types.ObjectId.isValid(add)) {
+									invalid = true;
+									break;
+								} else {
+									const addMenu = await additions.findById(add).exec();
+
+									if(addMenu) {
+										if(!addMenu.available) {
+											available = false;
+											break;
+										}
+										adds.push(addMenu);
+									} else {
+										invalid = true;
+										break;
+									}
+								}
+							}
+
+							if(invalid) {
+								errors.push(lang["invOrderProducts"]);
+								break;
+							} else if(!available) {
+								errors.push(lang["unavailableAddition"]);
+								break;
+							} else {
+								productsOrder.push({
+									product : prodMenu,
+									size : prod.size,
+									additions : adds,
+									note : prod.note
+								});
+							}
+						}
+					} else {
+						errors.push(lang["invOrderProducts"]);
 						break;
 					}
-				}
-
-				if(invalid) {
-					errors.push(lang["invOrderProducts"]);
-					break;
 				}
 			}
 		}
@@ -112,20 +150,6 @@ module.exports = {
 			errors.push(lang["invPhone"]);
 		}
 
-		// Searching for a product or some addition of each product that is unavailable
-		for(var product of products) {
-			if(!product.product.available){
-				errors.push(lang["unavailableProduct"]);
-				break;
-			}
-			for(var addition of product.additions) {
-				if(!addition.available){
-					errors.push(lang["unavailableAddition"]);
-					break;
-				}
-			}
-		}
-
 		var company = null;
 		await companyData.findOne({}).then((companyInfo) => {
 			if(companyInfo) {
@@ -147,7 +171,7 @@ module.exports = {
 		var totalB = (deliver) ? company.freight : 0.0;
 
 		//	Calculate order total price
-		for(var x of products) {
+		for(var x of productsOrder) {
 			if(x.size >= 0 && x.size < x.product.prices.length) {
 				totalB += x.product.prices[x.size];
 			} else {
@@ -164,8 +188,8 @@ module.exports = {
 		//	Calculate order total price
 		var myMapTypesProducts = new Map();
 
-		if(products){
-			for(x of products) {
+		if(productsOrder){
+			for(x of productsOrder) {
 				if(x.size >= 0 && x.size < x.product.prices.length) {
 					myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
 						myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size]) :
@@ -259,7 +283,7 @@ module.exports = {
 
 		await orders.create({
 			user,
-			products,
+			products : productsOrder,
 			total,
 			deliver,
 			address: deliver ? address.split(",").map(a => a.trim()) : null,
@@ -274,7 +298,7 @@ module.exports = {
 						coupons.findByIdAndDelete(couponId).then((r) => {
 							if(r) {
                 sendMessage(sendSocketMessageTo, "new-order", [order]);
-								return res.status(201).json(lang["succCreate"]);
+								return res.status(201).send(lang["succCreate"]);
 							} else {
 								return res.status(404).send(lang["nFCoupon"]);
 							}
@@ -303,7 +327,7 @@ module.exports = {
 								coupon.save().then((c) => {
 									if(c) {
                     sendMessage(sendSocketMessageTo, "new-order", [order]);
-										return res.status(201).json(lang["succCreate"]);
+										return res.status(201).send(lang["succCreate"]);
 									} else {
 										return res.status(400).send(lang["failUpdate"]);
 									}
@@ -319,7 +343,7 @@ module.exports = {
 					}
 				} else {
 					sendMessage(sendSocketMessageTo, "new-order", [order]);
-					return res.status(201).json(lang["succCreate"]);
+					return res.status(201).send(lang["succCreate"]);
 				}
 			} else {
 				return res.status(400).send(lang["failCreate"]);
