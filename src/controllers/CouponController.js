@@ -23,7 +23,7 @@ module.exports = {
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			errors.push(lang["invId"]);
-		} else if(!(await users.findById(userId).exec())) {
+		} else if(!(await users.findById(userId))) {
 			errors.push(lang["nFUser"]);
 		}
 
@@ -107,7 +107,7 @@ module.exports = {
 		}
 
 		if(type === "frete") {
-			const cFreight = await companyData.findOne({}).exec().freight;
+			const cFreight = await companyData.findOne({}).freight;
 
 			if(cFreight && cFreight != discount) {
 				errors.push(lang["invCouponDiscount"]);
@@ -119,7 +119,7 @@ module.exports = {
 		if(private) {
 			if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 				errors.push(lang["invId"]);
-			} else if(!(await users.findById(userId).exec())) {
+			} else if(!(await users.findById(userId))) {
 				errors.push(lang["nFUser"]);
 			}
 		}
@@ -212,7 +212,7 @@ module.exports = {
 		}
 
 		if(type === "frete") {
-      var cFreight = await companyData.findOne({}).exec();
+      var cFreight = await companyData.findOne({});
       cFreight = cFreight.freight;
 
       if(!cFreight) {
@@ -221,13 +221,13 @@ module.exports = {
 
 			if(cFreight != discount) {
 				errors.push(lang["invCouponDiscount"]);
-			} 
+			}
 		}
 
 		if(private) {
 			if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 				errors.push(lang["invId"]);
-			} else if(!(await users.findById(userId).exec())) {
+			} else if(!(await users.findById(userId))) {
 				errors.push(lang["nFUser"]);
 			}
 		}
@@ -291,7 +291,7 @@ module.exports = {
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			errors.push(lang["invId"]);
-		} else if(!(await users.findById(userId).exec())) {
+		} else if(!(await users.findById(userId))) {
 			errors.push(lang["nFUser"]);
 		}
 

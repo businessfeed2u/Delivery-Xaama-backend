@@ -101,7 +101,7 @@ module.exports = {
 			return res.status(400).send(message);
 		}
 
-		const company = await companyData.findOne({}).exec();
+		const company = await companyData.findOne({});
 		if(!company) {
 				return res.status(404).send(lang["nFCompanyInfo"]);
 		}
@@ -174,14 +174,14 @@ module.exports = {
 	async updateImages(req, res) {
 		const { op } = req.body;
     const image = (req.file) ? req.file.filename : null;
-    
+
      //  Checking if the upload is really an image
      var mimeType = req.file ? req.file : null;
-    
+
      if(mimeType) {
        mimeType = mimeType.mimetype;
        mimeType = mimeType.split("/", 1) + "";
-     
+
        if(!mimeType || !mimeType.length || (mimeType != "image")) {
          return res.status(400).send(lang["invTypeImage"]);
        }

@@ -55,11 +55,11 @@ module.exports = {
 		const errors = [], productsOrder = [];
 
 		//	Validantig order user
-		if(!user || !Object.keys(user).length || !(await users.findById(user._id).exec())) {
+		if(!user || !Object.keys(user).length || !(await users.findById(user._id))) {
       return res.status(400).send(lang["invId"]);
 		}
 
-		if(!(await users.findById(user._id).exec())) {
+		if(!(await users.findById(user._id))) {
 			errors.push(lang["nFUser"]);
 		}
 
@@ -74,7 +74,7 @@ module.exports = {
 					errors.push(lang["invOrderProducts"]);
 					break;
 				} else {
-					const prodMenu = await productsMenu.findById(prod.product).exec();
+					const prodMenu = await productsMenu.findById(prod.product);
 
 					if(prodMenu) {
 						if(!prodMenu.available) {
@@ -88,7 +88,7 @@ module.exports = {
 									invalid = true;
 									break;
 								} else {
-									const addMenu = await additions.findById(add).exec();
+									const addMenu = await additions.findById(add);
 
 									if(addMenu) {
 										if(!addMenu.available) {
@@ -228,7 +228,7 @@ module.exports = {
 				return res.status(400).send(lang["invId"]);
 			}
 
-			coupon = await coupons.findById(couponId).exec();
+			coupon = await coupons.findById(couponId);
 
 			if(coupon) {
 				if(coupon.private && (coupon.userId != user._id)) {

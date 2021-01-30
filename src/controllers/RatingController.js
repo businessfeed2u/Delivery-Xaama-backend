@@ -24,7 +24,7 @@ module.exports = {
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
 			errors.push(lang["invId"]);
-		} else if(!(await users.findById(userId).exec())) {
+		} else if(!(await users.findById(userId))) {
 			errors.push(lang["nFUser"]);
 		}
 

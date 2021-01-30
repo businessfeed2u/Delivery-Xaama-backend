@@ -46,20 +46,20 @@ module.exports = {
 			return res.status(500).send(error);
 		});
   },
-  
+
 	//	Create a new user
 	async create(req, res) {
 		const { name, email, password, passwordC } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
     var errors = [];
-    
+
     //  Checking if the upload is really an image
     var mimeType = req.file ? req.file : null;
-    
+
     if(mimeType) {
       mimeType = mimeType.mimetype;
       mimeType = mimeType.split("/", 1) + "";
-    
+
       if(!mimeType || !mimeType.length || (mimeType != "image")) {
         errors.push(lang["invTypeImage"]);
       }
@@ -81,7 +81,7 @@ module.exports = {
 			errors.push(lang["invPasswordConfirmation"]);
 		}
 
-		const company = await companyData.findOne({}).exec();
+		const company = await companyData.findOne({});
 		if(!company) {
 			res.status(400).send(lang["nFCompanyInfo"]);
 		}
@@ -321,14 +321,14 @@ module.exports = {
 		const userId = req.headers.authorization;
 		const { delImg } = req.body;
     const filename = (req.file) ? req.file.filename : null;
-    
+
     //  Checking if the upload is really an image
     var mimeType = req.file ? req.file : null;
-    
+
     if(mimeType) {
       mimeType = mimeType.mimetype;
       mimeType = mimeType.split("/", 1) + "";
-    
+
       if(!mimeType || !mimeType.length || (mimeType != "image")) {
         return res.status(400).send(lang["invTypeImage"]);
       }
@@ -439,7 +439,7 @@ module.exports = {
 		if(!cardsNewQtd || !cardsNewQtd.length) {
 			errors.push(lang["invCardQty"]);
 		} else {
-			Company = await companyData.findOne({}).exec();
+			Company = await companyData.findOne({});
 			if(!Company) {
 				errors.push(lang["nFCompanyInfo"]);
 			}
@@ -584,12 +584,12 @@ module.exports = {
 			errors.push(lang["invId"]);
 		}
 
-		const Company = await companyData.findOne({}).exec();
+		const Company = await companyData.findOne({});
 		if(!Company) {
 			errors.push(lang["nFCompanyInfo"]);
 		}
 
-		const allUsers = await users.find().exec();
+		const allUsers = await users.find();
 		if(!allUsers) {
 			errors.push(lang["nFUsers"]);
 		}

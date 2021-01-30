@@ -29,7 +29,7 @@ exports.setupWebsocket = (server) => {
 
 exports.findConnections = () => {
 	async function all () {
-		return await sockets.find().exec();
+		return await sockets.find();
 	}
 
 	return all();
