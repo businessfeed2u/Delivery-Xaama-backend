@@ -35,11 +35,11 @@ module.exports = {
 			return res.status(400).send(lang["invId"]);
 		}
 
-		await orders.find({ "user._id": userId }).sort({
+		await orders.find({ "user._id" : new mongoose.Types.ObjectId(userId) }).sort({
 			status: "asc",
 			creationDate: "asc"
 		}).then((response) => {
-			if(response) {
+			if(response && response.length) {
 				return res.status(200).json(response);
 			} else {
 				return res.status(404).send(lang["nFOrders"]);
@@ -50,16 +50,18 @@ module.exports = {
 	},
 	//	Create a new order
 	async create(req, res) {
-		const { user, products, deliver, address, typePayment, change, total, phone, couponId } = req.body;
+		const userId = req.headers.authorization;
+		const { products, deliver, address, typePayment, change, total, phone, couponId } = req.body;
 		const sendSocketMessageTo = await findConnections();
 		const errors = [], productsOrder = [];
 
 		//	Validantig order user
-		if(!user || !Object.keys(user).length || !(await users.findById(user._id))) {
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).send(lang["invId"]);
 		}
 
-		if(!(await users.findById(user._id))) {
+		const user = await users.findById(userId);
+		if(!user || !Object.keys(user).length) {
 			errors.push(lang["nFUser"]);
 		}
 

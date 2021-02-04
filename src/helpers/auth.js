@@ -17,10 +17,10 @@ module.exports = {
 				if(err) {
 					return res.status(401).send(lang["invToken"]);
 				} else {
-					if(decoded.user.userType != 2) {
+					if(decoded.userType != 2) {
 						return res.status(403).send(lang["unauthOperation"]);
 					} else {
-						req.headers.authorization = decoded.user.id;
+						req.headers.authorization = decoded.userId;
 						return next();
 					}
 				}
@@ -38,10 +38,10 @@ module.exports = {
 				if(err) {
 					return res.status(401).send(lang["invToken"]);
 				} else {
-					if(decoded.user.userType != 1 && decoded.user.userType != 2) {
+					if(decoded.userType != 1 && decoded.userType != 2) {
 						return res.status(403).send(lang["unauthOperation"]);
 					} else {
-						req.headers.authorization = decoded.user.id;
+						req.headers.authorization = decoded.userId;
 						return next();
 					}
 				}
@@ -59,8 +59,7 @@ module.exports = {
 				if(err) {
 					return res.status(401).send(lang["invToken"]);
 				} else {
-					req.headers.authorization = decoded.user.id;
-					req.body.user = decoded.user;
+					req.headers.authorization = decoded.userId;
 					return next();
 				}
 			});

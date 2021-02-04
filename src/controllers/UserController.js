@@ -34,11 +34,7 @@ module.exports = {
 
 		await users.findById(userId).then((user) => {
 			if(user) {
-				const token = jwt.sign({ user }, process.env.SECRET, {
-					expiresIn: 86400
-				});
-
-				return res.status(201).json({ user, token });
+				return res.status(200).json(user);
 			} else {
 				return res.status(400).send(lang["nFUser"]);
 			}
@@ -163,7 +159,7 @@ module.exports = {
 					cards: cards,
 				}).then((user) => {
 					if(user) {
-						const token = jwt.sign({ user }, process.env.SECRET, {
+						const token = jwt.sign({ userId : user._id, userType : user.userType }, process.env.SECRET, {
 							expiresIn: 86400
 						});
 
@@ -294,11 +290,7 @@ module.exports = {
 
 						user.save().then((response) => {
 							if(response) {
-								const token = jwt.sign({ user }, process.env.SECRET, {
-									expiresIn: 86400
-								});
-
-								return res.status(200).json({ token, user });
+								return res.status(200).json(user);
 							} else {
 								return res.status(400).send(lang["failUpdate"]);
 							}
@@ -373,11 +365,7 @@ module.exports = {
 							}
 						}
 
-						const token = jwt.sign({ user }, process.env.SECRET, {
-							expiresIn: 86400
-						});
-
-						return res.status(200).json({ token, user });
+						return res.status(200).json(user);
 					} else {
 						if(filename) {
 							try {

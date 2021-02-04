@@ -55,20 +55,24 @@ module.exports = {
 
 			return res.status(400).send(message);
     }
-    
+
     var SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY;
     var VERIFY_URL = `https://www.google.com/recaptcha/api/siteverify?secret=${SECRET_KEY}&response=${recaptchaToken}`;
-    
+
     await fetch(VERIFY_URL, { method: "POST" }).then(res => res.json())
       .then((json) => {
-        if (json && json.success && json.score >= 0.5) {
+        if(json && json.success && json.score >= 0.5) {
           users.findOne({ email: email.trim().toLowerCase() }).then((user) => {
             if(user) {
               bcrypt.compare(password, user.password).then((match) => {
                 if(match) {
-                  const token = jwt.sign({ user }, process.env.SECRET, {
+                  const token = jwt.sign({
+                    userId : user._id,
+                    userType : user.userType
+                  }, process.env.SECRET, {
                     expiresIn: 86400
                   });
+
                   return res.status(201).json({ user, token });
                 } else {
                   return res.status(400).send(lang["wrongEmailOrPassword"]);
