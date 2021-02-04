@@ -9,7 +9,6 @@ require("../models/Company");
 
 //	Loading Users and Companies collections from database
 const users = mongoose.model("Users");
-const companyData = mongoose.model("Company");
 
 // Loading module to delete uploads
 const fs = require("fs");
@@ -45,13 +44,8 @@ module.exports = {
 
 	//	Create a new user
 	async create(req, res) {
-		const { name, email, password } = req.body;
+		const { name, email, password, company } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-
-		const company = await companyData.findOne();
-		if(!company) {
-			res.status(400).send(lang["nFCompanyInfo"]);
-		}
 
 		var cards = [];
 		var i = 0;
@@ -293,8 +287,7 @@ module.exports = {
 	//	Update current card of user on database
 	async updateCard(req, res) {
 		const userId = req.headers["order-user-id"];
-		const { cardsNewQtd } = req.body;
-		const company = await companyData.findOne();
+		const { cardsNewQtd, company } = req.body;
 
 		await users.findById(userId).then((user) => {
 			if(user) {
@@ -412,27 +405,7 @@ module.exports = {
 	//	Update current cards of users on database
 	async updateAll(req, res) {
 		const userId = req.headers.authorization;
-		var errors = [];
-
-		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang["invId"]);
-		}
-
-		const company = await companyData.findOne({});
-		if(!company) {
-			errors.push(lang["nFCompanyInfo"]);
-		}
-
-		const allUsers = await users.find();
-		if(!allUsers) {
-			errors.push(lang["nFUsers"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
+		const { company, allUsers } = req.body;
 
 		await users.findById(userId).then((user) => {
 			if(user) {

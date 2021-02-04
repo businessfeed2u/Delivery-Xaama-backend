@@ -458,6 +458,13 @@ module.exports = {
 			errors.push(lang["wrongPasswordConfirmation"]);
 		}
 
+		const company = await companyData.findOne();
+		if(!company) {
+			errors.push(lang["nFCompanyInfo"]);
+		} else {
+			req.body.company = company;
+		}
+
 		if(errors.length) {
 			if(filename) {
 				try {
@@ -552,17 +559,48 @@ module.exports = {
 			errors.push(lang["invId"]);
 		}
 
-		//	Validating fidelity cards
-		if(!cardsNewQtd || !cardsNewQtd.length) {
-			errors.push(lang["invCardQty"]);
+		const company = await companyData.findOne();
+		if(!company) {
+			errors.push(lang["nFCompanyInfo"]);
 		} else {
-			const companyInfo = await companyData.findOne();
+			req.body.company = company;
 
-			if(!companyInfo) {
-				errors.push(lang["nFCompanyInfo"]);
-			} else if(cardsNewQtd.length != companyInfo.cards.length) {
+			//	Validating fidelity cards
+			if(!cardsNewQtd || !cardsNewQtd.length) {
+				errors.push(lang["invCardQty"]);
+			} else if(cardsNewQtd.length != company.cards.length) {
 				errors.push(lang["invCardQty"]);
 			}
+		}
+
+		if(errors.length) {
+			const message = errors.join(", ");
+
+			return res.status(400).send(message);
+		} else {
+			return next();
+		}
+	},
+	async updateAllUsersCards(req, res, next) {
+		const userId = req.headers.authorization;
+		const errors = [];
+
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			errors.push(lang["invId"]);
+		}
+
+		const company = await companyData.findOne();
+		if(!company) {
+			errors.push(lang["nFCompanyInfo"]);
+		} else {
+			req.body.company = company;
+		}
+
+		const allUsers = await users.find();
+		if(!allUsers) {
+			errors.push(lang["nFUsers"]);
+		} else {
+			req.body.allUsers = allUsers;
 		}
 
 		if(errors.length) {
