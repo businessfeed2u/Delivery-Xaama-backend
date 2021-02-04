@@ -9,7 +9,6 @@ const products = mongoose.model("ProductsMenu");
 const fs = require("fs");
 
 // Loading helpers
-const regEx = require("../helpers/regEx");
 const lang = require("../helpers/lang");
 
 // Loading dirname
@@ -40,65 +39,6 @@ module.exports = {
 	async create(req, res) {
 		const { name, ingredients, type, prices, sizes } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-    var errors = [];
-    
-     //  Checking if the upload is really an image
-     var mimeType = req.file ? req.file : null;
-    
-     if(mimeType) {
-       mimeType = mimeType.mimetype;
-       mimeType = mimeType.split("/", 1) + "";
-     
-       if(!mimeType || !mimeType.length || (mimeType != "image")) {
-         errors.push(lang["invTypeImage"]);
-       }
-     }
-
-		if(!name || !name.length) {
-			errors.push(lang["invProductName"]);
-		}
-
-		if(ingredients && ingredients.length && !regEx.seq.test(ingredients)) {
-			errors.push(lang["invProductIngredients"]);
-		}
-
-		if(!type || !type.length) {
-			errors.push(lang["invProductType"]);
-		}
-
-		if(!prices || !prices.length || !regEx.prices.test(prices)) {
-			errors.push(lang["invProductPrice"]);
-		}
-
-		if(!sizes || !sizes.length || !regEx.seq.test(sizes)) {
-			errors.push(lang["invProductSize"]);
-		}
-
-		if(errors.length) {
-			if(filename) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				} catch(error) {
-					return res.status(500).send(error);
-				}
-			}
-
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
-
-		if(sizes.split(",").length !== prices.split(",").length) {
-			if(filename) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				} catch(error) {
-					return res.status(500).send(error);
-				}
-			}
-
-			return res.status(400).send(lang["invProductPriceSize"]);
-		}
 
 		await products.create({
 			name,
@@ -140,41 +80,6 @@ module.exports = {
 	async update(req, res) {
 		const productId = req.params.id;
 		const { name, ingredients, type, prices, sizes, available } = req.body;
-		var errors = [];
-
-		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
-			errors.push(lang["invId"]);
-		}
-
-		if(!name || !name.length) {
-			errors.push(lang["invProductName"]);
-		}
-
-		if(ingredients && ingredients.length && !regEx.seq.test(ingredients)) {
-			errors.push(lang["invProductIngredients"]);
-		}
-
-		if(!type || !type.length) {
-			errors.push(lang["invProductType"]);
-		}
-
-		if(!prices || !prices.length || !regEx.prices.test(prices)) {
-			errors.push(lang["invProductPrice"]);
-		}
-
-		if(!sizes || !sizes.length || !regEx.seq.test(sizes)) {
-			errors.push(lang["invProductSize"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
-
-		if(sizes.split(",").length !== prices.split(",").length) {
-			return res.status(400).send(lang["invProductPriceSize"]);
-		}
 
 		await products.findByIdAndUpdate(productId, {
 			name,
@@ -200,22 +105,6 @@ module.exports = {
 	async updateThumbnail(req, res) {
 		const productId = req.params.id;
     const filename = (req.file) ? req.file.filename : null;
-    
-     //  Checking if the upload is really an image
-     var mimeType = req.file ? req.file : null;
-    
-     if(mimeType) {
-       mimeType = mimeType.mimetype;
-       mimeType = mimeType.split("/", 1) + "";
-     
-       if(!mimeType || !mimeType.length || (mimeType != "image")) {
-        return res.status(400).send(lang["invTypeImage"]);
-       }
-     }
-
-		if(!productId || !productId.length || !mongoose.Types.ObjectId.isValid(productId)) {
-			return res.status(400).send(lang["invId"]);
-		}
 
 		await products.findByIdAndUpdate(productId, {
 			thumbnail: filename

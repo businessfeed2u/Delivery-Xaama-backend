@@ -8,6 +8,7 @@ const upload = multer(uploadConfig);
 
 //	Loading helpers
 const authorization = require("./helpers/auth");
+const validation = require("./helpers/validation");
 
 //  Loading route controllers
 const SessionController = require("./controllers/SessionController");
@@ -53,17 +54,17 @@ routes.get("/userAll", authorization.admin, UserController.all);
 
 //	Product
 routes.get("/product/:id", ProductController.index);
-routes.post("/product", authorization.manager, upload.single("thumbnail"), ProductController.create);
-routes.put("/product/:id", authorization.manager, ProductController.update);
-routes.put("/productThumbnail/:id", authorization.manager, upload.single("thumbnail"), ProductController.updateThumbnail);
+routes.post("/product", authorization.manager, upload.single("thumbnail"), validation.createProduct, ProductController.create);
+routes.put("/product/:id", authorization.manager, validation.updateProduct, ProductController.update);
+routes.put("/productThumbnail/:id", authorization.manager, upload.single("thumbnail"), validation.updateProductThumbnail, ProductController.updateThumbnail);
 routes.delete("/product/:id", authorization.manager, ProductController.delete);
 routes.get("/product", ProductController.all);
 
 //	Product addition
 routes.get("/addition/:id", AdditionController.index);
-routes.post("/addition", authorization.manager, upload.single("thumbnail"), AdditionController.create);
-routes.put("/addition/:id", authorization.manager, AdditionController.update);
-routes.put("/additionThumbnail/:id", authorization.manager, upload.single("thumbnail"), AdditionController.updateThumbnail);
+routes.post("/addition", authorization.manager, upload.single("thumbnail"), validation.createAddition, AdditionController.create);
+routes.put("/addition/:id", authorization.manager, validation.updateAddition, AdditionController.update);
+routes.put("/additionThumbnail/:id", authorization.manager, upload.single("thumbnail"), validation.updateThumbnailAddition, AdditionController.updateThumbnail);
 routes.delete("/addition/:id", authorization.manager, AdditionController.delete);
 routes.get("/addition", AdditionController.all);
 

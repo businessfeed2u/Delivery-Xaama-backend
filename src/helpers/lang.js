@@ -18,10 +18,6 @@ module.exports = {
 		ptBR : "Variável de remoção de imagem de usuário inválido",
 		enUS : "Invalid user delete image variable"
   }[lang],
-  invTypeImage : {
-		ptBR : "Tipo de imagem inválid",
-		enUS : "Invalid type image"
-  }[lang],
 	invOrderProducts : {
 		ptBR : "Produtos inválidos",
 		enUS : "Invalid products"
@@ -210,6 +206,18 @@ module.exports = {
 		ptBR : "Token inválido",
 		enUS : "Invalid token"
 	}[lang],
+	invImage : {
+		ptBR : "Imagem inválida",
+		enUS : "Invalid image"
+	}[lang],
+  invTypeImage : {
+		ptBR : "Tipo de imagem inválido",
+		enUS : "Invalid type image"
+  }[lang],
+  invAvailable : {
+		ptBR : "Parâmetro de disponibilidade inválido",
+		enUS : "Invalid available parameter"
+  }[lang],
 	succCreate : {
 		ptBR : "Criado com sucesso",
 		enUS : "Created successfully"

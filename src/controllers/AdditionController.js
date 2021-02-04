@@ -9,7 +9,6 @@ const additions = mongoose.model("Additions");
 const fs = require("fs");
 
 // Loading helpers
-const regEx = require("../helpers/regEx");
 const lang = require("../helpers/lang");
 
 // Loading dirname
@@ -40,45 +39,6 @@ module.exports = {
 	async create(req, res) {
 		const { name, type, price } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-    var errors = [];
-    
-    //  Checking if the upload is really an image
-    var mimeType = req.file ? req.file : null;
-    
-    if(mimeType) {
-      mimeType = mimeType.mimetype;
-      mimeType = mimeType.split("/", 1) + "";
-    
-      if(!mimeType || !mimeType.length || (mimeType != "image")) {
-        errors.push(lang["invTypeImage"]);
-      }
-    }
-
-		if(!name || !name.length) {
-			errors.push(lang["invAdditionName"]);
-		}
-
-		if(!type || !type.length || !regEx.seq.test(type)) {
-			errors.push(lang["invAdditionType"]);
-		}
-
-		if(!price || !price.length || !regEx.price.test(price)) {
-			errors.push(lang["invAdditionPrice"]);
-		}
-
-		if(errors.length) {
-			if(filename) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				} catch(error) {
-					return res.status(500).send(error);
-				}
-			}
-
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
 
 		await additions.create({
 			name,
@@ -113,29 +73,6 @@ module.exports = {
 	async update(req, res) {
 		const additionId = req.params.id;
 		const { name, type, price, available } = req.body;
-		var errors = [];
-
-		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			errors.push(lang["invId"]);
-		}
-
-		if(!name || !name.length) {
-			errors.push(lang["invAdditionName"]);
-		}
-
-		if(!type || !type.length || !regEx.seq.test(type)) {
-			errors.push(lang["invAdditionType"]);
-		}
-
-		if(!price || !regEx.price.test(price)) {
-			errors.push(lang["invAdditionPrice"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
 
 		await additions.findByIdAndUpdate(additionId, {
 			name,
@@ -156,30 +93,6 @@ module.exports = {
 	async updateThumbnail(req, res) {
 		const additionId = req.params.id;
     const filename = (req.file) ? req.file.filename : null;
-    
-    //  Checking if the upload is really an image
-    var mimeType = req.file ? req.file : null;
-    
-    if(mimeType) {
-      mimeType = mimeType.mimetype;
-      mimeType = mimeType.split("/", 1) + "";
-    
-      if(!mimeType || !mimeType.length || (mimeType != "image")) {
-        return res.status(400).send(lang["invTypeImage"]);
-      }
-    }
-
-		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			if(filename) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				} catch(error) {
-					return res.status(500).send(error);
-				}
-			}
-
-			return res.status(400).send(lang["invId"]);
-		}
 
 		await additions.findByIdAndUpdate(additionId, {
 			thumbnail: filename
