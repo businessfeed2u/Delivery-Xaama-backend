@@ -45,39 +45,10 @@ module.exports = {
 
 	//	Create a new user
 	async create(req, res) {
-		const { name, email, password, passwordC } = req.body;
+		const { name, email, password } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
-    var errors = [];
 
-    //  Checking if the upload is really an image
-    var mimeType = req.file ? req.file : null;
-
-    if(mimeType) {
-      mimeType = mimeType.mimetype;
-      mimeType = mimeType.split("/", 1) + "";
-
-      if(!mimeType || !mimeType.length || (mimeType != "image")) {
-        errors.push(lang["invTypeImage"]);
-      }
-    }
-
-		if(!name || !name.length) {
-			errors.push(lang["invUserName"]);
-		}
-
-		if(!email || !email.length || !regEx.email.test(email)) {
-			errors.push(lang["invEmail"]);
-		}
-
-		if(!password || !password.length || !regEx.password.test(password)) {
-			errors.push(lang["invPassword"]);
-		}
-
-		if(!passwordC || !passwordC.length || !regEx.password.test(passwordC)) {
-			errors.push(lang["invPasswordConfirmation"]);
-		}
-
-		const company = await companyData.findOne({});
+		const company = await companyData.findOne();
 		if(!company) {
 			res.status(400).send(lang["nFCompanyInfo"]);
 		}
@@ -96,31 +67,6 @@ module.exports = {
 			cards[i] = data;
 
 			i++;
-		}
-
-		if(password !== passwordC) {
-			if(filename) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				} catch(error) {
-					return res.status(500).send(error);
-				}
-			}
-
-			errors.push(lang["wrongPasswordConfirmation"]);
-		}
-
-		if(errors.length) {
-			if(filename) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				} catch(error) {
-					return res.status(500).send(error);
-				}
-			}
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
 		}
 
 		await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
@@ -203,37 +149,6 @@ module.exports = {
 	async update(req, res) {
 		const userId = req.headers.authorization;
 		const { name, email, passwordO, passwordN, address, phone, status } = req.body;
-		var errors = [];
-
-		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang["invId"]);
-		}
-
-		if(!name || !name.length) {
-			errors.push(lang["invUserName"]);
-		}
-
-		if(!email || !email.length || !regEx.email.test(email)) {
-			errors.push(lang["invEmail"]);
-		}
-
-		if(phone && phone.length && !regEx.phone.test(phone)) {
-			errors.push(lang["invPhone"]);
-		}
-
-		if(address && address.length && !regEx.address.test(address)) {
-			errors.push(lang["invAddress"]);
-		}
-
-		if(!status || !status.length) {
-			errors.push(lang["invCardVector"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
 
 		await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
 			if(response && (response._id != userId)) {
@@ -314,42 +229,6 @@ module.exports = {
 		const { delImg } = req.body;
     const filename = (req.file) ? req.file.filename : null;
 
-    //  Checking if the upload is really an image
-    var mimeType = req.file ? req.file : null;
-
-    if(mimeType) {
-      mimeType = mimeType.mimetype;
-      mimeType = mimeType.split("/", 1) + "";
-
-      if(!mimeType || !mimeType.length || (mimeType != "image")) {
-        return res.status(400).send(lang["invTypeImage"]);
-      }
-    }
-
-		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			if(filename) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				} catch(e) {
-					return res.status(500).send(e);
-				}
-			}
-
-			return res.status(400).send(lang["invId"]);
-		}
-
-		if(!delImg || !delImg.length) {
-			if(filename) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
-				} catch(e) {
-					return res.status(500).send(e);
-				}
-			}
-
-			return res.status(400).send(lang["invUserDelImage"]);
-		}
-
 		await users.findById(userId).then((user) => {
 			if(user) {
 				var deleteThumbnail = filename || (delImg === "true") ? user.thumbnail : null;
@@ -415,33 +294,7 @@ module.exports = {
 	async updateCard(req, res) {
 		const userId = req.headers["order-user-id"];
 		const { cardsNewQtd } = req.body;
-		var errors = [];
-
-		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang["invId"]);
-		}
-
-		//	Validating cards fidelity
-		var Company = null;
-
-		if(!cardsNewQtd || !cardsNewQtd.length) {
-			errors.push(lang["invCardQty"]);
-		} else {
-			Company = await companyData.findOne({});
-			if(!Company) {
-				errors.push(lang["nFCompanyInfo"]);
-			}
-
-			if(cardsNewQtd.length != Company.cards.length) {
-				errors.push(lang["invCardQty"]);
-			}
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
+		const company = await companyData.findOne();
 
 		await users.findById(userId).then((user) => {
 			if(user) {
@@ -460,7 +313,7 @@ module.exports = {
 					var complete = user.cards[i].completed;
 					var s = user.cards[i].status;
 
-					if(Company.cards[i].available) {
+					if(company.cards[i].available) {
 						if(s) {
 							s = false;
 							complete = false;
@@ -468,11 +321,11 @@ module.exports = {
 
 						q = q + qtd.qtdCurrent;
 
-						if(q >= Company.cards[i].qtdMax) {
-							q = q - Company.cards[i].qtdMax;
+						if(q >= company.cards[i].qtdMax) {
+							q = q - company.cards[i].qtdMax;
 
-							if(q >= Company.cards[i].qtdMax) {
-								q = Company.cards[i].qtdMax - 1;
+							if(q >= company.cards[i].qtdMax) {
+								q = company.cards[i].qtdMax - 1;
 							}
 							complete = true;
 						}
@@ -511,20 +364,13 @@ module.exports = {
 	async delete(req, res) {
 		const { password } = req.headers;
 		const userId = req.headers.authorization;
-		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang["invId"]);
+			return res.status(400).send(lang["invId"]);
 		}
 
 		if(!password || !password.length) {
-			errors.push(lang["invPassword"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
+			return res.status(400).send(lang["invPassword"]);
 		}
 
 		await users.findById(userId).then((user) => {
@@ -572,8 +418,8 @@ module.exports = {
 			errors.push(lang["invId"]);
 		}
 
-		const Company = await companyData.findOne({});
-		if(!Company) {
+		const company = await companyData.findOne({});
+		if(!company) {
 			errors.push(lang["nFCompanyInfo"]);
 		}
 
@@ -606,7 +452,7 @@ module.exports = {
 					var data = [];
 					var exist = false;
 
-					for(var type of Company.productTypes) {
+					for(var type of company.productTypes) {
 						exist = false;
 						for(var c of user.cards) {
 							if(type == c.cardFidelity) {

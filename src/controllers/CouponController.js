@@ -9,7 +9,6 @@ require("../models/Company");
 //	Loading Coupons, Users and Companies collections from database
 const coupons = mongoose.model("Coupons");
 const users = mongoose.model("Users");
-const companyData = mongoose.model("Company");
 
 // Loading helpers
 const lang = require("../helpers/lang");
@@ -19,18 +18,11 @@ module.exports = {
 	//	Return all coupons available for user on database given user id
 	async index(req, res) {
 		const userId = req.headers.authorization;
-		var errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang["invId"]);
+			return res.status(400)(lang["invId"]);
 		} else if(!(await users.findById(userId))) {
-			errors.push(lang["nFUser"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
+			return res.status(400)(lang["nFUser"]);
 		}
 
 		const keysSearch = [
@@ -68,71 +60,6 @@ module.exports = {
 	//	Create a new coupon
 	async create(req, res) {
 		const { name, type, private, qty, method, discount, minValue, userId } = req.body;
-		var errors = [];
-
-		if(!name || !name.length) {
-			errors.push(lang["invCouponName"]);
-		}
-
-		if(!type || !type.length || (type != "quantidade" && type != "valor" && type != "frete")) {
-			errors.push(lang["invCouponType"]);
-		}
-
-		if(type === "frete" && method != "dinheiro") {
-			errors.push(lang["invCouponTypeMethod"]);
-		}
-
-		if((type === "quantidade") && private) {
-			errors.push(lang["invCouponTypeScope"]);
-		}
-
-		if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
-			errors.push(lang["invCouponMethod"]);
-		}
-
-		if(private == null || private == undefined) {
-			errors.push(lang["invCouponScope"]);
-		}
-
-		if(discount == null || discount == undefined || discount < 0 || discount > 100) {
-			errors.push(lang["invCouponDiscount"]);
-		}
-
-		if(!private && userId && userId.length) {
-			errors.push(lang["invCouponUserScope"]);
-		}
-
-		if(!private && (qty == null || qty == undefined || qty < 1)) {
-			errors.push(lang["invCouponQty"]);
-		}
-
-		if(type === "frete") {
-			const cFreight = (await companyData.findOne({})).freight;
-
-			if(!cFreight) {
-				errors.push(lang["nFCompanyInfo"]);
-			} else if(cFreight != discount) {
-				errors.push(lang["invCouponDiscount"]);
-			}
-		}
-
-		if(private) {
-			if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-				errors.push(lang["invId"]);
-			} else if(!(await users.findById(userId))) {
-				errors.push(lang["nFUser"]);
-			}
-		}
-
-		if((type === "valor") && (minValue < 1)) {
-			errors.push(lang["invCouponTypeMinValue"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
 
 		await coupons.findOne({ name: name.trim() }).then((response) => {
 			if(response) {
@@ -165,82 +92,6 @@ module.exports = {
 	async update(req, res) {
 		const couponId = req.params.id;
 		const { name, type, private, qty, method, discount, minValue, userId, available } = req.body;
-		var errors = [];
-
-		if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
-			errors.push(lang["invId"]);
-		}
-
-		if(!name || !name.length) {
-			errors.push(lang["invCouponName"]);
-		}
-
-		if(available == null || available == undefined) {
-			errors.push(lang["invCouponAvailable"]);
-		}
-
-		if(!type || !type.length || (type != "quantidade" && type != "valor" && type != "frete")) {
-			errors.push(lang["invCouponType"]);
-		}
-
-		if(type === "frete" && method != "dinheiro") {
-			errors.push(lang["invCouponTypeMethod"]);
-		}
-
-		if((type === "quantidade") && private) {
-			errors.push(lang["invCouponTypeScope"]);
-		}
-
-		if(!method || !method.length || (method != "dinheiro" && method != "porcentagem")) {
-			errors.push(lang["invCouponMethod"]);
-		}
-
-		if(private == null || private == undefined) {
-			errors.push(lang["invCouponScope"]);
-		}
-
-		if(discount == null || discount == undefined || discount < 0 || discount > 100) {
-			errors.push(lang["invCouponDiscount"]);
-		}
-
-		if(!private && userId && userId.length) {
-			errors.push(lang["invCouponUserScope"]);
-		}
-
-		if(!private && (qty == null || qty == undefined || qty < 1)) {
-			errors.push(lang["invCouponQty"]);
-		}
-
-		if(type === "frete") {
-      var cFreight = await companyData.findOne({});
-      cFreight = cFreight.freight;
-
-      if(!cFreight) {
-				errors.push(lang["nFCompanyInfo"]);
-			}
-
-			if(cFreight != discount) {
-				errors.push(lang["invCouponDiscount"]);
-			}
-		}
-
-		if(private) {
-			if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-				errors.push(lang["invId"]);
-			} else if(!(await users.findById(userId))) {
-				errors.push(lang["nFUser"]);
-			}
-		}
-
-		if((type === "valor") && (minValue < 1)) {
-			errors.push(lang["invCouponTypeMinValue"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
 
 		await coupons.findOne({ name: name.trim() }).then((response) => {
 			if(response && (response._id != couponId)) {
@@ -280,26 +131,9 @@ module.exports = {
 		});
 	},
 	//	Update a specific coupon of user
-	async updateUser(req, res) {
+	async updateUserCoupon(req, res) {
 		const couponId = req.params.id;
 		const userId = req.headers.authorization;
-		var errors = [];
-
-		if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
-			errors.push(lang["invId"]);
-		}
-
-		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang["invId"]);
-		} else if(!(await users.findById(userId))) {
-			errors.push(lang["nFUser"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
 
 		coupons.findById(couponId).then((coupon) => {
 			if(coupon) {

@@ -8,7 +8,6 @@ require("../models/Order");
 
 //	Loading Ratings, Orders and Users collections from database
 const ratings = mongoose.model("Ratings");
-const users = mongoose.model("Users");
 const orders = mongoose.model("Orders");
 
 // Loading helpers
@@ -20,31 +19,6 @@ module.exports = {
 	async create(req, res) {
 		const userId = req.headers.authorization;
 		const { orderId, feedback, stars } = req.body;
-		var errors = [];
-
-		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang["invId"]);
-		} else if(!(await users.findById(userId))) {
-			errors.push(lang["nFUser"]);
-		}
-
-		if(!orderId || !orderId.length || !mongoose.Types.ObjectId.isValid(orderId)) {
-			errors.push(lang["invId"]);
-		}
-
-		if(!feedback || !feedback.length) {
-			errors.push(lang["invRatingFeedback"]);
-		}
-
-		if(!stars || stars < 0 || stars > 5) {
-			errors.push(lang["invRatingStars"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
 
 		const keysSearch = {"$and": [ {"userId": userId}, {"orderId": orderId} ] };
 
@@ -98,6 +72,7 @@ module.exports = {
 	// Update current rating on database
 	async update(req, res) {
 		const ratingId = req.params.id;
+
 		if(!ratingId || !ratingId.length || !mongoose.Types.ObjectId.isValid(ratingId)) {
 			return res.status(400).send(lang["invId"]);
 		}

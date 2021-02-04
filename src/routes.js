@@ -44,10 +44,10 @@ routes.get("/productTypes", companyController.productTypes);
 
 //	User
 routes.get("/user", authorization.verify, UserController.index);
-routes.post("/user", upload.single("thumbnail"), UserController.create);
-routes.put("/user", authorization.verify, UserController.update);
-routes.put("/userThumbnail", authorization.verify, upload.single("thumbnail"), UserController.updateThumbnail);
-routes.put("/userUpdateCard", authorization.manager, UserController.updateCard);
+routes.post("/user", upload.single("thumbnail"), validation.createUser, UserController.create);
+routes.put("/user", authorization.verify, validation.updateUser, UserController.update);
+routes.put("/userThumbnail", authorization.verify, upload.single("thumbnail"), validation.updateUserThumbnail, UserController.updateThumbnail);
+routes.put("/userUpdateCard", authorization.manager, validation.updateUserCard, UserController.updateCard);
 routes.put("/userCard", authorization.admin, UserController.updateAll);
 routes.delete("/user", authorization.verify, UserController.delete);
 routes.get("/userAll", authorization.admin, UserController.all);
@@ -77,9 +77,9 @@ routes.get("/orderAll", authorization.manager, OrderController.all);
 
 //	Coupon
 routes.get("/coupon", authorization.verify, CouponController.index);
-routes.post("/coupon", authorization.admin, CouponController.create);
-routes.put("/coupon/:id", authorization.admin, CouponController.update);
-routes.put("/couponUser/:id", authorization.verify, CouponController.updateUser);
+routes.post("/coupon", authorization.admin, validation.createCoupon, CouponController.create);
+routes.put("/coupon/:id", authorization.admin, validation.updateCoupon, CouponController.update);
+routes.put("/couponUser/:id", authorization.verify, validation.updateUserCoupon, CouponController.updateUserCoupon);
 routes.delete("/coupon/:id", authorization.admin, CouponController.delete);
 routes.get("/couponAll", authorization.admin, CouponController.all);
 
@@ -88,7 +88,7 @@ routes.delete("/socket", authorization.manager, SocketController.delete);
 routes.delete("/sockets", authorization.manager, SocketController.deleteAll);
 
 // Rating
-routes.post("/rating", authorization.verify, RatingController.create);
+routes.post("/rating", authorization.verify, validation.createRating, RatingController.create);
 routes.put("/rating/:id", authorization.manager, RatingController.update);
 routes.delete("/rating/:id", authorization.manager, RatingController.delete);
 routes.get("/ratingAll", RatingController.all);

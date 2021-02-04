@@ -36,7 +36,7 @@ module.exports = {
 	//	Create a new session web token from user data and return it
 	async create(req, res) {
 		const { email, password, recaptchaToken } = req.body;
-		var errors = [];
+		const errors = [];
 
 		if(!email || !email.length || !regEx.email.test(email)) {
 			errors.push(lang["invEmail"]);
