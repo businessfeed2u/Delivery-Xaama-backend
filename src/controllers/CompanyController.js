@@ -14,7 +14,6 @@ const users = mongoose.model("Users");
 const fs = require("fs");
 
 // Loading helpers
-const regEx = require("../helpers/regEx");
 const lang = require("../helpers/lang");
 
 // Loading dirname
@@ -25,7 +24,7 @@ var __dirname = path.resolve();
 module.exports = {
 	//	Return product types on database
 	async productTypes(req, res) {
-		await companyData.findOne({}).then((response) => {
+		await companyData.findOne().then((response) => {
 			if(response) {
 				return res.status(200).json(response.productTypes);
 			} else {
@@ -37,7 +36,7 @@ module.exports = {
 	},
 	//	Return Company data
 	async companyData(req, res) {
-		await companyData.findOne({}).then((response) => {
+		await companyData.findOne().then((response) => {
 			if(response) {
 				return res.status(200).json(response);
 			} else {
@@ -60,52 +59,10 @@ module.exports = {
 			systemOpenByAdm,
 			timeWithdrawal,
 			timeDeliveryI,
-			timeDeliveryF
+			timeDeliveryF,
+			company
 		} = req.body;
-		var errors = [];
-
-		if(!name || !name.length) {
-			errors.push(lang["invCompanyName"]);
-		}
-
-		if(!email || !email.length || !regEx.email.test(email)) {
-			errors.push(lang["invEmail"]);
-		}
-
-		if(!phone || !phone.length || !regEx.phone.test(phone)) {
-			errors.push(lang["invPhone"]);
-		}
-
-		if(!address || !address.length || !regEx.address.test(address)) {
-			errors.push(lang["invAddress"]);
-		}
-
-		if(!freight || freight < 1 || freight > 10) {
-			errors.push(lang["invCompanyFreight"]);
-		}
-
-		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
-			errors.push(lang["invCompanyProductTypes"]);
-		}
-
-		const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
-
-		if(timeWithdrawal < 10 || timeDeliveryI < 10 || timeDeliveryF < 10
-		|| timeDeliveryI > timeDeliveryF || timeDeliveryI === timeDeliveryF) {
-				errors.push(lang["invTime"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
-
-		const company = await companyData.findOne({});
-		if(!company) {
-				return res.status(404).send(lang["nFCompanyInfo"]);
-		}
-
+		const typesP = productTypes.split(",").map(pt => pt.trim().toLowerCase());
 		var data = [];
 		var exist = false;
 
@@ -174,36 +131,11 @@ module.exports = {
 	async updateImages(req, res) {
 		const { op } = req.body;
     const image = (req.file) ? req.file.filename : null;
-
-     //  Checking if the upload is really an image
-     var mimeType = req.file ? req.file : null;
-
-     if(mimeType) {
-       mimeType = mimeType.mimetype;
-       mimeType = mimeType.split("/", 1) + "";
-
-       if(!mimeType || !mimeType.length || (mimeType != "image")) {
-         return res.status(400).send(lang["invTypeImage"]);
-       }
-     }
-
-		if(!op || !op.length) {
-			if(image) {
-				try {
-					fs.unlinkSync(`${__dirname}/uploads/${image}`);
-				} catch(error) {
-					return res.status(500).send(error);
-				}
-			}
-
-			return res.status(400).send(lang["invOperation"]);
-		}
-
 		var im = null;
 		var data = [];
 		var i = 0;
 
-		await companyData.findOne({}).then((company) => {
+		await companyData.findOne().then((company) => {
 			if(company) {
 				if(op === "logo") {
 					im = company.logo;
@@ -315,47 +247,8 @@ module.exports = {
 		});
 	},
 	//	Update current user on database
-	async updateUser(req, res) {
-		const userId = req.headers.authorization;
-		const { userUpdateId, type, password } = req.body;
-		var errors = [];
-
-		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang["invId"]);
-		}
-
-		if(!userUpdateId || !userUpdateId.length || !mongoose.Types.ObjectId.isValid(userUpdateId)) {
-			errors.push(lang["invId"]);
-		}
-
-		if(type < 0 || type > 2) {
-			errors.push(lang["invUserType"]);
-		}
-
-		if(!password || !password.length) {
-			errors.push(lang["invPassword"]);
-		}
-
-		if(userId === userUpdateId) {
-			return res.status(400).send(lang["unauthOperation"]);
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
-
-		let hash = "";
-		await users.findById(userId).then((userAdmin) => {
-			if(userAdmin) {
-				hash = userAdmin.password;
-			} else {
-				return res.status(404).send(lang["nFUser"]);
-			}
-		}).catch((error) => {
-			return res.status(500).send(error);
-		});
+	async updateUserType(req, res) {
+		const { userUpdateId, type, password, hash } = req.body;
 
 		await users.findById(userUpdateId).then((user) => {
 			if(user) {
@@ -392,33 +285,6 @@ module.exports = {
 	//	Update opening hours
 	async updateOpeningHours(req, res) {
 		const { timetable } = req.body;
-		var errors = [];
-
-		if(!timetable || !timetable.length || timetable.length != 7) {
-				errors.push(lang["invTimeTable"]);
-		} else {
-			for(const t of timetable) {
-				if(!t.dayWeek || !t.dayWeek.length){
-					errors.push(lang["invTimeTable"]);
-					break;
-				}
-
-				if((t.beginHour && !t.endHour) || (!t.beginHour && t.endHour)
-					|| (t.beginHour && !regEx.hour.test(t.beginHour))
-					|| (t.endHour && !regEx.hour.test(t.endHour))
-					|| ((t.endHour === t.beginHour) && t.endHour != null && t.beginHour != null)) {
-
-					errors.push(lang["invTime"]);
-					break;
-				}
-			}
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
 
 		await companyData.findOneAndUpdate({}, {
 			timetable: timetable
@@ -434,61 +300,7 @@ module.exports = {
 	},
 	//	Update cards
 	async updateCards(req, res) {
-		const { productTypes, cards } = req.body;
-		var errors = [];
-
-		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
-			return res.status(400).send(lang["invCompanyProductTypes"]);
-		}
-
-		const typesP = productTypes.split(",").map(productType => productType.trim().toLowerCase());
-
-		//	Validating cards fidelity
-		if(!cards || !cards.length) {
-			errors.push(lang["invCard"]);
-		} else {
-			for(const card of cards) {
-				if(!card.type || !card.type.length){
-					errors.push(lang["invCardType"]);
-					break;
-				}
-
-				var invalid = true;
-				for(const type of typesP) {
-					if(type == card.type) {
-						invalid = false;
-						break;
-					}
-				}
-
-				if(invalid) {
-					errors.push(lang["invCardType"]);
-					break;
-				}
-
-				if(card.available == null || typeof(card.available) != "boolean") {
-					errors.push(lang["unavailableCard"]);
-					break;
-				}
-
-				if(isNaN(card.qtdMax) || card.qtdMax < 10 || card.qtdMax > 20) {
-					errors.push(lang["invCardQty"]);
-					break;
-				}
-
-				if(isNaN(card.discount) || card.discount < 8 || card.discount > 20) {
-					errors.push(lang["invCardDiscount"]);
-					break;
-				}
-
-			}
-		}
-
-		if(errors.length) {
-			const message = errors.join(", ");
-
-			return res.status(400).send(message);
-		}
+		const { cards } = req.body;
 
 		await companyData.findOneAndUpdate({}, {
 			cards: cards

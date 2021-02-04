@@ -610,5 +610,228 @@ module.exports = {
 		} else {
 			return next();
 		}
+	},
+	async updateCompany(req, res, next) {
+		const {
+			name,
+			email,
+			phone,
+			address,
+			freight,
+			productTypes,
+			timeWithdrawal,
+			timeDeliveryI,
+			timeDeliveryF
+		} = req.body;
+		const errors = [];
+
+		if(!name || !name.length) {
+			errors.push(lang["invCompanyName"]);
+		}
+
+		if(!email || !email.length || !regEx.email.test(email)) {
+			errors.push(lang["invEmail"]);
+		}
+
+		if(!phone || !phone.length || !regEx.phone.test(phone)) {
+			errors.push(lang["invPhone"]);
+		}
+
+		if(!address || !address.length || !regEx.address.test(address)) {
+			errors.push(lang["invAddress"]);
+		}
+
+		if(freight == null || freight == undefined || freight < 1 || freight > 10) {
+			errors.push(lang["invCompanyFreight"]);
+		}
+
+		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
+			errors.push(lang["invCompanyProductTypes"]);
+		}
+
+		if(timeWithdrawal < 10 || timeDeliveryI < 10 || timeDeliveryF < 10
+		|| timeDeliveryI > timeDeliveryF || timeDeliveryI === timeDeliveryF) {
+			errors.push(lang["invTime"]);
+		}
+
+		const company = await companyData.findOne();
+		if(!company) {
+			errors.push(lang["nFCompanyInfo"]);
+		} else {
+			req.body.company = company;
+		}
+
+		if(errors.length) {
+			const message = errors.join(", ");
+
+			return res.status(400).send(message);
+		} else {
+			return next();
+		}
+	},
+	async updateCompanyImage(req, res, next) {
+		const { op } = req.body;
+		const image = (req.file) ? req.file.filename : null;
+		const errors = [];
+
+    //	Checking if the upload is really an image
+    if(image) {
+      const mimeType = (req.file.mimetype) ? req.file.mimetype.split("/")[0] : null;
+
+      if(!mimeType || !mimeType.length || (mimeType != "image")) {
+        errors.push(lang["invTypeImage"]);
+      }
+    } else {
+			errors.push(lang["invImage"]);
+		}
+
+		if(!op || !op.length) {
+			errors.push(lang["invOperation"]);
+		}
+
+		if(errors.length) {
+			if(image) {
+				try {
+					fs.unlinkSync(uploadsPath + image);
+				} catch(error) {
+					return res.status(500).send(error);
+				}
+			}
+			const message = errors.join(", ");
+
+			return res.status(400).send(message);
+		} else {
+			return next();
+		}
+	},
+	async updateUserType(req, res, next) {
+		const userId = req.headers.authorization;
+		const { userUpdateId, type, password } = req.body;
+		const errors = [];
+
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+			errors.push(lang["invId"]);
+		}
+
+		if(!userUpdateId || !userUpdateId.length || !mongoose.Types.ObjectId.isValid(userUpdateId)) {
+			errors.push(lang["invId"]);
+		}
+
+		if(type == null || type == undefined || type < 0 || type > 2) {
+			errors.push(lang["invUserType"]);
+		}
+
+		if(!password || !password.length) {
+			errors.push(lang["invPassword"]);
+		}
+
+		if(userId === userUpdateId) {
+			errors.push(lang["unauthOperation"]);
+		}
+
+		const hash = (await users.findById(userId)).password;
+		if(!hash || hash.length) {
+			errors.push(lang["invPassword"]);
+		} else {
+			req.body["hash"] = hash;
+		}
+
+		if(errors.length) {
+			const message = errors.join(", ");
+
+			return res.status(400).send(message);
+		} else {
+			return next();
+		}
+	},
+	async updateCompanyOpeningHours(req, res, next) {
+		const { timetable } = req.body;
+		const errors = [];
+
+		if(!timetable || !timetable.length || timetable.length != 7) {
+				errors.push(lang["invTimeTable"]);
+		} else {
+			for(const t of timetable) {
+				if(!t.dayWeek || !t.dayWeek.length){
+					errors.push(lang["invTimeTable"]);
+					break;
+				}
+
+				if((t.beginHour && !t.endHour) || (!t.beginHour && t.endHour)
+					|| (t.beginHour && !regEx.hour.test(t.beginHour))
+					|| (t.endHour && !regEx.hour.test(t.endHour))
+					|| ((t.endHour === t.beginHour) && t.endHour != null && t.beginHour != null)) {
+
+					errors.push(lang["invTime"]);
+					break;
+				}
+			}
+		}
+
+		if(errors.length) {
+			const message = errors.join(", ");
+
+			return res.status(400).send(message);
+		} else {
+			return next();
+		}
+	},
+	async updateCompanyCards(req, res, next) {
+		const { productTypes, cards } = req.body;
+		const errors = [];
+
+		if(!productTypes || !productTypes.length || !regEx.seq.test(productTypes)) {
+			return res.status(400).send(lang["invCompanyProductTypes"]);
+		} else {
+			const typesP = productTypes.split(",").map(pt => pt.trim().toLowerCase());
+
+			//	Validating cards fidelity
+			if(!cards || !cards.length) {
+				errors.push(lang["invCard"]);
+			} else {
+				for(const card of cards) {
+					if(!card.type || !card.type.length){
+						errors.push(lang["invCardType"]);
+						break;
+					}
+
+					var invalid = true;
+					for(const type of typesP) {
+						if(type == card.type) {
+							invalid = false;
+							break;
+						}
+					}
+
+					if(invalid) {
+						errors.push(lang["invCardType"]);
+						break;
+					}
+
+					if(card.available == null || typeof(card.available) != "boolean") {
+						errors.push(lang["unavailableCard"]);
+						break;
+					}
+
+					if(isNaN(card.qtdMax) || card.qtdMax < 10 || card.qtdMax > 20) {
+						errors.push(lang["invCardQty"]);
+						break;
+					}
+
+					if(isNaN(card.discount) || card.discount < 8 || card.discount > 20) {
+						errors.push(lang["invCardDiscount"]);
+						break;
+					}
+				}
+			}
+		}
+
+		if(errors.length) {
+			const message = errors.join(", ");
+
+			return res.status(400).send(message);
+		} else {
+			return next();
+		}
 	}
 };

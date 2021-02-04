@@ -35,11 +35,11 @@ routes.post("/session", SessionController.create);
 
 //	Company
 routes.get("/company", companyController.companyData);
-routes.put("/company", authorization.admin, companyController.update);
-routes.put("/companyImages", authorization.admin, upload.single("image"), companyController.updateImages);
-routes.put("/companyUpdateUser", authorization.admin, companyController.updateUser);
-routes.put("/companyUpdateCards", authorization.admin, companyController.updateCards);
-routes.put("/companyUpdateTimetable", authorization.admin, companyController.updateOpeningHours);
+routes.put("/company", authorization.admin, validation.updateCompany, companyController.update);
+routes.put("/companyImages", authorization.admin, upload.single("image"), validation.updateCompanyImage, companyController.updateImages);
+routes.put("/companyUpdateUser", authorization.admin, validation.updateUserType, companyController.updateUserType);
+routes.put("/companyUpdateCards", authorization.admin, validation.updateCompanyCards, companyController.updateCards);
+routes.put("/companyUpdateTimetable", authorization.admin, validation.updateCompanyOpeningHours, companyController.updateOpeningHours);
 routes.get("/productTypes", companyController.productTypes);
 
 //	User
@@ -48,7 +48,7 @@ routes.post("/user", upload.single("thumbnail"), validation.createUser, UserCont
 routes.put("/user", authorization.verify, validation.updateUser, UserController.update);
 routes.put("/userThumbnail", authorization.verify, upload.single("thumbnail"), validation.updateUserThumbnail, UserController.updateThumbnail);
 routes.put("/userUpdateCard", authorization.manager, validation.updateUserCard, UserController.updateCard);
-routes.put("/userCard", authorization.admin, UserController.updateAll);
+routes.put("/userCard", authorization.admin, validation.updateAllUsersCards, UserController.updateAll);
 routes.delete("/user", authorization.verify, UserController.delete);
 routes.get("/userAll", authorization.admin, UserController.all);
 

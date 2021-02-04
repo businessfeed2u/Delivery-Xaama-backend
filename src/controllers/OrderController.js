@@ -153,7 +153,7 @@ module.exports = {
 		}
 
 		var company = null;
-		await companyData.findOne({}).then((companyInfo) => {
+		await companyData.findOne().then((companyInfo) => {
 			if(companyInfo) {
         company = companyInfo;
 				if(companyInfo.manual && !companyInfo.systemOpenByAdm) {
