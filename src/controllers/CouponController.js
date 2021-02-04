@@ -107,12 +107,12 @@ module.exports = {
 		}
 
 		if(type === "frete") {
-			const cFreight = await companyData.findOne({}).freight;
+			const cFreight = (await companyData.findOne({})).freight;
 
-			if(cFreight && cFreight != discount) {
-				errors.push(lang["invCouponDiscount"]);
-			} else {
+			if(!cFreight) {
 				errors.push(lang["nFCompanyInfo"]);
+			} else if(cFreight != discount) {
+				errors.push(lang["invCouponDiscount"]);
 			}
 		}
 
