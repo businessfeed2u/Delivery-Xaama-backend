@@ -70,7 +70,7 @@ routes.get("/addition", AdditionController.all);
 
 //	Order
 routes.get("/order", authorization.verify, OrderController.index);
-routes.post("/order", authorization.verify, OrderController.create);
+routes.post("/order", authorization.verify, validation.createOrder, OrderController.create);
 routes.put("/order/:id", authorization.admin, OrderController.update);
 routes.delete("/order", authorization.manager, OrderController.delete);
 routes.get("/orderAll", authorization.manager, OrderController.all);

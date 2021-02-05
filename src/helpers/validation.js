@@ -1,14 +1,18 @@
 //  Loading database module
 const mongoose = require("mongoose");
 
-//	Loading User and Company schemas
-require("../models/Coupon");
+//	Loading ProductMenu, Addition, Company, User and Company schemas and collections from database
 require("../models/User");
+require("../models/ProductMenu");
+require("../models/Addition");
 require("../models/Company");
+require("../models/Coupon");
 
-//	Loading Users and Company collections from database
 const users = mongoose.model("Users");
 const companyData = mongoose.model("Company");
+const productsMenu = mongoose.model("ProductsMenu");
+const additions = mongoose.model("Additions");
+const coupons = mongoose.model("Coupons");
 
 // Loading module to delete uploads
 const fs = require("fs");
@@ -16,6 +20,7 @@ const fs = require("fs");
 // Loading helpers
 const regEx = require("../helpers/regEx");
 const lang = require("../helpers/lang");
+const { systemOpen } = require("../helpers/systemOpen");
 
 //	Uploads folder path
 const uploadsPath = `${__dirname}/../../uploads/`;
@@ -831,6 +836,236 @@ module.exports = {
 
 			return res.status(400).send(message);
 		} else {
+			return next();
+		}
+	},
+	async createOrder(req, res, next) {
+		const userId = req.headers.authorization;
+		const { products, deliver, address, typePayment, change, total, phone, couponId } = req.body;
+		const errors = [], productsOrder = [];
+
+		//	Validantig order user
+		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).send(lang["invId"]);
+		}
+
+		const user = await users.findById(userId);
+		if(!user) {
+			errors.push(lang["nFUser"]);
+		} else {
+			req.body["user"] = user;
+		}
+
+		//	Validating and checking if order products and their additions are available
+		if(!products || !products.length) {
+			errors.push(lang["invOrderProducts"]);
+		} else {
+			var invalid = false, available = true;
+
+			for(const prod of products) {
+				if(!mongoose.Types.ObjectId.isValid(prod.product)) {
+					errors.push(lang["invOrderProducts"]);
+					break;
+				} else {
+					const prodMenu = await productsMenu.findById(prod.product);
+
+					if(prodMenu) {
+						if(!prodMenu.available) {
+							errors.push(lang["unavailableProduct"]);
+							break;
+						} else {
+							const adds = [];
+
+							for(const add of prod.additions) {
+								if(!mongoose.Types.ObjectId.isValid(add)) {
+									invalid = true;
+									break;
+								} else {
+									const addMenu = await additions.findById(add);
+
+									if(addMenu) {
+										if(!addMenu.available) {
+											available = false;
+											break;
+										}
+										adds.push(addMenu);
+									} else {
+										invalid = true;
+										break;
+									}
+								}
+							}
+
+							if(invalid) {
+								errors.push(lang["invOrderProducts"]);
+								break;
+							} else if(!available) {
+								errors.push(lang["unavailableAddition"]);
+								break;
+							} else {
+								productsOrder.push({
+									product : prodMenu,
+									size : prod.size,
+									additions : adds,
+									note : prod.note
+								});
+							}
+						}
+					} else {
+						errors.push(lang["invOrderProducts"]);
+						break;
+					}
+				}
+			}
+
+			req.body["productsOrder"] = productsOrder;
+		}
+
+		if(deliver == null || deliver == undefined) {
+			errors.push(lang["invOrderDeliver"]);
+		} else if(deliver && (!address || !address.length || !regEx.address.test(address))) {
+			errors.push(lang["invAddress"]);
+		}
+
+		if(isNaN(typePayment) || (typePayment != 0 && typePayment != 1)){
+			errors.push(lang["invOrderPaymentMethod"]);
+		} else if((typePayment == 0) && (isNaN(change) || (change < total))) {
+			errors.push(lang["invOrderChange"]);
+		}
+
+		if(isNaN(total)) {
+			errors.push(lang["invOrderTotal"]);
+		}
+
+		if(!phone || !phone.length || !regEx.phone.test(phone)) {
+			errors.push(lang["invPhone"]);
+		}
+
+		const company = await companyData.findOne();
+		if(!company) {
+			errors.push(lang["nFCompanyInfo"]);
+		} else if(company.manual && !company.systemOpenByAdm) {
+			errors.push(lang["closedCompany"]);
+		} else if(!company.manual && !systemOpen(company)) {
+			errors.push(lang["closedCompany"]);
+		}
+
+		//	Get freight price and add if deliver is true
+		var totalB = (deliver) ? company.freight : 0.0;
+
+		//	Calculate order total price
+		for(const x of productsOrder) {
+			if(x.size >= 0 && x.size < x.product.prices.length) {
+				totalB += x.product.prices[x.size];
+			} else {
+				errors.push(x.product.name + " size doesn't exist!");
+			}
+
+			if(x.additions && x.additions.length) {
+				for(const y of x.additions) {
+						totalB += y.price;
+				}
+			}
+		}
+
+		//	Calculate order total price
+		var myMapTypesProducts = new Map();
+
+		if(productsOrder){
+			for(const x of productsOrder) {
+				if(x.size >= 0 && x.size < x.product.prices.length) {
+					myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
+						myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + x.product.prices[x.size])
+						:
+						x.product.prices[x.size]
+					);
+				}
+
+				if(x.additions && x.additions.length) {
+					for(const y of x.additions) {
+						myMapTypesProducts.set(x && x.product.type ? x.product.type : "",
+							myMapTypesProducts.get(x.product.type) ? (myMapTypesProducts.get(x.product.type) + y.price)
+							:
+							y.price
+						);
+					}
+				}
+			}
+		}
+
+		// Calculate discount
+		var discountCards = 0;
+		if(user && user.cards && company && company.cards){
+			user.cards.map((card,index) => {
+				card.completed && !card.status && myMapTypesProducts && myMapTypesProducts.get(card.cardFidelity) ?
+					discountCards = parseInt(discountCards) + parseInt((company.cards[index].discount < myMapTypesProducts.get(card.cardFidelity) ?
+						company.cards[index].discount : myMapTypesProducts.get(card.cardFidelity)))
+						:
+						null;
+			});
+		}
+
+		//  Validating coupon if it exists and assigning the discount
+		var discountCoupon = 0;
+		if(couponId && couponId.length) {
+			if(!couponId || !couponId.length || !mongoose.Types.ObjectId.isValid(couponId)) {
+				return res.status(400).send(lang["invId"]);
+			}
+
+			const coupon = await coupons.findById(couponId);
+
+			if(coupon) {
+				if(coupon.private && (coupon.userId != user._id)) {
+					errors.push(lang["invId"]);
+				}
+
+				if(coupon.type === "frete" && !deliver) {
+					errors.push(lang["unavailableCoupon"]);
+				}
+
+				var priceProducts = deliver ? totalB - company.freight : totalB;
+
+				if((coupon.type === "valor") && ( priceProducts < coupon.minValue)) {
+					errors.push(lang["unavailableCoupon"]);
+				}
+
+				var applyDiscount = false;
+
+				for(var c of coupon.whoUsed) {
+					if((c.userId == user._id)){
+						if((c.validated) && (!c.status)) {
+							applyDiscount = true;
+						}
+					}
+				}
+
+				if(applyDiscount) {
+					if(coupon.method === "porcentagem") {
+						discountCoupon = (priceProducts * coupon.discount) / 100;
+					} else {
+						discountCoupon = coupon.discount;
+					}
+
+					req.body["coupon"] = coupon;
+				} else {
+					errors.push(lang["invCouponDiscount"]);
+				}
+			} else {
+				errors.push(lang["invOrderCoupon"]);
+			}
+		}
+
+		totalB = (totalB - discountCards - discountCoupon) > 0 ? (totalB - discountCards - discountCoupon) : 0 ;
+
+		if((total != totalB)) {
+			errors.push(lang["invOrderTotal"]);
+		}
+
+		if(errors.length) {
+			const message = errors.join(", ");
+
+			return res.status(400).send(message);
+    } else {
 			return next();
 		}
 	}
