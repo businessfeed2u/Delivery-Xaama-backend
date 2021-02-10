@@ -443,9 +443,7 @@ module.exports = {
       if(!mimeType || !mimeType.length || (mimeType != "image")) {
         errors.push(lang["invTypeImage"]);
       }
-    } else {
-			errors.push(lang["invImage"]);
-		}
+    }
 
 		if(!name || !name.length) {
 			errors.push(lang["invUserName"]);
@@ -735,7 +733,7 @@ module.exports = {
 		}
 
 		const hash = (await users.findById(userId)).password;
-		if(!hash || hash.length) {
+		if(!hash || !hash.length) {
 			errors.push(lang["invPassword"]);
 		} else {
 			req.body["hash"] = hash;
