@@ -2,29 +2,29 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 //	Defining Addition schema
 const additionSchema = Schema({
 	name: {
 		type: String,
-		required: true,
+		required: true
 	},
 	type: {
 		type: [String],
-		required: true,
+		required: true
 	},
 	price: {
 		type: Number,
-		required: true,
+		required: true
 	},
 	available: {
 		type: Boolean,
-		default: true,
+		default: true
 	},
 	thumbnail: {
 		type: String,
-		default: null,
+		default: null
 	},
 	creationDate: {
 		type: Date,
@@ -32,8 +32,8 @@ const additionSchema = Schema({
 	}
 }, {
 	toJSON: {
-		virtuals: true,
-	},
+		virtuals: true
+	}
 });
 
 //	Creating route to get thumbnails

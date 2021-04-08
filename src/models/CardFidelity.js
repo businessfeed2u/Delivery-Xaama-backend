@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose and calling schemas
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 //	Defining Card Fidelity schema
 const cardFidelitySchema = Schema({

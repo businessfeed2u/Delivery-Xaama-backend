@@ -13,7 +13,7 @@ const lang = require("../helpers/lang");
 
 // Loading dirname
 const path = require("path");
-var __dirname = path.resolve();
+const dirname = path.resolve();
 
 //	Exporting Addition features
 module.exports = {
@@ -22,14 +22,14 @@ module.exports = {
 		const additionId = req.params.id;
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			return res.status(400).send(lang["invId"]);
+			return res.status(400).send(lang.invId);
 		}
 
 		await additions.findById(additionId).then((addition) => {
 			if(addition) {
 				return res.status(200).json(addition);
 			} else {
-				return res.status(404).send(lang["nFAddition"]);
+				return res.status(404).send(lang.nFAddition);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -42,30 +42,32 @@ module.exports = {
 
 		await additions.create({
 			name,
-			type: type.split(",").map(t => t.trim().toLowerCase()),
+			type: type.split(",").map((t) => t.trim().toLowerCase()),
 			price,
 			thumbnail: filename
 		}).then((response) => {
 			if(response) {
-				return res.status(201).send(lang["succCreate"]);
+				return res.status(201).send(lang.succCreate);
 			} else {
 				if(filename) {
 					try {
-						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+						fs.unlinkSync(`${dirname}/uploads/${filename}`);
 					} catch(error) {
 						return res.status(500).send(error);
 					}
 				}
-				return res.status(400).send(lang["failCreate"]);
+
+				return res.status(400).send(lang.failCreate);
 			}
 		}).catch((error) => {
 			if(filename) {
 				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					fs.unlinkSync(`${dirname}/uploads/${filename}`);
 				} catch(e) {
 					return res.status(500).send(e);
 				}
 			}
+
 			return res.status(500).send(error);
 		});
 	},
@@ -76,14 +78,14 @@ module.exports = {
 
 		await additions.findByIdAndUpdate(additionId, {
 			name,
-			type: type.split(",").map(t => t.trim().toLowerCase()),
+			type: type.split(",").map((t) => t.trim().toLowerCase()),
 			price,
-			available: available
+			available
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send(lang["succUpdate"]);
+				return res.status(200).send(lang.succUpdate);
 			} else {
-				return res.status(404).send(lang["nFAddition"]);
+				return res.status(404).send(lang.nFAddition);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -92,7 +94,7 @@ module.exports = {
 	//	Update a specific addition
 	async updateThumbnail(req, res) {
 		const additionId = req.params.id;
-    const filename = (req.file) ? req.file.filename : null;
+		const filename = (req.file) ? req.file.filename : null;
 
 		await additions.findByIdAndUpdate(additionId, {
 			thumbnail: filename
@@ -100,28 +102,28 @@ module.exports = {
 			if(response) {
 				if(response.thumbnail) {
 					try {
-						fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
+						fs.unlinkSync(`${dirname}/uploads/${response.thumbnail}`);
 					} catch(error) {
-						return res.status(200).send(lang["succUpdateButThumb"]);
+						return res.status(200).send(lang.succUpdateButThumb);
 					}
 				}
 
-				return res.status(200).send(lang["succUpdateThumb"]);
+				return res.status(200).send(lang.succUpdateThumb);
 			} else {
 				if(filename) {
 					try {
-						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+						fs.unlinkSync(`${dirname}/uploads/${filename}`);
 					} catch(error) {
 						return res.status(500).send(error);
 					}
 				}
 
-				return res.status(404).send(lang["nFAddition"]);
+				return res.status(404).send(lang.nFAddition);
 			}
 		}).catch((error) => {
 			if(filename) {
 				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					fs.unlinkSync(`${dirname}/uploads/${filename}`);
 				} catch(e) {
 					return res.status(500).send(e);
 				}
@@ -135,22 +137,22 @@ module.exports = {
 		const additionId = req.params.id;
 
 		if(!additionId || !additionId.length || !mongoose.Types.ObjectId.isValid(additionId)) {
-			return res.status(400).send(lang["invId"]);
+			return res.status(400).send(lang.invId);
 		}
 
 		await additions.findByIdAndDelete(additionId).then((response) => {
 			if(response) {
 				if(response.thumbnail) {
 					try {
-						fs.unlinkSync(`${__dirname}/uploads/${response.thumbnail}`);
-					} catch(e){
-						return res.status(200).send(lang["succDeleteButThumb"]);
+						fs.unlinkSync(`${dirname}/uploads/${response.thumbnail}`);
+					} catch(e) {
+						return res.status(200).send(lang.succDeleteButThumb);
 					}
 				}
 
-				return res.status(200).send(lang["succDelete"]);
+				return res.status(200).send(lang.succDelete);
 			} else {
-				return res.status(404).send(lang["nFAddition"]);
+				return res.status(404).send(lang.nFAddition);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -168,7 +170,7 @@ module.exports = {
 			if(response && response.length) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).send(lang["nFAdditions"]);
+				return res.status(404).send(lang.nFAdditions);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

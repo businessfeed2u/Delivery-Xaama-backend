@@ -19,7 +19,7 @@ const lang = require("../helpers/lang");
 
 // Loading dirname
 const path = require("path");
-var __dirname = path.resolve();
+const dirname = path.resolve();
 
 //	Exporting User features
 module.exports = {
@@ -28,29 +28,29 @@ module.exports = {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send(lang["invId"]);
+			return res.status(400).send(lang.invId);
 		}
 
 		await users.findById(userId).then((user) => {
 			if(user) {
 				return res.status(200).json(user);
 			} else {
-				return res.status(400).send(lang["nFUser"]);
+				return res.status(400).send(lang.nFUser);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
 		});
-  },
+	},
 
 	//	Create a new user
 	async create(req, res) {
 		const { name, email, password, company } = req.body;
 		const filename = (req.file) ? req.file.filename : null;
 
-		var cards = [];
-		var i = 0;
+		const cards = [];
+		let i = 0;
 
-		for(var c of company.cards) {
+		for(const c of company.cards) {
 			const data = {
 				cardFidelity: c.type,
 				qtdCurrent: 0,
@@ -67,14 +67,15 @@ module.exports = {
 			if(response) {
 				if(filename) {
 					try {
-						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+						fs.unlinkSync(`${dirname}/uploads/${filename}`);
 					} catch(error) {
 						return res.status(500).send(error);
 					}
 				}
-				return res.status(400).send(lang["existentEmail"]);
+
+				return res.status(400).send(lang.existentEmail);
 			} else {
-				var salt = 0, hash = "";
+				let salt = 0, hash = "";
 
 				try {
 					salt = bcrypt.genSaltSync(10);
@@ -82,11 +83,12 @@ module.exports = {
 				} catch(error) {
 					if(filename) {
 						try {
-							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+							fs.unlinkSync(`${dirname}/uploads/${filename}`);
 						} catch(e) {
 							return res.status(500).send(e);
 						}
 					}
+
 					return res.status(500).send(error);
 				}
 
@@ -96,10 +98,10 @@ module.exports = {
 					userType: 0,
 					password: hash,
 					thumbnail: filename,
-					cards: cards,
+					cards
 				}).then((user) => {
 					if(user) {
-						const token = jwt.sign({ userId : user._id, userType : user.userType }, process.env.SECRET, {
+						const token = jwt.sign({ userId: user._id, userType: user.userType }, process.env.SECRET, {
 							expiresIn: 86400
 						});
 
@@ -107,18 +109,18 @@ module.exports = {
 					} else {
 						if(filename) {
 							try {
-								fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+								fs.unlinkSync(`${dirname}/uploads/${filename}`);
 							} catch(e) {
 								return res.status(500).send(e);
 							}
 						}
 
-						return res.status(400).send(lang["failCreate"]);
+						return res.status(400).send(lang.failCreate);
 					}
 				}).catch((error) => {
 					if(filename) {
 						try {
-							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+							fs.unlinkSync(`${dirname}/uploads/${filename}`);
 						} catch(e) {
 							return res.status(500).send(e);
 						}
@@ -130,7 +132,7 @@ module.exports = {
 		}).catch((error) => {
 			if(filename) {
 				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					fs.unlinkSync(`${dirname}/uploads/${filename}`);
 				} catch(e) {
 					return res.status(500).send(e);
 				}
@@ -146,19 +148,19 @@ module.exports = {
 
 		await users.findOne({ email: email.trim().toLowerCase() }).then((response) => {
 			if(response && (response._id != userId)) {
-				return res.status(400).send(lang["existentEmail"]);
+				return res.status(400).send(lang.existentEmail);
 			} else {
 				users.findById(userId).then((user) => {
 					if(user) {
-						var hash = "";
+						let hash = "";
 
 						if(passwordN && passwordN.length) {
 							if(!regEx.password.test(passwordN)) {
-								return res.status(400).send(lang["invNewPassword"]);
+								return res.status(400).send(lang.invNewPassword);
 							}
 
 							if(!bcrypt.compareSync(passwordO, user.password)) {
-								return res.status(400).send(lang["wrongOldPassword"]);
+								return res.status(400).send(lang.wrongOldPassword);
 							}
 
 							try {
@@ -172,14 +174,14 @@ module.exports = {
 						}
 
 						if(user.cards.length != status.length) {
-							return res.status(400).send(lang["invCardVector"]);
+							return res.status(400).send(lang.invCardVector);
 						}
 
-						var data = [];
-						var i = 0;
+						const data = [];
+						let i = 0;
 
-						for(var u of user.cards) {
-							var newCard = {
+						for(const u of user.cards) {
+							const newCard = {
 								cardFidelity: u.cardFidelity,
 								qtdCurrent: u.qtdCurrent,
 								completed: u.completed,
@@ -195,19 +197,19 @@ module.exports = {
 						user.email = email.trim().toLowerCase();
 						user.password = hash;
 						user.phone = phone ? phone : null;
-						user.address = address && address.length ? address.split(",").map(a => a.trim()) : null;
+						user.address = address && address.length ? address.split(",").map((a) => a.trim()) : null;
 
 						user.save().then((response) => {
 							if(response) {
 								return res.status(200).json(user);
 							} else {
-								return res.status(400).send(lang["failUpdate"]);
+								return res.status(400).send(lang.failUpdate);
 							}
 						}).catch((error) => {
 							return res.status(500).send(error);
 						});
 					} else {
-						return res.status(404).send(lang["nFUser"]);
+						return res.status(404).send(lang.nFUser);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
@@ -221,18 +223,18 @@ module.exports = {
 	async updateThumbnail(req, res) {
 		const userId = req.headers.authorization;
 		const { delImg } = req.body;
-    const filename = (req.file) ? req.file.filename : null;
+		const filename = (req.file) ? req.file.filename : null;
 
 		await users.findById(userId).then((user) => {
 			if(user) {
-				var deleteThumbnail = filename || (delImg === "true") ? user.thumbnail : null;
+				const deleteThumbnail = filename || (delImg === "true") ? user.thumbnail : null;
 				user.thumbnail = filename;
 
 				user.save().then((response) => {
 					if(response) {
 						if(deleteThumbnail && (deleteThumbnail != user.thumbnail) || (delImg === "true")) {
 							try {
-								fs.unlinkSync(`${__dirname}/uploads/${deleteThumbnail}`);
+								fs.unlinkSync(`${dirname}/uploads/${deleteThumbnail}`);
 							} catch(e) {
 								return res.status(500).send(e);
 							}
@@ -242,18 +244,18 @@ module.exports = {
 					} else {
 						if(filename) {
 							try {
-								fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+								fs.unlinkSync(`${dirname}/uploads/${filename}`);
 							} catch(e) {
 								return res.status(500).send(e);
 							}
 						}
 
-						return res.status(400).send(lang["failUpdate"]);
+						return res.status(400).send(lang.failUpdate);
 					}
 				}).catch((error) => {
 					if(filename) {
 						try {
-							fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+							fs.unlinkSync(`${dirname}/uploads/${filename}`);
 						} catch(e) {
 							return res.status(500).send(e);
 						}
@@ -264,18 +266,18 @@ module.exports = {
 			} else {
 				if(filename) {
 					try {
-						fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+						fs.unlinkSync(`${dirname}/uploads/${filename}`);
 					} catch(e) {
 						return res.status(500).send(e);
 					}
 				}
 
-				return res.status(404).send(lang["nFUser"]);
+				return res.status(404).send(lang.nFUser);
 			}
 		}).catch((error) => {
 			if(filename) {
 				try {
-					fs.unlinkSync(`${__dirname}/uploads/${filename}`);
+					fs.unlinkSync(`${dirname}/uploads/${filename}`);
 				} catch(e) {
 					return res.status(500).send(e);
 				}
@@ -291,20 +293,20 @@ module.exports = {
 
 		await users.findById(userId).then((user) => {
 			if(user) {
-				var data = [];
+				const data = [];
 
-				var i = 0;
+				let i = 0;
 				for(const qtd of cardsNewQtd) {
 					if(!user.cards || !user.cards[i] ||
 					(qtd.cardFidelity != user.cards[i].cardFidelity) ||
 					(qtd.qtdCurrent < 0)) {
 
-						return res.status(400).send(lang["invCard"]);
+						return res.status(400).send(lang.invCard);
 					}
 
-					var q = user.cards[i].qtdCurrent;
-					var complete = user.cards[i].completed;
-					var s = user.cards[i].status;
+					let q = user.cards[i].qtdCurrent;
+					let complete = user.cards[i].completed;
+					let s = user.cards[i].status;
 
 					if(company.cards[i].available) {
 						if(s) {
@@ -312,10 +314,10 @@ module.exports = {
 							complete = false;
 						}
 
-						q = q + qtd.qtdCurrent;
+						q += qtd.qtdCurrent;
 
 						if(q >= company.cards[i].qtdMax) {
-							q = q - company.cards[i].qtdMax;
+							q -= company.cards[i].qtdMax;
 
 							if(q >= company.cards[i].qtdMax) {
 								q = company.cards[i].qtdMax - 1;
@@ -324,7 +326,7 @@ module.exports = {
 						}
 					}
 
-					var newCard = {
+					const newCard = {
 						cardFidelity: qtd.cardFidelity,
 						qtdCurrent: q,
 						completed: complete,
@@ -339,18 +341,18 @@ module.exports = {
 
 				user.save().then((response) => {
 					if(response) {
-						return res.status(200).send(lang["succUpdate"]);
+						return res.status(200).send(lang.succUpdate);
 					} else {
-						return res.status(400).send(lang["failUpdate"]);
+						return res.status(400).send(lang.failUpdate);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
 				});
 			} else {
-				return res.status(404).send(lang["nFUser"]);
+				return res.status(404).send(lang.nFUser);
 			}
 		}).catch((error) => {
-				return res.status(500).send(error);
+			return res.status(500).send(error);
 		});
 	},
 	//	Remove current user from database
@@ -359,44 +361,44 @@ module.exports = {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send(lang["invId"]);
+			return res.status(400).send(lang.invId);
 		}
 
 		if(!password || !password.length) {
-			return res.status(400).send(lang["invPassword"]);
+			return res.status(400).send(lang.invPassword);
 		}
 
 		await users.findById(userId).then((user) => {
 			if(user) {
 				if(user.userType === 2) {
-					return res.status(403).send(lang["unauthOperation"]);
+					return res.status(403).send(lang.unauthOperation);
 				} else {
 					bcrypt.compare(password, user.password).then((match) => {
 						if(match) {
 							user.remove().then((uDeleted) => {
-								if(uDeleted){
+								if(uDeleted) {
 									if(uDeleted.thumbnail) {
 										try {
-											fs.unlinkSync(`${__dirname}/uploads/${uDeleted.thumbnail}`);
+											fs.unlinkSync(`${dirname}/uploads/${uDeleted.thumbnail}`);
 										} catch(e) {
-											return res.status(200).send(lang["succDeleteButThumb"]);
+											return res.status(200).send(lang.succDeleteButThumb);
 										}
 									}
 
-									return res.status(200).send(lang["succDelete"]);
+									return res.status(200).send(lang.succDelete);
 								} else {
-									return res.status(400).send(lang["nFUser"]);
+									return res.status(400).send(lang.nFUser);
 								}
 							}).catch((error) => {
 								return res.status(500).send(error);
 							});
 						} else {
-							return res.status(400).send(lang["wrongPassword"]);
+							return res.status(400).send(lang.wrongPassword);
 						}
 					});
 				}
 			} else {
-				return res.status(404).send(lang["nFUser"]);
+				return res.status(404).send(lang.nFUser);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -410,10 +412,10 @@ module.exports = {
 		await users.findById(userId).then((user) => {
 			if(user) {
 				if(user.userType != 2) {
-					return res.status(404).send(lang["unauthOperation"]);
+					return res.status(404).send(lang.unauthOperation);
 				}
 			} else {
-				return res.status(404).send(lang["nFUser"]);
+				return res.status(404).send(lang.nFUser);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -422,20 +424,20 @@ module.exports = {
 		for(const u of allUsers) {
 			await users.findById(u._id).then((user) => {
 				if(user) {
-					var data = [];
-					var exist = false;
+					const data = [];
+					let exist = false;
 
-					for(var type of company.productTypes) {
+					for(const type of company.productTypes) {
 						exist = false;
-						for(var c of user.cards) {
+						for(const c of user.cards) {
 							if(type == c.cardFidelity) {
-							data.push(c);
-							exist = true;
-							break;
+								data.push(c);
+								exist = true;
+								break;
 							}
 						}
 						if(!exist) {
-							var newCard = {
+							const newCard = {
 								cardFidelity: type,
 								qtdCurrent: 0,
 								completed: false,
@@ -448,20 +450,20 @@ module.exports = {
 
 					user.save().then((response) => {
 						if(!response) {
-							return res.status(400).send(lang["failUpdate"]);
+							return res.status(400).send(lang.failUpdate);
 						}
 					}).catch((error) => {
 						return res.status(500).send(error);
 					});
 				} else {
-					return res.status(404).send(lang["nFUser"]);
+					return res.status(404).send(lang.nFUser);
 				}
 			}).catch((error) => {
 				return res.status(500).send(error);
 			});
 		}
 
-		return res.status(200).send(lang["succUpdate"]);
+		return res.status(200).send(lang.succUpdate);
 	},
 	//	Return all users on database
 	async all(req, res) {
@@ -471,7 +473,7 @@ module.exports = {
 			if(response) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).json(lang["nFUsers"]);
+				return res.status(404).json(lang.nFUsers);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

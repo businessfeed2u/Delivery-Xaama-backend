@@ -1,5 +1,5 @@
 module.exports = (input) => {
-	var date = new Date(new Date().toLocaleString("en-US", { timeZone : "America/Sao_Paulo" }));
+	const date = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
 
 	const months = [
 		"Janeiro",
@@ -18,21 +18,21 @@ module.exports = (input) => {
 	const weekDay = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
 	switch(input) {
-		case "date" :
+		case "date":
 			return date;
-		case "day" :
+		case "day":
 			return date.getDate().toString();
-		case "month" :
+		case "month":
 			return months[date.getMonth()];
-		case "year" :
+		case "year":
 			return date.getFullYear().toString();
-		case "weekDay" :
+		case "weekDay":
 			return weekDay[date.getDay()];
-		case "hours" :
-			return date.getHours() < 10 ? "0" + date.getHours() : date.getHours().toString();
-		case "minutes" :
-			return date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes().toString();
-		default :
+		case "hours":
+			return date.getHours() < 10 ? `0${date.getHours()}` : date.getHours().toString();
+		case "minutes":
+			return date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes().toString();
+		default:
 			return null;
 	}
 };

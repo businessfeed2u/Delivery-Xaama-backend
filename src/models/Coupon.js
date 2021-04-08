@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose and calling schemas
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 //	Defining coupon schema
 const CouponSchema = Schema({
@@ -12,7 +12,7 @@ const CouponSchema = Schema({
 	},
 	userId: {
 		type: String,
-		default: "",
+		default: ""
 	},
 	type: {
 		type: String,
@@ -24,7 +24,7 @@ const CouponSchema = Schema({
 	},
 	qty: {
 		type: Number,
-		default: 0,
+		default: 0
 	},
 	method: {
 		type: String,
@@ -42,11 +42,11 @@ const CouponSchema = Schema({
 	},
 	minValue: {
 		type: Number,
-		default: 0,
+		default: 0
 	},
 	whoUsed: {
 		type: Array,
-		default: [],
+		default: []
 	},
 	creationDate: {
 		type: Date,

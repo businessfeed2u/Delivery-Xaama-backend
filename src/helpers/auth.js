@@ -11,16 +11,17 @@ module.exports = {
 		const token = req.headers["x-access-token"];
 
 		if(!token) {
-			return res.status(403).send(lang["noToken"]);
+			return res.status(403).send(lang.noToken);
 		} else {
 			jwt.verify(token, process.env.SECRET, (err, decoded) => {
 				if(err) {
-					return res.status(401).send(lang["invToken"]);
+					return res.status(401).send(lang.invToken);
 				} else {
 					if(decoded.userType != 2) {
-						return res.status(403).send(lang["unauthOperation"]);
+						return res.status(403).send(lang.unauthOperation);
 					} else {
 						req.headers.authorization = decoded.userId;
+
 						return next();
 					}
 				}
@@ -32,16 +33,17 @@ module.exports = {
 		const token = req.headers["x-access-token"];
 
 		if(!token) {
-			return res.status(403).send(lang["noToken"]);
+			return res.status(403).send(lang.noToken);
 		} else {
 			jwt.verify(token, process.env.SECRET, (err, decoded) => {
 				if(err) {
-					return res.status(401).send(lang["invToken"]);
+					return res.status(401).send(lang.invToken);
 				} else {
 					if(decoded.userType != 1 && decoded.userType != 2) {
-						return res.status(403).send(lang["unauthOperation"]);
+						return res.status(403).send(lang.unauthOperation);
 					} else {
 						req.headers.authorization = decoded.userId;
+
 						return next();
 					}
 				}
@@ -53,13 +55,14 @@ module.exports = {
 		const token = req.headers["x-access-token"];
 
 		if(!token) {
-			return res.status(403).send(lang["noToken"]);
+			return res.status(403).send(lang.noToken);
 		} else {
 			jwt.verify(token, process.env.SECRET, (err, decoded) => {
 				if(err) {
-					return res.status(401).send(lang["invToken"]);
+					return res.status(401).send(lang.invToken);
 				} else {
 					req.headers.authorization = decoded.userId;
+
 					return next();
 				}
 			});

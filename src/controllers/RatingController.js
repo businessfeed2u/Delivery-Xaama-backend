@@ -20,50 +20,50 @@ module.exports = {
 		const userId = req.headers.authorization;
 		const { orderId, feedback, stars } = req.body;
 
-		const keysSearch = {"$and": [ {"userId": userId}, {"orderId": orderId} ] };
+		const keysSearch = {$and: [ {userId}, {orderId} ] };
 
 		await orders.findById(orderId).then((order) => {
 			if(order) {
-				if(order.user._id == userId ) {
+				if(order.user._id == userId) {
 					ratings.find(keysSearch)
-					.then((response) => {
-						if(response && response.length) {
-							return res.status(403).send(lang["unauthOperation"]);
-						} else {
-							ratings.create({
-								userId,
-								orderId,
-								feedback,
-								stars,
-								name: order.user.name ? order.user.name : "",
-								thumbnail: order.user.thumbnail ? order.user.thumbnail : null
-							}).then((rating) => {
-								if(rating) {
-									order.feedback = true;
-									order.save().then((response) => {
-										if(response) {
-											return res.status(201).json(rating);
-										} else {
-											return res.status(400).send(lang["failCreate"]);
-										}
-									}).catch((error) => {
-										return res.status(500).send(error);
-									});
-								} else {
-									return res.status(400).send(lang["failCreate"]);
-								}
-							}).catch((error) => {
-								return res.status(500).send(error);
-							});
-						}
-					}).catch((error) => {
-						return res.status(500).send(error);
-					});
+						.then((response) => {
+							if(response && response.length) {
+								return res.status(403).send(lang.unauthOperation);
+							} else {
+								ratings.create({
+									userId,
+									orderId,
+									feedback,
+									stars,
+									name: order.user.name ? order.user.name : "",
+									thumbnail: order.user.thumbnail ? order.user.thumbnail : null
+								}).then((rating) => {
+									if(rating) {
+										order.feedback = true;
+										order.save().then((response) => {
+											if(response) {
+												return res.status(201).json(rating);
+											} else {
+												return res.status(400).send(lang.failCreate);
+											}
+										}).catch((error) => {
+											return res.status(500).send(error);
+										});
+									} else {
+										return res.status(400).send(lang.failCreate);
+									}
+								}).catch((error) => {
+									return res.status(500).send(error);
+								});
+							}
+						}).catch((error) => {
+							return res.status(500).send(error);
+						});
 				} else {
-					return res.status(403).send(lang["unauthOperation"]);
+					return res.status(403).send(lang.unauthOperation);
 				}
 			} else {
-				return res.status(404).send(lang["nFOrder"]);
+				return res.status(404).send(lang.nFOrder);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -74,19 +74,19 @@ module.exports = {
 		const ratingId = req.params.id;
 
 		if(!ratingId || !ratingId.length || !mongoose.Types.ObjectId.isValid(ratingId)) {
-			return res.status(400).send(lang["invId"]);
+			return res.status(400).send(lang.invId);
 		}
 
 		await ratings.findById(ratingId).then((response) => {
 			if(response.approved) {
-				return res.status(400).send(lang["approvedRating"]);
+				return res.status(400).send(lang.approvedRating);
 			} else {
 				response.approved = true;
 				response.save().then((response) => {
 					if(response) {
-						return res.status(200).send(lang["succUpdate"]);
+						return res.status(200).send(lang.succUpdate);
 					} else {
-						return res.status(404).send(lang["nFRating"]);
+						return res.status(404).send(lang.nFRating);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
@@ -101,14 +101,14 @@ module.exports = {
 		const ratingId = req.params.id;
 
 		if(!ratingId || !ratingId.length || !mongoose.Types.ObjectId.isValid(ratingId)) {
-			return res.status(400).send(lang["invId"]);
+			return res.status(400).send(lang.invId);
 		}
 
 		await ratings.findByIdAndDelete(ratingId).then((response) => {
 			if(response) {
-				return res.status(200).send(lang["succDelete"]);
+				return res.status(200).send(lang.succDelete);
 			} else {
-				return res.status(404).send(lang["nFRating"]);
+				return res.status(404).send(lang.nFRating);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -126,7 +126,7 @@ module.exports = {
 			if(response) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).json(lang["nFRatings"]);
+				return res.status(404).json(lang.nFRatings);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

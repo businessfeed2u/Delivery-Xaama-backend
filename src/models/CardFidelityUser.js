@@ -2,13 +2,13 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose and calling schemas
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 //	Defining Card Fidelity User schema
 const cardFidelityUserSchema = Schema({
 	cardFidelity: {
 		type: String,
-		required: true,
+		required: true
 	},
 	qtdCurrent: {
 		type: Number,

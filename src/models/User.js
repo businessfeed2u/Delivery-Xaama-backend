@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 const cardFidelityUserSchema = require("./CardFidelityUser");
 
 //	Defining User schema
@@ -43,8 +43,8 @@ const userSchema = Schema({
 	}
 }, {
 	toJSON: {
-		virtuals: true,
-	},
+		virtuals: true
+	}
 });
 
 //	Creating route to get thumbnail url

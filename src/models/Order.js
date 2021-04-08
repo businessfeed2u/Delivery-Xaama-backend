@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose and calling schemas
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 const userSchema = require("./User");
 const productSchema = require("./Product");
 
@@ -10,7 +10,7 @@ const productSchema = require("./Product");
 const orderSchema = Schema({
 	user: {
 		type: userSchema,
-		required: true,
+		required: true
 	},
 	products: {
 		type: [productSchema],

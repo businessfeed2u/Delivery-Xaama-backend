@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 //	Defining Timetable schema
 const timetableSchema = Schema({

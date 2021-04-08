@@ -17,9 +17,9 @@ const server = http.Server(app);
 setupWebsocket(server);
 
 //  Configuring CORS
-var corsOptions = {
-  origin: process.env.URL,
-  optionsSuccessStatus: 200
+const corsOptions = {
+	origin: process.env.URL,
+	optionsSuccessStatus: 200
 };
 
 //  Must be below middleware
@@ -31,7 +31,7 @@ app.use(routes);
 
 //  Listening requests on the given port
 server.listen(port, () => {
-	console.log("Server running on port " + port);
+	console.log(`Server running on port ${port}`);
 }).on("error", (error) => {
-	console.error("Unable to listen to port: " + port + "\n", error);
+	console.error(`Unable to listen to port: ${port}\n`, error);
 });

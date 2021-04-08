@@ -1,8 +1,0 @@
-{
-	"editor.formatOnSave": true,
-	"editor.defaultFormatter": "dbaeumer.vscode-eslint",
-	"files.trimFinalNewlines": true,
-	"files.trimTrailingWhitespace": true,
-	"editor.tabSize": 2,
-	"editor.insertSpaces": false
-}

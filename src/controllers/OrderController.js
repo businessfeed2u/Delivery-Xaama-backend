@@ -25,17 +25,17 @@ module.exports = {
 		const userId = req.headers.authorization;
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			return res.status(400).send(lang["invId"]);
+			return res.status(400).send(lang.invId);
 		}
 
-		await orders.find({ "user._id" : new mongoose.Types.ObjectId(userId) }).sort({
+		await orders.find({ "user._id": new mongoose.Types.ObjectId(userId) }).sort({
 			status: "asc",
 			creationDate: "asc"
 		}).then((response) => {
 			if(response && response.length) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).send(lang["nFOrders"]);
+				return res.status(404).send(lang.nFOrders);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -48,24 +48,25 @@ module.exports = {
 
 		await orders.create({
 			user,
-			products : productsOrder,
+			products: productsOrder,
 			total,
 			deliver,
-			address: deliver ? address.split(",").map(a => a.trim()) : null,
+			address: deliver ? address.split(",").map((a) => a.trim()) : null,
 			phone,
 			typePayment,
 			change: (typePayment == 0) ? change : null,
-			creationDate: date("weekDay") + " às " + date("hours") + ":" + date("minutes")
+			creationDate: `${date("weekDay")} às ${date("hours")}:${date("minutes")}`
 		}).then((order) => {
 			if(order) {
 				if(couponId && couponId.length) {
 					if(coupon && coupon.private) {
 						coupons.findByIdAndDelete(couponId).then((r) => {
 							if(r) {
-                sendMessage(sendSocketMessageTo, "new-order", [order]);
-								return res.status(201).send(lang["succCreate"]);
+								sendMessage(sendSocketMessageTo, "new-order", [order]);
+
+								return res.status(201).send(lang.succCreate);
 							} else {
-								return res.status(404).send(lang["nFCoupon"]);
+								return res.status(404).send(lang.nFCoupon);
 							}
 						}).catch((error) => {
 							return res.status(500).send(error);
@@ -73,10 +74,10 @@ module.exports = {
 					} else {
 						coupons.findById(couponId).then((coupon) => {
 							if(coupon) {
-								var d = [];
+								const d = [];
 
-								for(var c of coupon.whoUsed) {
-									if((c.userId === user._id)){
+								for(const c of coupon.whoUsed) {
+									if((c.userId === user._id)) {
 										d.push({
 											userId: user._id,
 											validated: true,
@@ -91,16 +92,17 @@ module.exports = {
 
 								coupon.save().then((c) => {
 									if(c) {
-                    sendMessage(sendSocketMessageTo, "new-order", [order]);
-										return res.status(201).send(lang["succCreate"]);
+										sendMessage(sendSocketMessageTo, "new-order", [order]);
+
+										return res.status(201).send(lang.succCreate);
 									} else {
-										return res.status(400).send(lang["failUpdate"]);
+										return res.status(400).send(lang.failUpdate);
 									}
 								}).catch((error) => {
 									return res.status(500).send(error);
 								});
 							} else {
-								return res.status(404).send(lang["nFCoupon"]);
+								return res.status(404).send(lang.nFCoupon);
 							}
 						}).catch((error) => {
 							return res.status(500).send(error);
@@ -108,10 +110,11 @@ module.exports = {
 					}
 				} else {
 					sendMessage(sendSocketMessageTo, "new-order", [order]);
-					return res.status(201).send(lang["succCreate"]);
+
+					return res.status(201).send(lang.succCreate);
 				}
 			} else {
-				return res.status(400).send(lang["failCreate"]);
+				return res.status(400).send(lang.failCreate);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -124,11 +127,11 @@ module.exports = {
 		const sendSocketMessageTo = await findConnections();
 
 		if(!orderId || !orderId.length || !mongoose.Types.ObjectId.isValid(orderId)) {
-			return res.status(400).send(lang["invId"]);
+			return res.status(400).send(lang.invId);
 		}
 
 		if(status === null || status === undefined) {
-			return res.status(400).send(lang["invOrderStatus"]);
+			return res.status(400).send(lang.invOrderStatus);
 		}
 
 		await orders.findById(orderId).then((order) => {
@@ -146,15 +149,15 @@ module.exports = {
 							return res.status(500).send(error);
 						});
 
-						return res.status(200).send(lang["succUpdate"]);
+						return res.status(200).send(lang.succUpdate);
 					} else {
-						return res.status(400).send(lang["failUpdate"]);
+						return res.status(400).send(lang.failUpdate);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
 				});
 			} else {
-				return res.status(404).send(lang["nFOrder"]);
+				return res.status(404).send(lang.nFOrder);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -168,11 +171,11 @@ module.exports = {
 		const errors = [];
 
 		if(!userId || !userId.length || !mongoose.Types.ObjectId.isValid(userId)) {
-			errors.push(lang["invId"]);
+			errors.push(lang.invId);
 		}
 
 		if(!password || !password.length) {
-			errors.push(lang["invPassword"]);
+			errors.push(lang.invPassword);
 		}
 
 		if(errors.length) {
@@ -185,33 +188,34 @@ module.exports = {
 			if(user) {
 				bcrypt.compare(password, user.password).then((match) => {
 					if(match) {
-						orders.deleteMany({status : true}).then((response) => {
-              if(response.n) {
-                orders.find().sort({
-                  status: "asc",
-                  creationDate: "asc"
-                }).then((response) => {
-                  if(response) {
-                    sendMessage(sendSocketMessageTo, "delete-order", response);
-                    return res.status(200).send(lang["succAllDelete"]);
-                  } else {
-                    return res.status(200).send(lang["succAllDelete"]);
-                  }
-                }).catch((error) => {
-                  return res.status(500).send(error);
-                });
-              } else {
-                return res.status(404).send(lang["nFOrders"]);
-              }
-            }).catch((error) => {
-              return res.status(500).send(error);
-            });
+						orders.deleteMany({status: true}).then((response) => {
+							if(response.n) {
+								orders.find().sort({
+									status: "asc",
+									creationDate: "asc"
+								}).then((response) => {
+									if(response) {
+										sendMessage(sendSocketMessageTo, "delete-order", response);
+
+										return res.status(200).send(lang.succAllDelete);
+									} else {
+										return res.status(200).send(lang.succAllDelete);
+									}
+								}).catch((error) => {
+									return res.status(500).send(error);
+								});
+							} else {
+								return res.status(404).send(lang.nFOrders);
+							}
+						}).catch((error) => {
+							return res.status(500).send(error);
+						});
 					} else {
-						return res.status(400).send(lang["wrongPassword"]);
+						return res.status(400).send(lang.wrongPassword);
 					}
 				});
 			} else {
-				return res.status(404).send(lang["nFUser"]);
+				return res.status(404).send(lang.nFUser);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -226,7 +230,7 @@ module.exports = {
 			if(response) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).send(lang["nFOrders"]);
+				return res.status(404).send(lang.nFOrders);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

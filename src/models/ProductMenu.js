@@ -2,33 +2,33 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 //	Defining ProductMenu schema
 const productMenuSchema = Schema({
 	name: {
 		type: String,
-		required: true,
+		required: true
 	},
 	ingredients: {
 		type: [String],
-		required: false,
+		required: false
 	},
 	type: {
 		type: String,
-		required: true,
+		required: true
 	},
 	prices: {
 		type: [Number],
-		required: true,
+		required: true
 	},
 	sizes: {
 		type: [String],
-		required: true,
+		required: true
 	},
 	available: {
 		type: Boolean,
-		default: true,
+		default: true
 	},
 	thumbnail: {
 		type: String,
@@ -40,8 +40,8 @@ const productMenuSchema = Schema({
 	}
 }, {
 	toJSON: {
-		virtuals: true,
-	},
+		virtuals: true
+	}
 });
 
 //	Creating route to get thumbnails

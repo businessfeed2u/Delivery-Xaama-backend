@@ -2,7 +2,7 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 const timetableSchema = require("./Timetable");
 const cardFidelitySchema = require("./CardFidelity");
 
@@ -33,12 +33,12 @@ const companySchema = Schema({
 		required: true
 	},
 	systemOpenByAdm: {
-	type: Boolean,
-	default: true
+		type: Boolean,
+		default: true
 	},
 	manual: {
-	type: Boolean,
-	default: false
+		type: Boolean,
+		default: false
 	},
 	logo: {
 		type: String,
@@ -70,8 +70,8 @@ const companySchema = Schema({
 	}
 }, {
 	toJSON: {
-		virtuals: true,
-	},
+		virtuals: true
+	}
 });
 
 //	Creating route to get logo url
@@ -81,7 +81,7 @@ companySchema.virtual("logo_url").get(function() {
 
 //	Creating route to get carousel urls
 companySchema.virtual("carousel_urls").get(function() {
-	var imNames = [];
+	const imNames = [];
 	for(const c of this.carousel) {
 		imNames.push(c ? `files/${c}` : null);
 	}

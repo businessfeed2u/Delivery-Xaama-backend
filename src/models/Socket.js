@@ -2,13 +2,13 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 //	Defining socket schema
 const socketSchema = Schema({
 	id: {
 		type: String,
-		required: true,
+		required: true
 	},
 	creationDate: {
 		type: Date,

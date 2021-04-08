@@ -2,13 +2,13 @@
 const mongoose = require("mongoose");
 
 //	Using schema feature from mongoose and calling schemas
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 //	Defining Order schema
 const ratingSchema = Schema({
 	userId: {
 		type: String,
-		required: true,
+		required: true
 	},
 	name: {
 		type: String,
@@ -20,7 +20,7 @@ const ratingSchema = Schema({
 	},
 	orderId: {
 		type: String,
-		required: true,
+		required: true
 	},
 	feedback: {
 		type: String,
@@ -40,8 +40,8 @@ const ratingSchema = Schema({
 	}
 }, {
 	toJSON: {
-		virtuals: true,
-	},
+		virtuals: true
+	}
 });
 
 //	Creating route to get thumbnail url

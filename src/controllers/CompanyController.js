@@ -18,7 +18,7 @@ const lang = require("../helpers/lang");
 
 // Loading dirname
 const path = require("path");
-var __dirname = path.resolve();
+const dirname = path.resolve();
 
 //	Exporting Admin features
 module.exports = {
@@ -28,7 +28,7 @@ module.exports = {
 			if(response) {
 				return res.status(200).json(response.productTypes);
 			} else {
-				return res.status(404).send(lang["nFProductTypes"]);
+				return res.status(404).send(lang.nFProductTypes);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -40,7 +40,7 @@ module.exports = {
 			if(response) {
 				return res.status(200).json(response);
 			} else {
-				return res.status(404).send(lang["nFCompanyInfo"]);
+				return res.status(404).send(lang.nFCompanyInfo);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -62,13 +62,13 @@ module.exports = {
 			timeDeliveryF,
 			company
 		} = req.body;
-		const typesP = productTypes.split(",").map(pt => pt.trim().toLowerCase());
-		var data = [];
-		var exist = false;
+		const typesP = productTypes.split(",").map((pt) => pt.trim().toLowerCase());
+		const data = [];
+		let exist = false;
 
-		for(var type of typesP) {
+		for(const type of typesP) {
 			exist = false;
-			for(var c of company.cards) {
+			for(const c of company.cards) {
 				if(type == c.type) {
 					data.push(c);
 					exist = true;
@@ -76,11 +76,11 @@ module.exports = {
 				}
 			}
 			if(!exist) {
-				var newCard = {
-					type: type,
+				const newCard = {
+					type,
 					available: false,
 					qtdMax: 10,
-					discount : 8
+					discount: 8
 				};
 				data.push(newCard);
 			}
@@ -101,7 +101,7 @@ module.exports = {
 			cards: data
 		}).then((response) => {
 			if(response) {
-				return res.status(200).json({ company : response });
+				return res.status(200).json({ company: response });
 			} else {
 				companyData.create({
 					name,
@@ -117,7 +117,7 @@ module.exports = {
 					if(company) {
 						return res.status(201).json(company);
 					} else {
-						return res.status(400).send(lang["failCreate"]);
+						return res.status(400).send(lang.failCreate);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
@@ -130,10 +130,10 @@ module.exports = {
 	//	Update images for company
 	async updateImages(req, res) {
 		const { op } = req.body;
-    const image = (req.file) ? req.file.filename : null;
-		var im = null;
-		var data = [];
-		var i = 0;
+		const image = (req.file) ? req.file.filename : null;
+		let im = null;
+		let data = [];
+		let i = 0;
 
 		await companyData.findOne().then((company) => {
 			if(company) {
@@ -146,7 +146,7 @@ module.exports = {
 					data = [];
 					i = 0;
 
-					for(let c of company.carousel) {
+					for(const c of company.carousel) {
 						if(i == 0) {
 							data.push(image);
 						} else {
@@ -162,7 +162,7 @@ module.exports = {
 					data = [];
 					i = 0;
 
-					for(let c of company.carousel) {
+					for(const c of company.carousel) {
 						if(i == 1) {
 							data.push(image);
 						} else {
@@ -178,7 +178,7 @@ module.exports = {
 					data = [];
 					i = 0;
 
-					for(let c of company.carousel) {
+					for(const c of company.carousel) {
 						if(i == 2) {
 							data.push(image);
 						} else {
@@ -191,41 +191,41 @@ module.exports = {
 				} else {
 					if(image) {
 						try {
-							fs.unlinkSync(`${__dirname}/uploads/${image}`);
+							fs.unlinkSync(`${dirname}/uploads/${image}`);
 						} catch(error) {
 							return res.status(500).send(error);
 						}
 					}
 
-					return res.status(400).send(lang["invOperation"]);
+					return res.status(400).send(lang.invOperation);
 				}
 
 				company.save().then((response) => {
 					if(response) {
 						if(im && (im != company.thumbnail)) {
 							try {
-								fs.unlinkSync(`${__dirname}/uploads/${im}`);
+								fs.unlinkSync(`${dirname}/uploads/${im}`);
 							} catch(error) {
-								return res.status(200).send(lang["succUpdateButThumb"]);
+								return res.status(200).send(lang.succUpdateButThumb);
 							}
 						}
 
-						return res.status(200).send(lang["succUpdate"]);
+						return res.status(200).send(lang.succUpdate);
 					} else {
 						if(im) {
 							try {
-								fs.unlinkSync(`${__dirname}/uploads/${im}`);
+								fs.unlinkSync(`${dirname}/uploads/${im}`);
 							} catch(error) {
 								return res.status(500).send(error);
 							}
 						}
 
-						return res.status(400).send(lang["failUpdate"]);
+						return res.status(400).send(lang.failUpdate);
 					}
 				}).catch((error) => {
 					if(im) {
 						try {
-							fs.unlinkSync(`${__dirname}/uploads/${im}`);
+							fs.unlinkSync(`${dirname}/uploads/${im}`);
 						} catch(e) {
 							return res.status(500).send(e);
 						}
@@ -237,7 +237,7 @@ module.exports = {
 		}).catch((error) => {
 			if(im) {
 				try {
-					fs.unlinkSync(`${__dirname}/uploads/${im}`);
+					fs.unlinkSync(`${dirname}/uploads/${im}`);
 				} catch(e) {
 					return res.status(500).send(e);
 				}
@@ -255,28 +255,28 @@ module.exports = {
 				bcrypt.compare(password, hash).then((match) => {
 					if(match) {
 						if(type === user.userType) {
-							return res.status(400).send(lang["invOperation"]);
+							return res.status(400).send(lang.invOperation);
 						} else {
 							user.userType = type;
 
 							user.save().then((response) => {
 								if(response) {
-									return res.status(200).send(lang["succUpdate"]);
+									return res.status(200).send(lang.succUpdate);
 								} else {
-									return res.status(400).send(lang["failUpdate"]);
+									return res.status(400).send(lang.failUpdate);
 								}
 							}).catch((error) => {
 								return res.status(500).send(error);
 							});
 						}
 					} else {
-						return res.status(400).send(lang["wrongPassword"]);
+						return res.status(400).send(lang.wrongPassword);
 					}
 				}).catch((error) => {
 					return res.status(500).send(error);
 				});
 			} else {
-				return res.status(404).send(lang["nFUser"]);
+				return res.status(404).send(lang.nFUser);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -287,12 +287,12 @@ module.exports = {
 		const { timetable } = req.body;
 
 		await companyData.findOneAndUpdate({}, {
-			timetable: timetable
+			timetable
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send(lang["succUpdate"]);
+				return res.status(200).send(lang.succUpdate);
 			} else {
-				return res.status(404).send(lang["nFCompanyInfo"]);
+				return res.status(404).send(lang.nFCompanyInfo);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);
@@ -303,12 +303,12 @@ module.exports = {
 		const { cards } = req.body;
 
 		await companyData.findOneAndUpdate({}, {
-			cards: cards
+			cards
 		}).then((response) => {
 			if(response) {
-				return res.status(200).send(lang["succUpdate"]);
+				return res.status(200).send(lang.succUpdate);
 			} else {
-				return res.status(404).send(lang["nFCompanyInfo"]);
+				return res.status(404).send(lang.nFCompanyInfo);
 			}
 		}).catch((error) => {
 			return res.status(500).send(error);

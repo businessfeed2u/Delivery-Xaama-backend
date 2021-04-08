@@ -9,21 +9,21 @@ const sockets = mongoose.model("sockets");
 let io;
 
 exports.setupWebsocket = (server) => {
-  io = socketio(server, {
-    cors: {
-      origin: process.env.URL,
-      methods: ["GET"]
-    }
-  });
+	io = socketio(server, {
+		cors: {
+			origin: process.env.URL,
+			methods: ["GET"]
+		}
+	});
 
-	io.on("connection", async socket => {
-			await sockets.create({
-				id: socket.id,
-      }).catch((error) => {
-        // console.log("Error:");
-        // console.error(error);
-      });
-  });
+	io.on("connection", async (socket) => {
+		await sockets.create({
+			id: socket.id
+		}).catch((error) => {
+			// console.log("Error:");
+			// console.error(error);
+		});
+	});
 
 };
 
@@ -37,7 +37,7 @@ exports.findConnections = () => {
 
 exports.sendMessage = (to, message, data) => {
 	if(to) {
-		to.forEach(connection => {
+		to.forEach((connection) => {
 			io.to(connection.id).emit(message, data);
 		});
 	} else {
