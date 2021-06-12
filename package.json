@@ -5,12 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "nodemon src/index.js"
+    "dev": "nodemon src/index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DiegoTeixeira7/Delivery-Xaama-backend.git"
-  },
+  "repository": "git+https://github.com/DiegoTeixeira7/Delivery-Xaama-backend.git",
   "author": "Diêgo Teixeira and Thiago Marinho Pereira",
   "license": "ISC",
   "bugs": {
