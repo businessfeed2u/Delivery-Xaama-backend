@@ -1,26 +1,60 @@
-## Delivery Xaama Back-end v1.0 by Diêgo Teixeira and Thiago Pereira
+<div align="center">
+    <img alt="Delivery xaamaa" src="./uploads/logo-1610475937881.png" />
+    <br/>
+    <img alt="Linguagens" src="https://img.shields.io/github/languages/count/XaamaDevs/Delivery-Xaama-backend">
+    <img alt="Linguagem principal" src="https://img.shields.io/github/languages/top/XaamaDevs/Delivery-Xaama-backend">
+    <img alt="Tamanho do repositório" src="https://img.shields.io/github/repo-size/XaamaDevs/Delivery-Xaama-backend">
+    <img alt="Última modificação" src="https://img.shields.io/github/last-commit/XaamaDevs/Delivery-Xaama-backend">
+    <img alt="Licença" src="https://img.shields.io/badge/license-MIT-brightgreen">
+</div>
 
-Used in this project:
 
-* Back-end framework - NodeJS - https://nodejs.org/
-* Database - MongoDB - https://www.mongodb.com/
-* MongoDB database manager - Atlas - https://www.mongodb.com/cloud/atlas
+# :hamburger: Delivery Xaama v1.0
+O Delivery Xaama é a plataforma perfeita para quem deseja gerenciar todo o processo de pedidos e entregas de fast-food e trazer
+uma maior comodidade tanto para os clientes quanto para os colaboradores.
 
-__First you must install Nodejs using the following commands on your Linux Terminal:__
+## :computer: Tecnologias
+
+Este projeto foi desenvolvido com as seguintes tecnologias:
+
+- [bcrypt](https://yarnpkg.com/package/bcrypt)
+- [body-parser](https://www.npmjs.com/package/body-parser)
+- [cors](https://yarnpkg.com/package/cors)
+- [dotenv](https://www.npmjs.com/package/dotenv)
+- [Express](https://expressjs.com/pt-br/)
+- [jwt](https://jwt.io/)
+- [MongoDB](https://www.mongodb.com/)
+- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/)
+- [mongoose](https://mongoosejs.com/)
+- [multer](https://yarnpkg.com/package/multer)
+- [Node.js](https://nodejs.org/en/)
+- [node-fetch](https://www.npmjs.com/package/node-fetch)
+- [socket.io](https://socket.io/)
+
+### :man_technologist: Código:
+
+<p align="center">
+ <img alt="Backend Delivery Xaama" src="./.github/xaama.png" width="1293px" heigth="741px">
+</p>
+
+### :information_source: Como usar:
+
+Para clonar e executar esta aplicação, você precisará do Git instalado em seu computador. Na linha de comando:
 
 ```bash
-# Nodejs
-$ sudo apt-get install -y nodejs
+# Clonar este repositório
+$ git clone https://github.com/XaamaDevs/Delivery-Xaama-backend.git
+
+# Vá para o repositório
+$ cd Delivery-Xaama-backend
+
+# Instale as dependências
+$ sudo apt-get update && apt-get upgrade
+$ yarn install  | npm install
+
+# Execute o projeto
+$ yarn dev      | npm run dev
 ```
 
-__Execute the following command to install app dependencies using npm:__
-
-```bash
-$ npm install
-```
-
-__Now you can run the app using the command:__
-
-```bash
-$ npm start
-```
+### :memo: Licença
+Este projeto está sob a licença do MIT. Consulte a [LICENSE](LICENSE) para obter mais informações.
