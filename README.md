@@ -13,6 +13,9 @@
 O Delivery Xaama é a plataforma perfeita para quem deseja gerenciar todo o processo de pedidos e entregas de fast-food e trazer
 uma maior comodidade tanto para os clientes quanto para os colaboradores.
 
+- [Front-end](https://github.com/XaamaDevs/Delivery-Xaama-frontend)
+- [Back-end](https://github.com/XaamaDevs/Delivery-Xaama-backend)
+
 ## :computer: Tecnologias
 
 Este projeto foi desenvolvido com as seguintes tecnologias:
